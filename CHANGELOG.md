@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.2](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v0.5.1...v0.5.2) (2026-08-29)
+
+
+### Bug Fixes
+
+* **diagnostics:** redact device serial from parsed_data ([#33](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/33)) ([91f816d](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/91f816d5ac4d79edc29cf18beec8a8d9efe08459))
+
 ## [0.5.1](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v0.5.0...v0.5.1) (2026-07-23)
 
 
