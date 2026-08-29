@@ -24,24 +24,22 @@ onboard WiFi module using its local TCP/JSON protocol.
 
 ## 🛠️ Installation
 
+Requires **Home Assistant 2026.3.0 or newer**.
+
 ### Method 1: HACS (Recommended)
 
-This integration isn't in the default HACS store yet, so it needs to be added as a
-**custom repository** first.
+This integration is in the default HACS store, so no custom repository is needed.
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=fabiomatavelli&repository=ha-felicity-solar-local&category=integration)
 
-**One-click:** click the badge above (requires [My Home Assistant](https://www.home-assistant.io/integrations/my/) set up on your instance) and click **Add** in the dialog that opens.
+**One-click:** click the badge above (requires [My Home Assistant](https://www.home-assistant.io/integrations/my/) set up on your instance) and click **Download** in the dialog that opens.
 
 **Manual steps:**
 
 1. Open Home Assistant and go to **HACS**.
-2. Click the three dots in the top right corner and select **Custom repositories**.
-3. In the **Repository** field, paste: `https://github.com/fabiomatavelli/ha-felicity-solar-local`
-4. Set **Type** to **Integration**, then click **Add**.
-5. Find **Felicity Solar Local** in the HACS integration list and click it, then click
-   **Download** in the bottom right.
-6. **Restart Home Assistant**.
+2. Search for **Felicity Solar Local** and click it.
+3. Click **Download** in the bottom right.
+4. **Restart Home Assistant**.
 
 ### Method 2: Manual
 
