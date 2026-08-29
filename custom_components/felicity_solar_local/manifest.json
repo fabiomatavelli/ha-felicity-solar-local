@@ -11,5 +11,5 @@
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/fabiomatavelli/ha-felicity-solar-local/issues",
   "requirements": [],
-  "version": "0.5.1"
+  "version": "0.5.2"
 }

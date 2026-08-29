@@ -75,6 +75,15 @@ poll adds meaningful recorder/frontend overhead at the fast default interval - t
 troubleshooting or when capturing data to contribute a new battery model profile, and back off
 otherwise.
 
+**Invert current/power sign** (on by default) is also in that dialog, and it changes what the
+current and power sensors report. Home Assistant's convention for batteries is negative while
+charging and positive while discharging; these batteries report the opposite. The integration
+flips the sign by default so the sensors match the convention out of the box - which is what
+makes them usable directly in the Energy dashboard and in `state_class: measurement` templates
+without a helper. Turn it off to pass through the battery's raw sign unmodified. Only the
+`current` and `power` sensors are affected - the raw data sensor and the `raw_data` section of a
+diagnostics download always show the device's own unmodified values, whatever this is set to.
+
 ### Confirming your battery works before setting up the integration
 
 Run the standalone probe script against your battery's IP to confirm it speaks the protocol
