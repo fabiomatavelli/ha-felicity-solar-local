@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v0.5.2...v1.0.0) (2026-08-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* Home Assistant 2026.3.0 is now the minimum supported version. Installs on 2025.1.0 through 2026.2.x are no longer supported.
+
+### Features
+
+* require Home Assistant 2026.3.0 or newer ([#34](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/34)) ([47eb236](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/47eb236c2a2e0fb251b9aebec934774abf4bc1d6))
+
 ## [0.5.2](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v0.5.1...v0.5.2) (2026-08-29)
 
 
