@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.0.0...v1.1.0) (2026-09-10)
+
+
+### Features
+
+* **profiles:** add best-effort FLA48300 (Type=112, SubType=7300) profile ([#43](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/43)) ([7f136e5](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/7f136e50179adec191aea348b64aa5ea66beffb8))
+
 ## [1.0.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v0.5.2...v1.0.0) (2026-08-29)
 
 
