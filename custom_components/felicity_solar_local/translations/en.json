@@ -56,6 +56,7 @@
       "soc": { "name": "State of charge" },
       "soh": { "name": "State of health" },
       "capacity": { "name": "Capacity" },
+      "cycle_count": { "name": "Cycle count" },
       "max_cell_voltage": { "name": "Max cell voltage" },
       "min_cell_voltage": { "name": "Min cell voltage" },
       "max_cell_number": { "name": "Max voltage cell number" },

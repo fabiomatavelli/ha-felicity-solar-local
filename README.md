@@ -14,8 +14,9 @@ onboard WiFi module using its local TCP/JSON protocol.
 
 - **Local polling, no cloud**: connects straight to the battery's IP over TCP.
 - **UI configuration**: add a battery by IP, no YAML required.
-- **All battery data**: voltage, current, power, SOC, SOH, capacity, all 16 individual cell
-  voltages, min/max cell voltage, temperatures, charge/discharge limits, fault/warning codes.
+- **All battery data**: voltage, current, power, SOC, SOH, capacity, cycle count, all 16
+  individual cell voltages, min/max cell voltage, temperatures, charge/discharge limits,
+  fault/warning codes.
 - **Nothing hidden**: an optional diagnostic "Raw data" sensor exposes the complete device
   payload as attributes, even fields not mapped to a dedicated sensor (off by default - see
   Configuration below).
@@ -99,7 +100,7 @@ python3 scripts/probe.py <battery-ip>
 |---|---|---|---|
 | Felicity Solar FLB48314TG1-H | 112 / 7353 | ✅ Verified | Field scaling cross-checked live against the same battery's cloud API readings. See `profiles.py`. |
 | Felicity Solar FLA24100 | 112 / 6100 | ✅ Verified | 24 V / 8-cell pack. Temperatures are sourced from `BtemList` and were cross-checked live against the vendor app; See `profiles.py`. |
-| Felicity Solar FLA48300 | 112 / 7300 | ⚠️ Best-effort | Named from a user-reported raw data dump ([#42](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/42)); field shape/scaling matches the common profile but hasn't been cross-checked against another known-good source yet. |
+| Felicity Solar FLA48300 | 112 / 7300 | ✅ Verified | Reported in [#42](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/42); field scaling (including cycle count) was cross-checked live against the vendor app. |
 | Other Felicity WiFi batteries | — | ⚠️ Untested (best-effort) | Same protocol assumed, falls back to a generic profile with unverified scaling. [Contribute a verified profile](CONTRIBUTING.md#adding-a-new-battery-model-profile) for your model. |
 
 This integration was built and verified against a **Felicity Solar FLB48314TG1-H**
@@ -108,10 +109,10 @@ battery's readings from Felicity's cloud API - see `custom_components/felicity_s
 for the full mapping.
 
 Other Felicity WiFi-battery models likely speak the same protocol (same command, port, and
-JSON shape were originally reverse-engineered against a different model, the FLA48300), but
-scaling/field meaning for models other than the FLB48314TG1-H is **not verified**. Unrecognized
-models fall back to a best-effort generic profile with the same field names; enable the raw
-data sensor (see Configuration above) to see the untouched payload regardless of profile.
+JSON shape), but scaling/field meaning for models other than the ones in the table above is
+**not verified**. Unrecognized models fall back to a best-effort generic profile with the
+same field names; enable the raw data sensor (see Configuration above) to see the untouched
+payload regardless of profile.
 
 **Have a different Felicity Solar WiFi battery?** Run `scripts/probe.py` against it, compare
 the output to `tests/fixtures/sample_response.json`, and open a PR adding a new

@@ -37,6 +37,7 @@ def test_parse_scales_verified_fields_correctly(sample_response: dict[str, Any])
     assert data["soc"] == 96.0
     assert data["soh"] == 100.0
     assert data["capacity"] == 350.0
+    assert data["cycle_count"] is None
     assert data["max_cell_voltage"] == 3.38
     assert data["min_cell_voltage"] == 3.376
     assert data["max_cell_number"] == 8
@@ -210,6 +211,7 @@ def test_fla24100_core_fields_scale_like_common_profile(
     assert data["soc"] == 100.0
     assert data["soh"] == 100.0
     assert data["capacity"] == 100.0
+    assert data["cycle_count"] is None
     assert data["max_cell_voltage"] == 3.429
     assert data["min_cell_voltage"] == 3.415
     assert data["cell_1_voltage"] == 3.428
@@ -221,7 +223,7 @@ def test_fla24100_core_fields_scale_like_common_profile(
 
 def test_select_profile_matches_fla48300(fla48300_response: dict[str, Any]) -> None:
     assert select_profile(fla48300_response) is FLA48300_PROFILE
-    assert FLA48300_PROFILE.confidence == "best_effort"
+    assert FLA48300_PROFILE.confidence == "verified"
 
 
 def test_fla48300_uses_common_parsing(fla48300_response: dict[str, Any]) -> None:
@@ -237,6 +239,8 @@ def test_fla48300_uses_common_parsing(fla48300_response: dict[str, Any]) -> None
     assert data["soc"] == 100.0
     assert data["soh"] == 100.0
     assert data["capacity"] == 300.0
+    # Confirmed against the vendor app in issue #42.
+    assert data["cycle_count"] == 219
     assert data["max_cell_voltage"] == 3.587
     assert data["min_cell_voltage"] == 3.443
     assert data["max_cell_number"] == 15

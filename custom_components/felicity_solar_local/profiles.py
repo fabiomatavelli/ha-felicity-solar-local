@@ -1,11 +1,12 @@
 """Battery model profiles: field mapping/scaling per Felicity Solar battery model.
 
 The local WiFi protocol (see api.py) returns the same *shape* of JSON across the Felicity
-battery family, but exact scaling/meaning has been verified against real hardware for two models: the
-FLB48314TG1-H (Type=112, SubType=7353), cross-checked field-by-field against the same
-battery's readings from Felicity's cloud API, and the FLA24100 (Type=112, SubType=6100),
-whose temperature mapping was cross-checked live against the vendor app. See the project
-README for the full verification table.
+battery family, but exact scaling/meaning has been verified against real hardware for three
+models: the FLB48314TG1-H (Type=112, SubType=7353), cross-checked field-by-field against the
+same battery's readings from Felicity's cloud API; the FLA24100 (Type=112, SubType=6100),
+whose temperature mapping was cross-checked live against the vendor app; and the FLA48300
+(Type=112, SubType=7300), cross-checked live against the vendor app. See the project README
+for the full verification table.
 
 Profiles are looked up by the device's self-reported ``Type``/``SubType`` codes, so adding
 support for another verified model later is a matter of adding one more ``BatteryProfile``
@@ -117,6 +118,11 @@ def parse_common(raw: dict[str, Any]) -> dict[str, Any]:
     ``LVolCur`` bank-level aggregates, whose exact combination semantics (e.g. current
     doesn't cleanly sum/double the way voltage and static limits do) weren't fully
     resolved during live validation.
+
+    ``BmsCnt`` (charge cycle count) is only present on newer firmware - see issue #42,
+    where it was confirmed against the vendor app on a battery running the latest
+    firmware. Older firmware simply omits the key, so ``cycle_count`` reads as
+    unavailable there rather than wrong.
     """
     voltage = _scaled(raw, "BattList", 0, 0, 1000)
     current = _scaled(raw, "BattList", 1, 0, 10)
@@ -137,6 +143,7 @@ def parse_common(raw: dict[str, Any]) -> dict[str, Any]:
         "soc": _scaled(raw, "BatsocList", 0, 0, 100),
         "soh": _scaled(raw, "BatsocList", 0, 1, 10),
         "capacity": _scaled(raw, "BatsocList", 0, 2, 1000),
+        "cycle_count": _raw(raw, "BmsCnt"),
         "max_cell_voltage": _scaled(raw, "BMaxMin", 0, 0, 1000),
         "min_cell_voltage": _scaled(raw, "BMaxMin", 0, 1, 1000),
         "max_cell_number": _path(raw, "BMaxMin", 1, 0),
@@ -249,6 +256,12 @@ _COMMON_SENSORS: tuple[SensorEntityDescription, ...] = (
         translation_key="capacity",
         native_unit_of_measurement="Ah",
         state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="cycle_count",
+        translation_key="cycle_count",
+        state_class=SensorStateClass.TOTAL_INCREASING,
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
@@ -404,15 +417,11 @@ FLA24100_PROFILE = BatteryProfile(
     parse=parse_fla24100,
 )
 
-# Reported in issue #42: a user's raw data dump matches the common field shape/scaling
-# exactly (capacity, voltage, cell voltages and min/max cell numbers all line up), but this
-# hasn't been cross-checked against another known-good source (e.g. the vendor cloud app)
-# for this specific model, so it stays best_effort rather than verified. Naming it here
-# (instead of falling through to DEFAULT_PROFILE) at least gets the right model name onto
-# the device instead of "Generic Felicity Solar Battery".
+# Reported in issue #42, where the field shape/scaling was cross-checked live against the
+# vendor app (including BmsCnt/cycle_count, added above) and confirmed 100% correct.
 FLA48300_PROFILE = BatteryProfile(
     name="FLA48300",
-    confidence="best_effort",
+    confidence="verified",
     type_code=112,
     subtype_code=7300,
 )
