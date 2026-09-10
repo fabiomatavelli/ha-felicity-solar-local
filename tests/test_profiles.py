@@ -11,6 +11,7 @@ import pytest
 from custom_components.felicity_solar_local.profiles import (
     DEFAULT_PROFILE,
     FLA24100_PROFILE,
+    FLA48300_PROFILE,
     FLB48314TG1H_PROFILE,
     select_profile,
 )
@@ -216,3 +217,42 @@ def test_fla24100_core_fields_scale_like_common_profile(
     assert data["charging_state"] == "standby"
     assert data["warning"] == 4
     assert data["serial_number"] == "074502400000000000"
+
+
+def test_select_profile_matches_fla48300(fla48300_response: dict[str, Any]) -> None:
+    assert select_profile(fla48300_response) is FLA48300_PROFILE
+    assert FLA48300_PROFILE.confidence == "best_effort"
+
+
+def test_fla48300_uses_common_parsing(fla48300_response: dict[str, Any]) -> None:
+    # No custom parse() override - the raw data reported in issue #42 lines up with the
+    # common field shape/scaling as-is (capacity matches the "300" in FLA48300, cell
+    # voltages/min/max/count all agree), so this profile relies on parse_common directly.
+    assert FLA48300_PROFILE.parse is not FLA24100_PROFILE.parse
+    data = FLA48300_PROFILE.parse(fla48300_response)
+
+    assert data["voltage"] == 56.16
+    assert data["current"] == -0.2
+    assert data["power"] == -11.23
+    assert data["soc"] == 100.0
+    assert data["soh"] == 100.0
+    assert data["capacity"] == 300.0
+    assert data["max_cell_voltage"] == 3.587
+    assert data["min_cell_voltage"] == 3.443
+    assert data["max_cell_number"] == 15
+    assert data["min_cell_number"] == 8
+    assert data["cell_1_voltage"] == 3.569
+    assert data["cell_16_voltage"] == 3.587
+    assert data["charging_state"] == "standby"
+    assert data["warning"] == 4
+    assert data["serial_number"] == "072604830025153540"
+    assert data["temperature_1"] == 31.0
+    assert data["temperature_2"] == 30.0
+    assert data["temperature_3"] == 25.6
+    assert data["temperature_4"] == 25.7
+    assert data["temperature_max"] == 31.0
+    assert data["temperature_min"] == 25.6
+    assert data["charge_voltage_limit"] == 57.6
+    assert data["discharge_voltage_limit"] == 48.0
+    assert data["charge_current_limit"] == 0.0
+    assert data["discharge_current_limit"] == 150.0
