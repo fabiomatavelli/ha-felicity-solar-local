@@ -404,6 +404,19 @@ FLA24100_PROFILE = BatteryProfile(
     parse=parse_fla24100,
 )
 
+# Reported in issue #42: a user's raw data dump matches the common field shape/scaling
+# exactly (capacity, voltage, cell voltages and min/max cell numbers all line up), but this
+# hasn't been cross-checked against another known-good source (e.g. the vendor cloud app)
+# for this specific model, so it stays best_effort rather than verified. Naming it here
+# (instead of falling through to DEFAULT_PROFILE) at least gets the right model name onto
+# the device instead of "Generic Felicity Solar Battery".
+FLA48300_PROFILE = BatteryProfile(
+    name="FLA48300",
+    confidence="best_effort",
+    type_code=112,
+    subtype_code=7300,
+)
+
 # Fallback for any Felicity battery reporting a Type/SubType we haven't verified yet.
 # Same field shape/scaling as the verified profile (the protocol is believed to be shared
 # across the Felicity WiFi-battery family) but not confirmed against real hardware - treat
@@ -415,7 +428,7 @@ DEFAULT_PROFILE = BatteryProfile(
     subtype_code=None,
 )
 
-PROFILES: tuple[BatteryProfile, ...] = (FLB48314TG1H_PROFILE, FLA24100_PROFILE)
+PROFILES: tuple[BatteryProfile, ...] = (FLB48314TG1H_PROFILE, FLA24100_PROFILE, FLA48300_PROFILE)
 
 
 def select_profile(raw: dict[str, Any]) -> BatteryProfile:
