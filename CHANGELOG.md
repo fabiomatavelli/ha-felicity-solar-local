@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.1.0...v1.2.0) (2026-09-10)
+
+
+### Features
+
+* **profiles:** add battery cycle count sensor ([#45](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/45)) ([e01c90c](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/e01c90c58282a87d955793013463271964ebb341))
+
 ## [1.1.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.0.0...v1.1.0) (2026-09-10)
 
 
