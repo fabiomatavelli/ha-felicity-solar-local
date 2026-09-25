@@ -47,6 +47,16 @@ cross-checked (e.g. against that model's cloud-reported values, the way FLB48314
 `coordinator.py` and `sensor.py` need no changes for this - `select_profile()` is the only
 dispatch point.
 
+## Requesting a new battery profile (no code)
+
+If the user wants support for their battery model but doesn't want to write the profile
+themselves, don't open a PR - help them open a "battery profile request" issue instead, by
+following `.agents/skills/request-battery-profile/SKILL.md` (read it directly if your agent
+doesn't load skills automatically). In short: capture the complete payload with
+`python3 scripts/probe.py --report <ip>` (serials redacted), check the model isn't already in
+`PROFILES`, fill in the model name and vendor-app readings, and only run `gh issue create`
+after the user confirms the final body.
+
 ## Architecture pointers
 
 - `api.py` - the TCP client only. No Home Assistant imports; keep it that way so
