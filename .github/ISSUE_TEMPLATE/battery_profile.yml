@@ -15,9 +15,11 @@ body:
         It prints the whole issue body with the serial numbers already redacted - paste it
         as-is into a [blank issue](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new?title=%5BBattery+profile%5D) instead of this form.
 
-        To fill in this form by hand, the payload can come from `scripts/probe.py` or, if the
-        integration is already installed, the `raw_data` section of its **Download
-        diagnostics** file (both already redacted).
+        To fill in this form by hand, take the payload from the JSON block that
+        `scripts/probe.py --report` prints or, if the integration is already installed, the
+        `raw_data` section of its **Download diagnostics** file - both have the serials
+        redacted. Plain `scripts/probe.py <ip>` (without `--report`) prints `DevSN` and
+        `wifiSN` untouched: replace both values before pasting.
 
         Please don't post your IP address, hostname or serial numbers.
   - type: input
@@ -42,7 +44,8 @@ body:
       label: Raw device payload
       description: >-
         The **complete** JSON object - every key, not just the ones that look relevant.
-        A partial payload can't be turned into a test fixture.
+        A partial payload can't be turned into a test fixture. Make sure `DevSN` and
+        `wifiSN` are redacted (they are in `--report` output and in diagnostics).
       render: json
     validations:
       required: true

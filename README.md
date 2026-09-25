@@ -94,6 +94,9 @@ and see its raw data:
 python3 scripts/probe.py <battery-ip>
 ```
 
+This prints the payload untouched, serial numbers (`DevSN`/`wifiSN`) included - for
+anything you'll post publicly, use `--report` instead (see below), which redacts them.
+
 ## 🔋 Battery model support
 
 | Model | Type / SubType | Status | Notes |
