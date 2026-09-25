@@ -101,7 +101,7 @@ python3 scripts/probe.py <battery-ip>
 | Felicity Solar FLB48314TG1-H | 112 / 7353 | ✅ Verified | Field scaling cross-checked live against the same battery's cloud API readings. See `profiles.py`. |
 | Felicity Solar FLA24100 | 112 / 6100 | ✅ Verified | 24 V / 8-cell pack. Temperatures are sourced from `BtemList` and were cross-checked live against the vendor app; See `profiles.py`. |
 | Felicity Solar FLA48300 | 112 / 7300 | ✅ Verified | Reported in [#42](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/42); field scaling (including cycle count) was cross-checked live against the vendor app. |
-| Other Felicity WiFi batteries | — | ⚠️ Untested (best-effort) | Same protocol assumed, falls back to a generic profile with unverified scaling. [Contribute a verified profile](CONTRIBUTING.md#adding-a-new-battery-model-profile) for your model. |
+| Other Felicity WiFi batteries | — | ⚠️ Untested (best-effort) | Same protocol assumed, falls back to a generic profile with unverified scaling. [Request a profile](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new?template=battery_profile.yml) or [contribute one](CONTRIBUTING.md#adding-a-new-battery-model-profile) for your model. |
 
 This integration was built and verified against a **Felicity Solar FLB48314TG1-H**
 (`Type=112, SubType=7353`). Field names/scaling were cross-checked live against the same
@@ -114,10 +114,24 @@ JSON shape), but scaling/field meaning for models other than the ones in the tab
 same field names; enable the raw data sensor (see Configuration above) to see the untouched
 payload regardless of profile.
 
-**Have a different Felicity Solar WiFi battery?** Run `scripts/probe.py` against it, compare
-the output to `tests/fixtures/sample_response.json`, and open a PR adding a new
-`BatteryProfile` to `profiles.py` (see [CONTRIBUTING.md](CONTRIBUTING.md)) - matched by your
-device's own `Type`/`SubType` codes so it doesn't affect other models.
+**Have a different Felicity Solar WiFi battery?** You don't need to write any code - open a
+[battery profile request](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new?template=battery_profile.yml) with the output of:
+
+```console
+python3 scripts/probe.py --report <battery-ip>
+```
+
+It prints the whole issue body with the serial numbers already redacted. If you use an AI
+coding agent (Claude Code, Cursor, Codex, ...), you can instead ask it to run the
+`request-battery-profile` skill from a clone of this repository
+([`.agents/skills/request-battery-profile`](.agents/skills/request-battery-profile/SKILL.md)) -
+it collects the data, checks your model isn't already supported, and opens the issue once you
+confirm.
+
+Prefer to add it yourself? Compare the probe output to `tests/fixtures/sample_response.json`
+and open a PR adding a new `BatteryProfile` to `profiles.py` (see
+[CONTRIBUTING.md](CONTRIBUTING.md)) - matched by your device's own `Type`/`SubType` codes so it
+doesn't affect other models.
 
 ## 📡 Protocol
 

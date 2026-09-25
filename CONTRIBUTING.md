@@ -27,9 +27,15 @@ and `validate.yml`, which also run `hassfest` and the HACS validation action).
 
 ## Adding a new battery model profile
 
-If you have a Felicity Solar WiFi battery that isn't the FLB48314TG1-H:
+If you'd rather not write the profile yourself, open a
+[battery profile request](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new?template=battery_profile.yml) instead - `python3 scripts/probe.py --report <battery-ip>`
+generates the issue body for you (serials redacted), and the `request-battery-profile` agent
+skill in `.agents/skills/` can walk you through it and open the issue.
 
-1. Run `python3 scripts/probe.py <your-battery-ip>` and note the `Type`/`SubType` it prints.
+To add a profile yourself:
+
+1. Run `python3 scripts/probe.py --report <your-battery-ip>` and note the `Type`/`SubType` it
+   prints. Its JSON block has the serials redacted, so it can be committed as a test fixture.
 2. Compare its raw JSON shape to `tests/fixtures/sample_response.json`.
 3. Add a new `BatteryProfile` in `custom_components/felicity_solar_local/profiles.py`,
    matched by your device's `Type`/`SubType`, and add it to the `PROFILES` tuple. Only mark
