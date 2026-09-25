@@ -82,7 +82,9 @@ Don't pass `--label` (it fails for users without triage access; the maintainer l
 Give the user the issue URL `gh` prints.
 
 If `gh` isn't installed/authenticated, or the user prefers to post it themselves: give them
-the final body and this link to the issue form, where each section maps to a field:
-<https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new?template=battery_profile.yml>
+the final body to paste as-is into a blank issue, with the title prefilled - `probe.py
+--report` prints that link on stderr, or build it as
+`https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new?title=<url-encoded title>`.
+Not the `battery_profile.yml` form: it splits the body into separate fields.
 
 Delete the temp report file afterwards.

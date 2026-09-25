@@ -5,6 +5,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import re
+import urllib.parse
 from pathlib import Path
 from types import ModuleType
 from typing import Any
@@ -85,7 +86,24 @@ def test_main_report_writes_output_file(
 
     probe.main(["192.168.1.50", "--report", "--output", str(output)])
 
-    stdout = capsys.readouterr().out
+    captured = capsys.readouterr()
+    stdout = captured.out
     assert output.read_text() in stdout
     assert "192.168.1.50" not in stdout
+    # The paste-target link goes to stderr so stdout stays exactly the issue body.
+    assert "issues/new?" not in stdout
+    assert probe.new_issue_url(sample_response) in captured.err
     assert _report_payload(output.read_text()) == probe.redact(sample_response)
+
+
+def test_new_issue_url_is_blank_issue_with_prefilled_title(
+    probe: ModuleType, sample_response: dict[str, Any]
+) -> None:
+    url = probe.new_issue_url(sample_response)
+    parsed = urllib.parse.urlparse(url)
+    query = urllib.parse.parse_qs(parsed.query)
+
+    assert parsed.path.endswith("/issues/new")
+    # Not the battery_profile.yml form: the report is one body, the form has fields.
+    assert "template" not in query
+    assert query["title"] == [probe.report_title(sample_response)]

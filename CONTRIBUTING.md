@@ -27,9 +27,10 @@ and `validate.yml`, which also run `hassfest` and the HACS validation action).
 
 ## Adding a new battery model profile
 
-If you'd rather not write the profile yourself, open a
-[battery profile request](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new?template=battery_profile.yml) instead - `python3 scripts/probe.py --report <battery-ip>`
-generates the issue body for you (serials redacted), and the `request-battery-profile` agent
+If you'd rather not write the profile yourself, request it in an issue instead:
+`python3 scripts/probe.py --report <battery-ip>` generates the issue body (serials redacted)
+and a link to a new issue to paste it into, the
+[battery profile request form](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new?template=battery_profile.yml) takes the same data field by field, and the `request-battery-profile` agent
 skill in `.agents/skills/` can walk you through it and open the issue.
 
 To add a profile yourself:

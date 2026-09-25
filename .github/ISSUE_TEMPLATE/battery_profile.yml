@@ -6,15 +6,18 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks! The quickest way to fill this in is to run, from a clone of this repository:
+        Thanks! The quickest way is to run, from a clone of this repository:
 
         ```console
         python3 scripts/probe.py --report <battery-ip>
         ```
 
-        It prints this whole issue body with the serial numbers already redacted. If the
-        integration is already installed, the `raw_data` section of the integration's
-        **Download diagnostics** file works too (also already redacted).
+        It prints the whole issue body with the serial numbers already redacted - paste it
+        as-is into a [blank issue](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new?title=%5BBattery+profile%5D) instead of this form.
+
+        To fill in this form by hand, the payload can come from `scripts/probe.py` or, if the
+        integration is already installed, the `raw_data` section of its **Download
+        diagnostics** file (both already redacted).
 
         Please don't post your IP address, hostname or serial numbers.
   - type: input

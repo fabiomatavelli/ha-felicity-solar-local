@@ -20,6 +20,7 @@ import asyncio
 import contextlib
 import json
 import sys
+import urllib.parse
 from pathlib import Path
 from typing import Any
 
@@ -34,6 +35,7 @@ REDACT_KEYS = ("DevSN", "wifiSN")
 REDACTED = "**REDACTED**"
 
 REPORT_TITLE_PREFIX = "[Battery profile]"
+NEW_ISSUE_URL = "https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new"
 
 
 async def probe(host: str, port: int) -> dict[str, Any]:
@@ -79,6 +81,15 @@ def report_title(data: dict[str, Any]) -> str:
         f"{REPORT_TITLE_PREFIX} <model> (Type={data.get('Type')}, "
         f"SubType={data.get('SubType')})"
     )
+
+
+def new_issue_url(data: dict[str, Any]) -> str:
+    """Blank-issue link with the title prefilled, for pasting the report into as-is.
+
+    Deliberately not the battery_profile.yml form: the report is a single Markdown body,
+    while the form splits it into separate fields.
+    """
+    return f"{NEW_ISSUE_URL}?{urllib.parse.urlencode({'title': report_title(data)})}"
 
 
 def render_report(data: dict[str, Any]) -> str:
@@ -154,6 +165,10 @@ def main(argv: list[str] | None = None) -> None:
         if args.output:
             args.output.write_text(body)
         print(body)
+        print(
+            f"\nPaste the report above into a new issue: {new_issue_url(data)}",
+            file=sys.stderr,
+        )
         return
 
     print(f"\nType={data.get('Type')} SubType={data.get('SubType')} "

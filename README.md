@@ -114,14 +114,15 @@ JSON shape), but scaling/field meaning for models other than the ones in the tab
 same field names; enable the raw data sensor (see Configuration above) to see the untouched
 payload regardless of profile.
 
-**Have a different Felicity Solar WiFi battery?** You don't need to write any code - open a
-[battery profile request](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new?template=battery_profile.yml) with the output of:
+**Have a different Felicity Solar WiFi battery?** You don't need to write any code - run:
 
 ```console
 python3 scripts/probe.py --report <battery-ip>
 ```
 
-It prints the whole issue body with the serial numbers already redacted. If you use an AI
+It prints a complete issue body with the serial numbers already redacted, plus a link to a
+new issue with the title prefilled - paste the report into it as-is. (Prefer filling in
+fields by hand? Use the [battery profile request form](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new?template=battery_profile.yml).) If you use an AI
 coding agent (Claude Code, Cursor, Codex, ...), you can instead ask it to run the
 `request-battery-profile` skill from a clone of this repository
 ([`.agents/skills/request-battery-profile`](.agents/skills/request-battery-profile/SKILL.md)) -
