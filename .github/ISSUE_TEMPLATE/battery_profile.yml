@@ -1,0 +1,63 @@
+name: Battery profile request
+description: Ask for support for a Felicity Solar battery model that isn't recognized yet.
+title: "[Battery profile] <model> (Type=?, SubType=?)"
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks! The quickest way to fill this in is to run, from a clone of this repository:
+
+        ```console
+        python3 scripts/probe.py --report <battery-ip>
+        ```
+
+        It prints this whole issue body with the serial numbers already redacted. If the
+        integration is already installed, the `raw_data` section of the integration's
+        **Download diagnostics** file works too (also already redacted).
+
+        Please don't post your IP address, hostname or serial numbers.
+  - type: input
+    id: model
+    attributes:
+      label: Battery model
+      description: Exact model from the battery's label.
+      placeholder: FLA48300
+    validations:
+      required: true
+  - type: input
+    id: type_subtype
+    attributes:
+      label: Type / SubType
+      description: Printed by `scripts/probe.py`, or the `Type`/`SubType` keys in the payload.
+      placeholder: Type=112, SubType=7300
+    validations:
+      required: true
+  - type: textarea
+    id: payload
+    attributes:
+      label: Raw device payload
+      description: >-
+        The **complete** JSON object - every key, not just the ones that look relevant.
+        A partial payload can't be turned into a test fixture.
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: vendor_readings
+    attributes:
+      label: Vendor app readings (for cross-checking)
+      description: >-
+        Optional, but it's what lets the profile be marked verified. Read these from the
+        Felicity app/cloud at roughly the same moment as the payload above.
+      value: |
+        - SOC (%):
+        - Pack voltage (V):
+        - Current (A):
+        - Temperature(s) (°C):
+        - Capacity (Ah):
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Anything else - firmware version, readings that look wrong, how many packs, etc.
