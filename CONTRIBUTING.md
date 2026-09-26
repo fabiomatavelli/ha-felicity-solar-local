@@ -39,6 +39,13 @@ To add a profile yourself:
    source for that same battery (e.g. its cloud app, if it has one).
 4. Add a corresponding test fixture and test cases in `tests/test_profiles.py`.
 
+## Translations
+
+`strings.json` is the source of truth for all user-facing text. When you change it, copy it to
+`translations/en.json` and update every other `translations/*.json` too, keeping the same keys and
+the same `{placeholders}` - `tests/test_translations.py` fails otherwise. Language codes follow
+Home Assistant's (`pt-BR`, `pt`, `es`, ...), not generic locale codes like `pt-PT`/`es-ES`.
+
 ## Commit messages
 
 This repo uses [Conventional Commits](https://www.conventionalcommits.org/) for every commit:
