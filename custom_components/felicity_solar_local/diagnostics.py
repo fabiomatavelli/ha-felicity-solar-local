@@ -25,6 +25,11 @@ async def async_get_config_entry_diagnostics(
     return {
         "entry_data": async_redact_data(dict(entry.data), TO_REDACT),
         "entry_options": dict(entry.options),
+        # Up front so a diagnostics file attached to a profile request identifies the
+        # model on its own, without digging through raw_data.
+        "device_type": coordinator.data.raw.get("Type"),
+        "device_subtype": coordinator.data.raw.get("SubType"),
+        "profile_matched": not coordinator.data.profile.is_generic,
         "profile": coordinator.data.profile.name,
         "profile_confidence": coordinator.data.profile.confidence,
         "parsed_data": async_redact_data(coordinator.data.data, TO_REDACT),

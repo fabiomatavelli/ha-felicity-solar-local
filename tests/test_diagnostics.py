@@ -80,3 +80,26 @@ async def test_diagnostics_keeps_non_sensitive_readings(
     assert diagnostics["parsed_data"]["voltage"] == 54.04
     assert diagnostics["parsed_data"]["soc"] is not None
     assert diagnostics["profile_confidence"] == "verified"
+
+
+async def test_diagnostics_identifies_model_up_front(
+    hass: HomeAssistant, sample_response: dict[str, Any]
+) -> None:
+    """A diagnostics file attached to a profile request must say which model it is."""
+    entry = await _setup_entry(hass, {**sample_response, "SubType": 9999})
+
+    diagnostics = await async_get_config_entry_diagnostics(hass, entry)
+
+    assert diagnostics["device_type"] == sample_response["Type"]
+    assert diagnostics["device_subtype"] == 9999
+    assert diagnostics["profile_matched"] is False
+
+
+async def test_diagnostics_profile_matched_for_known_model(
+    hass: HomeAssistant, sample_response: dict[str, Any]
+) -> None:
+    entry = await _setup_entry(hass, sample_response)
+
+    diagnostics = await async_get_config_entry_diagnostics(hass, entry)
+
+    assert diagnostics["profile_matched"] is True
