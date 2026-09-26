@@ -12,6 +12,7 @@ from custom_components.felicity_solar_local.profiles import (
     DEFAULT_PROFILE,
     FLA24100_PROFILE,
     FLA48300_PROFILE,
+    FLA48460TG2_PROFILE,
     FLB48314TG1H_PROFILE,
     select_profile,
 )
@@ -260,3 +261,77 @@ def test_fla48300_uses_common_parsing(fla48300_response: dict[str, Any]) -> None
     assert data["discharge_voltage_limit"] == 48.0
     assert data["charge_current_limit"] == 0.0
     assert data["discharge_current_limit"] == 150.0
+
+
+def test_select_profile_matches_fla48460tg2(fla48460tg2_response: dict[str, Any]) -> None:
+    assert select_profile(fla48460tg2_response) is FLA48460TG2_PROFILE
+    assert FLA48460TG2_PROFILE.confidence == "verified"
+
+
+def test_fla48460tg2_temperatures_come_from_btemlist_not_btemp(
+    fla48460tg2_response: dict[str, Any],
+) -> None:
+    assert fla48460tg2_response["BTemp"][1] == [256, 256]
+    data = FLA48460TG2_PROFILE.parse(fla48460tg2_response)
+    assert data["temperature_1"] == 24.0
+    assert data["temperature_2"] == 24.0
+    assert data["temperature_3"] == 24.0
+    assert data["temperature_4"] == 24.0
+    assert data["temperature_max"] == 24.0
+    assert data["temperature_min"] == 24.0
+
+
+def test_fla48460tg2_temperature_sentinel_slots_are_missing(
+    fla48460tg2_response: dict[str, Any],
+) -> None:
+    modified = {
+        **fla48460tg2_response,
+        "BtemList": [[240, 230, 32767, 65535, 32767, 32767, 32767, 32767]],
+    }
+    data = FLA48460TG2_PROFILE.parse(modified)
+    assert data["temperature_1"] == 24.0
+    assert data["temperature_2"] == 23.0
+    assert data["temperature_3"] is None
+    assert data["temperature_4"] is None
+    assert data["temperature_max"] == 24.0
+    assert data["temperature_min"] == 23.0
+
+
+def test_fla48460tg2_temperature_max_min_are_none_when_all_probes_sentinel(
+    fla48460tg2_response: dict[str, Any],
+) -> None:
+    modified = {
+        **fla48460tg2_response,
+        "BtemList": [[32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767]],
+    }
+    data = FLA48460TG2_PROFILE.parse(modified)
+    assert data["temperature_max"] is None
+    assert data["temperature_min"] is None
+
+
+def test_fla48460tg2_core_fields_scale_like_common_profile(
+    fla48460tg2_response: dict[str, Any],
+) -> None:
+    data = FLA48460TG2_PROFILE.parse(fla48460tg2_response)
+
+    assert data["voltage"] == 53.41
+    assert data["current"] == 4.0
+    assert data["power"] == 213.64
+    assert data["soc"] == 75.0
+    assert data["soh"] == 100.0
+    # Known caveat: doesn't match the 460 Ah nameplate rating - see parse_fla48460tg2's
+    # docstring and the README notes for this model. Left unmodified since the field's
+    # actual meaning on this model hasn't been identified.
+    assert data["capacity"] == 500.0
+    assert data["max_cell_voltage"] == 3.343
+    assert data["min_cell_voltage"] == 3.341
+    assert data["max_cell_number"] == 4
+    assert data["min_cell_number"] == 1
+    assert data["cell_1_voltage"] == 3.342
+    assert data["charging_state"] == "charging"
+    assert data["warning"] == 0
+    assert data["serial_number"] == "**REDACTED**"
+    assert data["charge_voltage_limit"] == 57.6
+    assert data["discharge_voltage_limit"] == 48.0
+    assert data["charge_current_limit"] == 250.0
+    assert data["discharge_current_limit"] == 250.0

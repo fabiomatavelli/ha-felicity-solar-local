@@ -1,12 +1,14 @@
 """Battery model profiles: field mapping/scaling per Felicity Solar battery model.
 
 The local WiFi protocol (see api.py) returns the same *shape* of JSON across the Felicity
-battery family, but exact scaling/meaning has been verified against real hardware for three
+battery family, but exact scaling/meaning has been verified against real hardware for four
 models: the FLB48314TG1-H (Type=112, SubType=7353), cross-checked field-by-field against the
 same battery's readings from Felicity's cloud API; the FLA24100 (Type=112, SubType=6100),
-whose temperature mapping was cross-checked live against the vendor app; and the FLA48300
-(Type=112, SubType=7300), cross-checked live against the vendor app. See the project README
-for the full verification table.
+whose temperature mapping was cross-checked live against the vendor app; the FLA48300
+(Type=112, SubType=7300), cross-checked live against the vendor app; and the FLA48460TG2/GT2
+(Type=112, SubType=7500), whose temperature mapping (same BTemp/BtemList issue as the
+FLA24100) was cross-checked live against the vendor app. See the project README for the full
+verification table.
 
 Profiles are looked up by the device's self-reported ``Type``/``SubType`` codes, so adding
 support for another verified model later is a matter of adding one more ``BatteryProfile``
@@ -183,6 +185,32 @@ def parse_fla24100(raw: dict[str, Any]) -> dict[str, Any]:
     The vendor app shows 26°C while the scaling of ``BTemp[1][1] == 512`` produced 51.2°C.
     The actual probes are the first four ``BtemList`` slots.
     Unpopulated slots hold the usual 32767/65535 sentinels, which ``_path`` already filters out).
+    """
+    data = parse_common(raw)
+    temperatures: list[float] = []
+    for i in range(4):
+        value = _scaled(raw, "BtemList", 0, i, 10)
+        data[f"temperature_{i + 1}"] = value
+        if value is not None:
+            temperatures.append(value)
+    data["temperature_max"] = max(temperatures) if temperatures else None
+    data["temperature_min"] = min(temperatures) if temperatures else None
+    return data
+
+
+def parse_fla48460tg2(raw: dict[str, Any]) -> dict[str, Any]:
+    """Parse for the FLA48460TG2/GT2 (Type=112, SubType=7500) - a 48 V, 16-cell pack.
+
+    Identical to ``parse_common`` except for the temperature mapping, same issue as the
+    FLA24100 (see ``parse_fla24100``): ``BTemp[1]`` is not a temperature pair on this model -
+    it reports a fixed 256/257 regardless of actual temperature - while the vendor app and the
+    first four ``BtemList`` slots agree. Reported and cross-checked live against the vendor app
+    in issue #50.
+
+    Known open question, left unmodified here: ``BatsocList[0][2]`` (``capacity``) reads
+    500000 (500.0 Ah) on this model regardless of the 460 Ah nameplate rating - the field's
+    actual meaning on this model hasn't been identified, so there's nothing verified to
+    substitute it with.
     """
     data = parse_common(raw)
     temperatures: list[float] = []
@@ -426,6 +454,16 @@ FLA48300_PROFILE = BatteryProfile(
     subtype_code=7300,
 )
 
+# Reported in issue #50, where the temperature mapping (BTemp vs. BtemList, same issue as
+# the FLA24100) was cross-checked live against the vendor app and confirmed correct.
+FLA48460TG2_PROFILE = BatteryProfile(
+    name="FLA48460TG2 (GT2)",
+    confidence="verified",
+    type_code=112,
+    subtype_code=7500,
+    parse=parse_fla48460tg2,
+)
+
 # Fallback for any Felicity battery reporting a Type/SubType we haven't verified yet.
 # Same field shape/scaling as the verified profile (the protocol is believed to be shared
 # across the Felicity WiFi-battery family) but not confirmed against real hardware - treat
@@ -437,7 +475,12 @@ DEFAULT_PROFILE = BatteryProfile(
     subtype_code=None,
 )
 
-PROFILES: tuple[BatteryProfile, ...] = (FLB48314TG1H_PROFILE, FLA24100_PROFILE, FLA48300_PROFILE)
+PROFILES: tuple[BatteryProfile, ...] = (
+    FLB48314TG1H_PROFILE,
+    FLA24100_PROFILE,
+    FLA48300_PROFILE,
+    FLA48460TG2_PROFILE,
+)
 
 
 def select_profile(raw: dict[str, Any]) -> BatteryProfile:
