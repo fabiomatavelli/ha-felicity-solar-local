@@ -104,6 +104,7 @@ anything you'll post publicly, use `--report` instead (see below), which redacts
 | Felicity Solar FLB48314TG1-H | 112 / 7353 | ✅ Verified | Field scaling cross-checked live against the same battery's cloud API readings. See `profiles.py`. |
 | Felicity Solar FLA24100 | 112 / 6100 | ✅ Verified | 24 V / 8-cell pack. Temperatures are sourced from `BtemList` and were cross-checked live against the vendor app; See `profiles.py`. |
 | Felicity Solar FLA48300 | 112 / 7300 | ✅ Verified | Reported in [#42](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/42); field scaling (including cycle count) was cross-checked live against the vendor app. |
+| Felicity Solar FLA48460TG2 (GT2) | 112 / 7500 | ✅ Verified | Reported in [#50](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/50); 48 V/460 Ah, 16-cell pack. Temperatures are sourced from `BtemList` (same `BTemp` issue as the FLA24100), cross-checked live against the vendor app. Known caveat: the `capacity` sensor reads 500 Ah regardless of the 460 Ah nameplate rating - the field's actual meaning on this model isn't identified yet. |
 | Other Felicity WiFi batteries | — | ⚠️ Untested (best-effort) | Same protocol assumed, falls back to a generic profile with unverified scaling. [Request a profile](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new?template=battery_profile.yml) or [contribute one](CONTRIBUTING.md#adding-a-new-battery-model-profile) for your model. |
 
 This integration was built and verified against a **Felicity Solar FLB48314TG1-H**
