@@ -98,15 +98,20 @@ class FelicityLocalCoordinator(DataUpdateCoordinator[FelicityBatteryData]):
         model = (raw.get("Type"), raw.get("SubType"))
         if model == self._reported_model:
             return
+        if self._reported_model is not None:
+            # A different battery now answers on this host (e.g. swapped behind the same
+            # IP) - drop the previous model's issue rather than leaving it stale.
+            ir.async_delete_issue(self.hass, DOMAIN, _issue_id(self._reported_model))
         self._reported_model = model
 
-        issue_id = f"unrecognized_model_{model[0]}_{model[1]}"
+        issue_id = _issue_id(model)
         if not profile.is_generic:
-            # Recognized now (e.g. after updating to a release that added its profile).
+            # The issue isn't persistent, so a restart (which updating the integration
+            # needs) already clears it; this covers a model becoming recognized within one
+            # Home Assistant session.
             ir.async_delete_issue(self.hass, DOMAIN, issue_id)
             return
 
-        title = f"[Battery profile] <model> (Type={model[0]}, SubType={model[1]})"
         ir.async_create_issue(
             self.hass,
             DOMAIN,
@@ -115,8 +120,22 @@ class FelicityLocalCoordinator(DataUpdateCoordinator[FelicityBatteryData]):
             severity=ir.IssueSeverity.WARNING,
             translation_key="unrecognized_model",
             translation_placeholders={"type": str(model[0]), "subtype": str(model[1])},
-            learn_more_url=f"{NEW_ISSUE_URL}?{urllib.parse.urlencode({'title': title})}",
+            learn_more_url=profile_request_url(raw),
         )
+
+
+def _issue_id(model: tuple[Any, Any]) -> str:
+    return f"unrecognized_model_{model[0]}_{model[1]}"
+
+
+def profile_request_url(raw: dict[str, Any]) -> str:
+    """Blank GitHub issue link, title prefilled with the model codes, for a profile request.
+
+    Mirrors scripts/probe.py's new_issue_url(), which can't import this module;
+    tests/test_probe.py checks the two stay identical.
+    """
+    title = f"[Battery profile] <model> (Type={raw.get('Type')}, SubType={raw.get('SubType')})"
+    return f"{NEW_ISSUE_URL}?{urllib.parse.urlencode({'title': title})}"
 
 
 def _invert_current_sign(data: dict[str, Any]) -> dict[str, Any]:

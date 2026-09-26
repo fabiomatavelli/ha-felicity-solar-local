@@ -253,3 +253,22 @@ async def test_repair_issue_not_recreated_on_every_poll(
             await coordinator._async_update_data()
 
     assert create_issue.call_count == 1
+
+
+async def test_repair_issue_for_previous_model_cleared_when_model_changes(
+    hass: HomeAssistant, sample_response: dict[str, Any]
+) -> None:
+    coordinator = _make_coordinator(hass)
+    registry = ir.async_get(hass)
+
+    with patch(TZ_PATH, AsyncMock(return_value=None)):
+        with patch(API_PATH, AsyncMock(return_value={**sample_response, "SubType": 9998})):
+            await coordinator._async_update_data()
+        assert registry.async_get_issue(DOMAIN, "unrecognized_model_112_9998") is not None
+
+        # A different (also unrecognized) battery now answers on the same host.
+        with patch(API_PATH, AsyncMock(return_value={**sample_response, "SubType": 9999})):
+            await coordinator._async_update_data()
+
+    assert registry.async_get_issue(DOMAIN, "unrecognized_model_112_9998") is None
+    assert registry.async_get_issue(DOMAIN, "unrecognized_model_112_9999") is not None
