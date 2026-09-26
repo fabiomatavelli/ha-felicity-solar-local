@@ -1,0 +1,89 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Ligar a uma bateria Felicity Solar",
+        "description": "Introduza o endereço IP local do módulo WiFi da bateria. A consulta é feita por TCP na rede local - não é necessária conta na nuvem.",
+        "data": {
+          "host": "Anfitrião (endereço IP)",
+          "port": "Porta"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Não foi possível ligar à bateria. Verifique o endereço IP e se esta está acessível na sua rede.",
+      "timeout": "A bateria não respondeu a tempo.",
+      "invalid_response": "A bateria respondeu, mas não com uma leitura válida/utilizável.",
+      "unknown": "Erro inesperado."
+    },
+    "abort": {
+      "already_configured": "Esta bateria já está configurada."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "persistent_connection": "Manter a ligação aberta",
+          "update_interval": "Intervalo de atualização (segundos)",
+          "enable_raw_data_sensor": "Ativar sensor de dados em bruto",
+          "invert_current_sign": "Inverter o sinal da corrente/potência"
+        },
+        "data_description": {
+          "persistent_connection": "Mantém a ligação TCP à bateria aberta entre atualizações, em vez de voltar a ligar de cada vez (é o predefinido). Permite atualizações muito mais rápidas (até 5s), à custa de manter um socket aberto no módulo WiFi da bateria; o sistema operativo é instruído a sondar a ligação enquanto está inativa, pelo que uma ligação perdida continua a ser detetada entre consultas.",
+          "enable_raw_data_sensor": "Adiciona um sensor de diagnóstico que expõe o payload em bruto completo do dispositivo como atributos. Desativado por predefinição - com intervalos curtos, atualizar o grande conjunto de atributos deste sensor em cada consulta acrescenta uma sobrecarga significativa. Ative-o para resolver problemas ou ao contribuir com um novo perfil de modelo de bateria.",
+          "invert_current_sign": "A convenção do Home Assistant para baterias é corrente/potência negativa a carregar e positiva a descarregar - esta bateria reporta o contrário. Ativado por predefinição para que o sinal corresponda logo ao do Home Assistant; desative-o para passar o sinal em bruto da bateria sem alterações."
+        }
+      }
+    },
+    "error": {
+      "interval_too_low_for_one_shot": "O intervalo de atualização tem de ser de pelo menos 10 segundos, a não ser que \"Manter a ligação aberta\" esteja ativado (o que permite até 5 segundos)."
+    }
+  },
+  "issues": {
+    "unrecognized_model": {
+      "title": "Modelo de bateria Felicity Solar não reconhecido (Type={type}, SubType={subtype})",
+      "description": "Esta bateria reporta um código de modelo para o qual a integração ainda não tem perfil, pelo que está a usar um perfil genérico: a maioria dos sensores costuma funcionar, mas alguns valores (temperaturas, capacidade, limites de corrente) podem estar errados ou em falta.\n\nPara que seja adicionado um perfil dedicado, selecione **Saber mais** para abrir uma issue no GitHub e depois:\n\n1. Transfira os diagnósticos desta bateria: **Definições** > **Dispositivos e serviços** > **Felicity Solar Local** > menu ⋮ da entrada da bateria > **Transferir diagnósticos**. Os números de série e o endereço IP já estão ocultados.\n2. Anexe esse ficheiro à issue (arraste-o e largue-o na caixa de texto) e indique o modelo exato que consta da etiqueta da bateria.\n3. Se tiver a aplicação da Felicity, acrescente algumas leituras dela (SOC, tensão, corrente, temperaturas) de mais ou menos o mesmo momento, para que o novo perfil possa ser verificado.\n\nEsta mensagem desaparece quando uma atualização da integração reconhecer o modelo."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "voltage": { "name": "Tensão" },
+      "current": { "name": "Corrente" },
+      "power": { "name": "Potência" },
+      "charging_state": {
+        "name": "Estado de carregamento",
+        "state": {
+          "charging": "A carregar",
+          "discharging": "A descarregar",
+          "standby": "Em espera"
+        }
+      },
+      "soc": { "name": "Estado de carga" },
+      "soh": { "name": "Estado de saúde" },
+      "capacity": { "name": "Capacidade" },
+      "cycle_count": { "name": "Número de ciclos" },
+      "max_cell_voltage": { "name": "Tensão máxima de célula" },
+      "min_cell_voltage": { "name": "Tensão mínima de célula" },
+      "max_cell_number": { "name": "Célula de tensão máxima" },
+      "min_cell_number": { "name": "Célula de tensão mínima" },
+      "temperature_max": { "name": "Temperatura máxima" },
+      "temperature_min": { "name": "Temperatura mínima" },
+      "temperature": { "name": "Temperatura {index}" },
+      "cell_voltage": { "name": "Tensão da célula {index}" },
+      "charge_voltage_limit": { "name": "Limite de tensão de carga" },
+      "discharge_voltage_limit": { "name": "Limite de tensão de descarga" },
+      "charge_current_limit": { "name": "Limite de corrente de carga" },
+      "discharge_current_limit": { "name": "Limite de corrente de descarga" },
+      "serial_number": { "name": "Número de série" },
+      "device_timestamp": { "name": "Hora do dispositivo" },
+      "estate": { "name": "Código de estado do equipamento" },
+      "state": { "name": "Código de estado da bateria" },
+      "fault": { "name": "Código de avaria da bateria" },
+      "warning": { "name": "Código de aviso da bateria" },
+      "bms_fault": { "name": "Código de avaria do BMS" },
+      "bms_warning": { "name": "Código de aviso do BMS" },
+      "raw_data": { "name": "Dados em bruto" }
+    }
+  }
+}

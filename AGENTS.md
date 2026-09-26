@@ -51,6 +51,10 @@ dispatch point.
 
 If the user wants support for their battery model but doesn't want to write the profile themselves, don't open a PR - help them open a "battery profile request" issue instead, by following `.agents/skills/request-battery-profile/SKILL.md` (read it directly if your agent doesn't load skills automatically). In short: get the complete payload from the integration's diagnostics download (preferred - no extra tooling, already redacted) or `python3 scripts/probe.py --report <ip>`, check the model isn't already in `PROFILES`, fill in the model name and vendor-app readings, and only run `gh issue create` after the user confirms the final body.
 
+## Translations
+
+`strings.json` is the source of truth. Any change to it must be mirrored in `translations/en.json` (identical copy) and in every other `translations/*.json` (same keys, same `{placeholders}`, translated text) - `tests/test_translations.py` enforces this. File names use Home Assistant's language codes (`pt-BR`, `pt`, `es`, `de`, `fr`, `it`), not `pt-PT`/`es-ES`.
+
 ## Architecture pointers
 
 - `api.py` - the TCP client only. No Home Assistant imports; keep it that way so
