@@ -105,7 +105,7 @@ anything you'll post publicly, use `--report` instead (see below), which redacts
 | Felicity Solar FLA24100 | 112 / 6100 | ✅ Verified | 24 V / 8-cell pack. Temperatures are sourced from `BtemList` and were cross-checked live against the vendor app; See `profiles.py`. |
 | Felicity Solar FLA48300 | 112 / 7300 | ✅ Verified | Reported in [#42](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/42); field scaling (including cycle count) was cross-checked live against the vendor app. |
 | Felicity Solar FLA48460TG2 (GT2) | 112 / 7500 | ✅ Verified | Reported in [#50](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/50); 48 V/460 Ah, 16-cell pack. Temperatures are sourced from `BtemList` (same `BTemp` issue as the FLA24100), cross-checked live against the vendor app. Known caveat: the `capacity` sensor reads 500 Ah regardless of the 460 Ah nameplate rating - the field's actual meaning on this model isn't identified yet. |
-| Other Felicity WiFi batteries | — | ⚠️ Untested (best-effort) | Same protocol assumed, falls back to a generic profile with unverified scaling. [Request a profile](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new?template=battery_profile.yml) or [contribute one](CONTRIBUTING.md#adding-a-new-battery-model-profile) for your model. |
+| Other Felicity WiFi batteries | — | ⚠️ Untested (best-effort) | Same protocol assumed, falls back to a generic profile with unverified scaling. [Request a profile](#-battery-model-support) (just attach the diagnostics download) or [contribute one](CONTRIBUTING.md#adding-a-new-battery-model-profile) for your model. |
 
 This integration was built and verified against a **Felicity Solar FLB48314TG1-H**
 (`Type=112, SubType=7353`). Field names/scaling were cross-checked live against the same
@@ -118,22 +118,28 @@ JSON shape), but scaling/field meaning for models other than the ones in the tab
 same field names; enable the raw data sensor (see Configuration above) to see the untouched
 payload regardless of profile.
 
-**Have a different Felicity Solar WiFi battery?** You don't need to write any code - run:
+**Have a different Felicity Solar WiFi battery?** You don't need to write any code, or install
+anything beyond this integration:
 
-```console
-python3 scripts/probe.py --report <battery-ip>
-```
+1. Set it up as usual - unrecognized models still load, on a generic best-effort profile, and
+   Home Assistant shows a repair under **Settings** > **System** > **Repairs** saying the
+   model isn't recognized, with a **Learn more** link that opens a new GitHub issue for it.
+2. Download the battery's diagnostics (**Settings** > **Devices & services** > **Felicity
+   Solar Local** > the battery's ⋮ menu > **Download diagnostics**) - the serial numbers and
+   IP address are already redacted - and attach the file to that issue, along with the exact
+   model from the battery's label and, if you have the Felicity app, a few of its readings
+   (SOC, voltage, current, temperatures) to cross-check against.
 
-It prints a complete issue body with the serial numbers already redacted, plus a link to a
-new issue with the title prefilled - paste the report into it as-is. (Prefer filling in
-fields by hand? Use the [battery profile request form](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new?template=battery_profile.yml).) If you use an AI
-coding agent (Claude Code, Cursor, Codex, ...), you can instead ask it to run the
-`request-battery-profile` skill from a clone of this repository
-([`.agents/skills/request-battery-profile`](.agents/skills/request-battery-profile/SKILL.md)) -
-it collects the data, checks your model isn't already supported, and opens the issue once you
-confirm.
+Haven't installed the integration? `python3 scripts/probe.py --report <battery-ip>` (Python 3,
+standard library only) prints a complete, redacted issue body and a link to paste it into.
+There's also a [battery profile request form](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new?template=battery_profile.yml)
+if you'd rather fill in fields by hand. If you use an AI coding agent (Claude Code, Cursor,
+Codex, ...), you can ask it to run the `request-battery-profile` skill from a clone of this
+repository ([`.agents/skills/request-battery-profile`](.agents/skills/request-battery-profile/SKILL.md)) -
+it takes either source, checks your model isn't already supported, and opens the issue once
+you confirm.
 
-Prefer to add it yourself? Compare the probe output to `tests/fixtures/sample_response.json`
+Prefer to add it yourself? Compare the payload to `tests/fixtures/sample_response.json`
 and open a PR adding a new `BatteryProfile` to `profiles.py` (see
 [CONTRIBUTING.md](CONTRIBUTING.md)) - matched by your device's own `Type`/`SubType` codes so it
 doesn't affect other models.

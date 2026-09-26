@@ -6,20 +6,21 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks! The quickest way is to run, from a clone of this repository:
+        Thanks! If the integration is already installed (unrecognized models still load, on a
+        generic best-effort profile), the easiest source is its diagnostics - no extra tools
+        needed, and the serial numbers and IP address are already redacted:
 
-        ```console
-        python3 scripts/probe.py --report <battery-ip>
-        ```
+        **Settings** > **Devices & services** > **Felicity Solar Local** > the battery's ⋮
+        menu > **Download diagnostics**, then attach that file under "Raw device payload"
+        below. Home Assistant also shows a repair linking here when it detects an
+        unrecognized model.
 
-        It prints the whole issue body with the serial numbers already redacted - paste it
-        as-is into a [blank issue](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new?title=%5BBattery+profile%5D) instead of this form.
-
-        To fill in this form by hand, take the payload from the JSON block that
-        `scripts/probe.py --report` prints or, if the integration is already installed, the
-        `raw_data` section of its **Download diagnostics** file - both have the serials
-        redacted. Plain `scripts/probe.py <ip>` (without `--report`) prints `DevSN` and
-        `wifiSN` untouched: replace both values before pasting.
+        Not installed yet? From a clone of this repository, run
+        `python3 scripts/probe.py --report <battery-ip>`: it prints the whole issue body with
+        the serials redacted - paste it as-is into a
+        [blank issue](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new?title=%5BBattery+profile%5D)
+        instead of this form. Plain `scripts/probe.py <ip>` (without `--report`) prints
+        `DevSN` and `wifiSN` untouched: replace both values before pasting its output here.
 
         Please don't post your IP address, hostname or serial numbers.
   - type: input
@@ -34,7 +35,9 @@ body:
     id: type_subtype
     attributes:
       label: Type / SubType
-      description: Printed by `scripts/probe.py`, or the `Type`/`SubType` keys in the payload.
+      description: >-
+        `device_type`/`device_subtype` at the top of the diagnostics file, or the
+        `Type`/`SubType` keys in the payload.
       placeholder: Type=112, SubType=7300
     validations:
       required: true
@@ -43,10 +46,10 @@ body:
     attributes:
       label: Raw device payload
       description: >-
-        The **complete** JSON object - every key, not just the ones that look relevant.
-        A partial payload can't be turned into a test fixture. Make sure `DevSN` and
-        `wifiSN` are redacted (they are in `--report` output and in diagnostics).
-      render: json
+        Attach the diagnostics file (drag and drop it here), or paste the **complete** JSON
+        object inside a ```json code block - every key, not just the ones that look
+        relevant, since a partial payload can't be turned into a test fixture. Make sure
+        `DevSN` and `wifiSN` are redacted (they are in diagnostics and `--report` output).
     validations:
       required: true
   - type: textarea
