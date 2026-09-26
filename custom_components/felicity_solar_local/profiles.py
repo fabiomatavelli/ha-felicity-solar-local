@@ -52,6 +52,15 @@ def _path(data: dict[str, Any], key: str, row: int, col: int) -> Any:
     return None if value in _SENTINELS else value
 
 
+def _cell_number(data: dict[str, Any], col: int) -> int | None:
+    """1-based cell number from BMaxMin[1][col], matching the cell_N_voltage sensors.
+
+    The battery reports the max/min cell as a 0-based index into BatcelList.
+    """
+    value = _path(data, "BMaxMin", 1, col)
+    return None if value is None else value + 1
+
+
 def _scaled(data: dict[str, Any], key: str, row: int, col: int, divisor: float) -> float | None:
     value = _path(data, key, row, col)
     if value is None:
@@ -148,8 +157,8 @@ def parse_common(raw: dict[str, Any]) -> dict[str, Any]:
         "cycle_count": _raw(raw, "BmsCnt"),
         "max_cell_voltage": _scaled(raw, "BMaxMin", 0, 0, 1000),
         "min_cell_voltage": _scaled(raw, "BMaxMin", 0, 1, 1000),
-        "max_cell_number": _path(raw, "BMaxMin", 1, 0),
-        "min_cell_number": _path(raw, "BMaxMin", 1, 1),
+        "max_cell_number": _cell_number(raw, 0),
+        "min_cell_number": _cell_number(raw, 1),
         "temperature_1": temperature_1,
         "temperature_2": temperature_2,
         "temperature_3": temperature_3,
