@@ -13,24 +13,17 @@ other file in the repo.
 
 ## 1. Get the raw payload
 
-Ask the user which source they have:
+Ask the user which source they have, preferring the first - most people asking already run the integration (unrecognized models load on a generic profile), and it needs no extra tools:
 
-- **Battery IP on their LAN** (needs to run on a machine that can reach it):
+- **A diagnostics file** downloaded from Home Assistant: **Settings** > **Devices & services** > **Felicity Solar Local** > the ⋮ menu of the battery's entry > **Download diagnostics**. Its `raw_data` object is the payload, already redacted; `device_type`/`device_subtype` at the top give the model codes, and `profile_matched: false` confirms it's on the generic profile. Build the body in the same format `scripts/probe.py --report` produces (see `render_report()` in that script) with `raw_data` as the payload. If the user has several packs of the same model, one file is enough for the body; mention the others in Notes.
+
+- **Battery IP on their LAN**, if the integration isn't installed (needs Python 3 on a machine that can reach the battery):
 
   ```console
   python3 scripts/probe.py --report <battery-ip> --output <tmp-dir>/battery-report.md
   ```
 
-  Stdlib-only, no Home Assistant needed. It prints and writes a Markdown issue body with
-  `DevSN`/`wifiSN` already redacted. Use a temp directory outside the repo for the output.
-  If it fails to connect: the battery must be on the same network, port `53970` reachable,
-  and the device's TCP stack may only tolerate one client at a time - ask the user to temporarily disable the
-  integration's config entry in Home Assistant if it's already polling the battery.
-
-- **A diagnostics file** downloaded from Home Assistant (integration page -> device ->
-  **Download diagnostics**): use its `raw_data` object, which is already redacted. Build the
-  body in the same format `scripts/probe.py --report` produces (see `render_report()` in
-  that script) with `raw_data` as the payload.
+  Stdlib-only, no Home Assistant needed. It prints and writes a Markdown issue body with `DevSN`/`wifiSN` already redacted. Use a temp directory outside the repo for the output. If it fails to connect: the battery must be on the same network, port `53970` reachable, and the device's TCP stack may only tolerate one client at a time - ask the user to temporarily disable the integration's config entry in Home Assistant if it's polling the battery.
 
 Never ask the user to paste only "the relevant" fields - partial payloads are exactly what
 stalled earlier requests.

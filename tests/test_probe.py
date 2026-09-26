@@ -96,6 +96,17 @@ def test_main_report_writes_output_file(
     assert _report_payload(output.read_text()) == probe.redact(sample_response)
 
 
+def test_new_issue_url_matches_integration_repair_link(
+    probe: ModuleType, sample_response: dict[str, Any]
+) -> None:
+    # probe.py can't import the integration, so the title format and URL are duplicated
+    # there - keep the repair issue's Learn more link and --report's link identical.
+    from custom_components.felicity_solar_local.coordinator import profile_request_url
+
+    for payload in (sample_response, {**sample_response, "SubType": 9999}, {}):
+        assert probe.new_issue_url(payload) == profile_request_url(payload)
+
+
 def test_new_issue_url_is_blank_issue_with_prefilled_title(
     probe: ModuleType, sample_response: dict[str, Any]
 ) -> None:

@@ -27,16 +27,11 @@ and `validate.yml`, which also run `hassfest` and the HACS validation action).
 
 ## Adding a new battery model profile
 
-If you'd rather not write the profile yourself, request it in an issue instead:
-`python3 scripts/probe.py --report <battery-ip>` generates the issue body (serials redacted)
-and a link to a new issue to paste it into, the
-[battery profile request form](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new?template=battery_profile.yml) takes the same data field by field, and the `request-battery-profile` agent
-skill in `.agents/skills/` can walk you through it and open the issue.
+If you'd rather not write the profile yourself, request it in an issue instead. With the integration installed, attach its **Download diagnostics** file (serials and IP already redacted) - Home Assistant shows a repair with a link to open the issue when the model isn't recognized. Without it, `python3 scripts/probe.py --report <battery-ip>` generates a redacted issue body. The [battery profile request form](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new?template=battery_profile.yml) takes the same data field by field, and the `request-battery-profile` agent skill in `.agents/skills/` can walk you through either path and open the issue.
 
 To add a profile yourself:
 
-1. Run `python3 scripts/probe.py --report <your-battery-ip>` and note the `Type`/`SubType` it
-   prints. Its JSON block has the serials redacted, so it can be committed as a test fixture.
+1. Capture a complete payload: the `raw_data` section of the integration's diagnostics download, or the JSON block from `python3 scripts/probe.py --report <your-battery-ip>`. Both have the serials redacted, so either can be committed as a test fixture. Note the `Type`/`SubType` it reports.
 2. Compare its raw JSON shape to `tests/fixtures/sample_response.json`.
 3. Add a new `BatteryProfile` in `custom_components/felicity_solar_local/profiles.py`,
    matched by your device's `Type`/`SubType`, and add it to the `PROFILES` tuple. Only mark
