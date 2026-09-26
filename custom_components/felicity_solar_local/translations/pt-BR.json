@@ -13,7 +13,7 @@
     "error": {
       "cannot_connect": "Não foi possível conectar à bateria. Verifique o endereço IP e se ela está acessível na sua rede.",
       "timeout": "A bateria não respondeu a tempo.",
-      "invalid_response": "A bateria respondeu, mas não com um snapshot válido/utilizável.",
+      "invalid_response": "A bateria respondeu, mas não com uma leitura válida/utilizável.",
       "unknown": "Erro inesperado."
     },
     "abort": {

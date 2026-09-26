@@ -13,7 +13,7 @@
     "error": {
       "cannot_connect": "No se pudo conectar a la batería. Comprueba la dirección IP y que sea accesible en tu red.",
       "timeout": "La batería no respondió a tiempo.",
-      "invalid_response": "La batería respondió, pero no con un snapshot válido/utilizable.",
+      "invalid_response": "La batería respondió, pero no con una lectura válida/utilizable.",
       "unknown": "Error inesperado."
     },
     "abort": {
@@ -52,7 +52,7 @@
       "current": { "name": "Corriente" },
       "power": { "name": "Potencia" },
       "charging_state": {
-        "name": "Estado de carga/descarga",
+        "name": "Estado de funcionamiento",
         "state": {
           "charging": "Cargando",
           "discharging": "Descargando",

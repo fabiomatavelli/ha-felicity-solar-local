@@ -13,7 +13,7 @@
     "error": {
       "cannot_connect": "Verbindung zur Batterie fehlgeschlagen. Prüfe die IP-Adresse und ob sie in deinem Netzwerk erreichbar ist.",
       "timeout": "Die Batterie hat nicht rechtzeitig geantwortet.",
-      "invalid_response": "Die Batterie hat geantwortet, aber nicht mit einem gültigen/verwertbaren Snapshot.",
+      "invalid_response": "Die Batterie hat geantwortet, aber nicht mit einem gültigen/verwertbaren Datensatz.",
       "unknown": "Unerwarteter Fehler."
     },
     "abort": {

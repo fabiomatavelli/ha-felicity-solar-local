@@ -13,7 +13,7 @@
     "error": {
       "cannot_connect": "Impossibile connettersi alla batteria. Verifica l'indirizzo IP e che sia raggiungibile sulla tua rete.",
       "timeout": "La batteria non ha risposto in tempo.",
-      "invalid_response": "La batteria ha risposto, ma non con uno snapshot valido/utilizzabile.",
+      "invalid_response": "La batteria ha risposto, ma non con una lettura valida/utilizzabile.",
       "unknown": "Errore imprevisto."
     },
     "abort": {

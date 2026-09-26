@@ -53,10 +53,7 @@ If the user wants support for their battery model but doesn't want to write the 
 
 ## Translations
 
-`strings.json` is the source of truth. Any change to it must be mirrored in `translations/en.json`
-(identical copy) and in every other `translations/*.json` (same keys, same `{placeholders}`,
-translated text) - `tests/test_translations.py` enforces this. File names use Home Assistant's
-language codes (`pt-BR`, `pt`, `es`, `de`, `fr`, `it`), not `pt-PT`/`es-ES`.
+`strings.json` is the source of truth. Any change to it must be mirrored in `translations/en.json` (identical copy) and in every other `translations/*.json` (same keys, same `{placeholders}`, translated text) - `tests/test_translations.py` enforces this. File names use Home Assistant's language codes (`pt-BR`, `pt`, `es`, `de`, `fr`, `it`), not `pt-PT`/`es-ES`.
 
 ## Architecture pointers
 

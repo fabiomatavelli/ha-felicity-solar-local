@@ -13,7 +13,7 @@
     "error": {
       "cannot_connect": "Não foi possível ligar à bateria. Verifique o endereço IP e se esta está acessível na sua rede.",
       "timeout": "A bateria não respondeu a tempo.",
-      "invalid_response": "A bateria respondeu, mas não com um snapshot válido/utilizável.",
+      "invalid_response": "A bateria respondeu, mas não com uma leitura válida/utilizável.",
       "unknown": "Erro inesperado."
     },
     "abort": {
@@ -32,7 +32,7 @@
         "data_description": {
           "persistent_connection": "Mantém a ligação TCP à bateria aberta entre atualizações, em vez de voltar a ligar de cada vez (é o predefinido). Permite atualizações muito mais rápidas (até 5s), à custa de manter um socket aberto no módulo WiFi da bateria; o sistema operativo é instruído a sondar a ligação enquanto está inativa, pelo que uma ligação perdida continua a ser detetada entre consultas.",
           "enable_raw_data_sensor": "Adiciona um sensor de diagnóstico que expõe o payload em bruto completo do dispositivo como atributos. Desativado por predefinição - com intervalos curtos, atualizar o grande conjunto de atributos deste sensor em cada consulta acrescenta uma sobrecarga significativa. Ative-o para resolver problemas ou ao contribuir com um novo perfil de modelo de bateria.",
-          "invert_current_sign": "A convenção do Home Assistant para baterias é corrente/potência negativa a carregar e positiva a descarregar - esta bateria reporta o contrário. Ativado por predefinição para que o sinal corresponda ao Home Assistant de origem; desative-o para passar o sinal em bruto da bateria sem alterações."
+          "invert_current_sign": "A convenção do Home Assistant para baterias é corrente/potência negativa a carregar e positiva a descarregar - esta bateria reporta o contrário. Ativado por predefinição para que o sinal corresponda logo ao do Home Assistant; desative-o para passar o sinal em bruto da bateria sem alterações."
         }
       }
     },
