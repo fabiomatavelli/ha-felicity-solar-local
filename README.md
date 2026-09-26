@@ -125,8 +125,8 @@ anything beyond this integration:
    Home Assistant shows a repair under **Settings** > **System** > **Repairs** saying the
    model isn't recognized, with a **Learn more** link that opens a new GitHub issue for it.
 2. Download the battery's diagnostics (**Settings** > **Devices & services** > **Felicity
-   Solar Local** > the battery's ⋮ menu > **Download diagnostics**) - the serial numbers and
-   IP address are already redacted - and attach the file to that issue, along with the exact
+   Solar Local** > the ⋮ menu of the battery's entry > **Download diagnostics**) - the serial
+   numbers and IP address are already redacted - and attach the file to that issue, along with the exact
    model from the battery's label and, if you have the Felicity app, a few of its readings
    (SOC, voltage, current, temperatures) to cross-check against.
 

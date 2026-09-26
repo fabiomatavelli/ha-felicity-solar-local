@@ -10,9 +10,9 @@ body:
         generic best-effort profile), the easiest source is its diagnostics - no extra tools
         needed, and the serial numbers and IP address are already redacted:
 
-        **Settings** > **Devices & services** > **Felicity Solar Local** > the battery's ⋮
-        menu > **Download diagnostics**, then attach that file under "Raw device payload"
-        below. Home Assistant also shows a repair linking here when it detects an
+        **Settings** > **Devices & services** > **Felicity Solar Local** > the ⋮ menu of the
+        battery's entry > **Download diagnostics**, then attach that file under "Raw device
+        payload" below. Home Assistant also shows a repair linking here when it detects an
         unrecognized model.
 
         Not installed yet? From a clone of this repository, run

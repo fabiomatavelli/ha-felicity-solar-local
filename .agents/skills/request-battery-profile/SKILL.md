@@ -17,7 +17,8 @@ Ask the user which source they have, preferring the first - most people asking a
 the integration (unrecognized models load on a generic profile), and it needs no extra tools:
 
 - **A diagnostics file** downloaded from Home Assistant: **Settings** > **Devices &
-  services** > **Felicity Solar Local** > the battery's ⋮ menu > **Download diagnostics**.
+  services** > **Felicity Solar Local** > the ⋮ menu of the battery's entry > **Download
+  diagnostics**.
   Its `raw_data` object is the payload, already redacted; `device_type`/`device_subtype` at
   the top give the model codes, and `profile_matched: false` confirms it's on the generic
   profile. Build the body in the same format `scripts/probe.py --report` produces (see
