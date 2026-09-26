@@ -118,31 +118,14 @@ JSON shape), but scaling/field meaning for models other than the ones in the tab
 same field names; enable the raw data sensor (see Configuration above) to see the untouched
 payload regardless of profile.
 
-**Have a different Felicity Solar WiFi battery?** You don't need to write any code, or install
-anything beyond this integration:
+**Have a different Felicity Solar WiFi battery?** You don't need to write any code, or install anything beyond this integration:
 
-1. Set it up as usual - unrecognized models still load, on a generic best-effort profile, and
-   Home Assistant shows a repair under **Settings** > **System** > **Repairs** saying the
-   model isn't recognized, with a **Learn more** link that opens a new GitHub issue for it.
-2. Download the battery's diagnostics (**Settings** > **Devices & services** > **Felicity
-   Solar Local** > the ⋮ menu of the battery's entry > **Download diagnostics**) - the serial
-   numbers and IP address are already redacted - and attach the file to that issue, along with the exact
-   model from the battery's label and, if you have the Felicity app, a few of its readings
-   (SOC, voltage, current, temperatures) to cross-check against.
+1. Set it up as usual - unrecognized models still load, on a generic best-effort profile, and Home Assistant shows a repair under **Settings** > **System** > **Repairs** saying the model isn't recognized, with a **Learn more** link that opens a new GitHub issue for it.
+2. Download the battery's diagnostics (**Settings** > **Devices & services** > **Felicity Solar Local** > the ⋮ menu of the battery's entry > **Download diagnostics**) - the serial numbers and IP address are already redacted - and attach the file to that issue, along with the exact model from the battery's label and, if you have the Felicity app, a few of its readings (SOC, voltage, current, temperatures) to cross-check against.
 
-Haven't installed the integration? `python3 scripts/probe.py --report <battery-ip>` (Python 3,
-standard library only) prints a complete, redacted issue body and a link to paste it into.
-There's also a [battery profile request form](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new?template=battery_profile.yml)
-if you'd rather fill in fields by hand. If you use an AI coding agent (Claude Code, Cursor,
-Codex, ...), you can ask it to run the `request-battery-profile` skill from a clone of this
-repository ([`.agents/skills/request-battery-profile`](.agents/skills/request-battery-profile/SKILL.md)) -
-it takes either source, checks your model isn't already supported, and opens the issue once
-you confirm.
+Haven't installed the integration? `python3 scripts/probe.py --report <battery-ip>` (Python 3, standard library only) prints a complete, redacted issue body and a link to paste it into. There's also a [battery profile request form](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new?template=battery_profile.yml) if you'd rather fill in fields by hand. If you use an AI coding agent (Claude Code, Cursor, Codex, ...), you can ask it to run the `request-battery-profile` skill from a clone of this repository ([`.agents/skills/request-battery-profile`](.agents/skills/request-battery-profile/SKILL.md)) - it takes either source, checks your model isn't already supported, and opens the issue once you confirm.
 
-Prefer to add it yourself? Compare the payload to `tests/fixtures/sample_response.json`
-and open a PR adding a new `BatteryProfile` to `profiles.py` (see
-[CONTRIBUTING.md](CONTRIBUTING.md)) - matched by your device's own `Type`/`SubType` codes so it
-doesn't affect other models.
+Prefer to add it yourself? Compare the payload to `tests/fixtures/sample_response.json` and open a PR adding a new `BatteryProfile` to `profiles.py` (see [CONTRIBUTING.md](CONTRIBUTING.md)) - matched by your device's own `Type`/`SubType` codes so it doesn't affect other models.
 
 ## 📡 Protocol
 

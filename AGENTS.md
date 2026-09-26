@@ -49,14 +49,7 @@ dispatch point.
 
 ## Requesting a new battery profile (no code)
 
-If the user wants support for their battery model but doesn't want to write the profile
-themselves, don't open a PR - help them open a "battery profile request" issue instead, by
-following `.agents/skills/request-battery-profile/SKILL.md` (read it directly if your agent
-doesn't load skills automatically). In short: get the complete payload from the
-integration's diagnostics download (preferred - no extra tooling, already redacted) or
-`python3 scripts/probe.py --report <ip>`, check the model isn't already in
-`PROFILES`, fill in the model name and vendor-app readings, and only run `gh issue create`
-after the user confirms the final body.
+If the user wants support for their battery model but doesn't want to write the profile themselves, don't open a PR - help them open a "battery profile request" issue instead, by following `.agents/skills/request-battery-profile/SKILL.md` (read it directly if your agent doesn't load skills automatically). In short: get the complete payload from the integration's diagnostics download (preferred - no extra tooling, already redacted) or `python3 scripts/probe.py --report <ip>`, check the model isn't already in `PROFILES`, fill in the model name and vendor-app readings, and only run `gh issue create` after the user confirms the final body.
 
 ## Architecture pointers
 
