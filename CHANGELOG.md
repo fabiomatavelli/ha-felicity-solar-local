@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.3.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.2.0...v1.3.0) (2026-09-26)
+
+
+### Features
+
+* guide users with unrecognized models to request a profile from Home Assistant ([#55](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/55)) ([7133575](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/71335751f061f47215a4710f406118b3709fe4e0))
+* **i18n:** add pt-BR, pt, es, de, fr and it translations ([#56](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/56)) ([dffe5ce](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/dffe5ce293d5a4a33bf2c74d66440f7820f78eea))
+* let users request a battery profile via issue ([#51](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/51)) ([8ccf96e](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/8ccf96e5ec8c453b45bd4dff3e95393f1d5e9f1f))
+* **profiles:** add verified FLA48460TG2 (GT2, SubType 7500) profile ([#50](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/50)) ([#53](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/53)) ([3bf7c49](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/3bf7c49c0a9f180914323b7d6a5de1d61382ea89))
+
+
+### Bug Fixes
+
+* **sensor:** report max/min voltage cell numbers 1-based ([#54](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/54)) ([89e089d](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/89e089dfd28f574235d7e2c00c004cce3359a9ba))
+
 ## [1.2.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.1.0...v1.2.0) (2026-09-10)
 
 
