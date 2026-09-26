@@ -41,8 +41,8 @@ def test_parse_scales_verified_fields_correctly(sample_response: dict[str, Any])
     assert data["cycle_count"] is None
     assert data["max_cell_voltage"] == 3.38
     assert data["min_cell_voltage"] == 3.376
-    assert data["max_cell_number"] == 8
-    assert data["min_cell_number"] == 0
+    assert data["max_cell_number"] == 9
+    assert data["min_cell_number"] == 1
     assert data["temperature_1"] == 26.0
     assert data["temperature_2"] == 26.0
     assert data["temperature_3"] == 25.6
@@ -244,8 +244,8 @@ def test_fla48300_uses_common_parsing(fla48300_response: dict[str, Any]) -> None
     assert data["cycle_count"] == 219
     assert data["max_cell_voltage"] == 3.587
     assert data["min_cell_voltage"] == 3.443
-    assert data["max_cell_number"] == 15
-    assert data["min_cell_number"] == 8
+    assert data["max_cell_number"] == 16
+    assert data["min_cell_number"] == 9
     assert data["cell_1_voltage"] == 3.569
     assert data["cell_16_voltage"] == 3.587
     assert data["charging_state"] == "standby"
@@ -325,8 +325,8 @@ def test_fla48460tg2_core_fields_scale_like_common_profile(
     assert data["capacity"] == 500.0
     assert data["max_cell_voltage"] == 3.343
     assert data["min_cell_voltage"] == 3.341
-    assert data["max_cell_number"] == 4
-    assert data["min_cell_number"] == 1
+    assert data["max_cell_number"] == 5
+    assert data["min_cell_number"] == 2
     assert data["cell_1_voltage"] == 3.342
     assert data["charging_state"] == "charging"
     assert data["warning"] == 0
@@ -335,3 +335,18 @@ def test_fla48460tg2_core_fields_scale_like_common_profile(
     assert data["discharge_voltage_limit"] == 48.0
     assert data["charge_current_limit"] == 250.0
     assert data["discharge_current_limit"] == 250.0
+
+
+@pytest.mark.parametrize(
+    "fixture",
+    ["sample_response", "fla24100_response", "fla48300_response", "fla48460tg2_response"],
+)
+def test_cell_numbers_point_at_matching_cell_sensor(
+    fixture: str, request: pytest.FixtureRequest
+) -> None:
+    # BMaxMin[1] is a 0-based index into BatcelList; the reported number must name the
+    # cell_N_voltage sensor that actually holds the max/min voltage.
+    raw = request.getfixturevalue(fixture)
+    data = select_profile(raw).parse(raw)
+    assert data[f"cell_{data['max_cell_number']}_voltage"] == data["max_cell_voltage"]
+    assert data[f"cell_{data['min_cell_number']}_voltage"] == data["min_cell_voltage"]
