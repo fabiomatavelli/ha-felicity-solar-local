@@ -40,6 +40,12 @@
       "interval_too_low_for_one_shot": "Update interval must be at least 10 seconds unless \"Keep connection open\" is enabled (which allows down to 5 seconds)."
     }
   },
+  "issues": {
+    "unrecognized_model": {
+      "title": "Unrecognized Felicity Solar battery model (Type={type}, SubType={subtype})",
+      "description": "This battery reports a model code the integration doesn't have a profile for yet, so it's using a generic best-effort profile: most sensors usually work, but some values (temperatures, capacity, current limits) may be wrong or missing.\n\nTo get a dedicated profile added, select **Learn more** to open a GitHub issue, then:\n\n1. Download this battery's diagnostics: **Settings** > **Devices & services** > **Felicity Solar Local** > the battery's ⋮ menu > **Download diagnostics**. The serial numbers and IP address are already redacted.\n2. Attach that file to the issue (drag and drop it into the text box), and add the exact model from the battery's label.\n3. If you have the Felicity app, add a few of its readings (SOC, voltage, current, temperatures) from about the same moment, so the new profile can be cross-checked.\n\nThis message goes away once an integration update recognizes the model."
+    }
+  },
   "entity": {
     "sensor": {
       "voltage": { "name": "Voltage" },

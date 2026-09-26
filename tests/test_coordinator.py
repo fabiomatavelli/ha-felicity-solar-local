@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
+import urllib.parse
 from typing import Any
 from unittest.mock import AsyncMock, patch
 
 import pytest
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.update_coordinator import UpdateFailed
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
+from custom_components.felicity_solar_local import profiles
 from custom_components.felicity_solar_local.api import FelicityConnectionError
 from custom_components.felicity_solar_local.const import CONF_HOST, CONF_PORT, DOMAIN
 from custom_components.felicity_solar_local.coordinator import FelicityLocalCoordinator
@@ -165,3 +168,88 @@ async def test_invert_current_sign_is_null_safe(
 
     assert result.data["current"] is None
     assert result.data["power"] is None
+
+
+async def test_unrecognized_model_raises_repair_issue(
+    hass: HomeAssistant, sample_response: dict[str, Any]
+) -> None:
+    coordinator = _make_coordinator(hass)
+    unknown = {**sample_response, "SubType": 9999}
+
+    with (
+        patch(API_PATH, AsyncMock(return_value=unknown)),
+        patch(TZ_PATH, AsyncMock(return_value=None)),
+    ):
+        result = await coordinator._async_update_data()
+
+    assert result.profile.is_generic
+    issue = ir.async_get(hass).async_get_issue(DOMAIN, "unrecognized_model_112_9999")
+    assert issue is not None
+    assert issue.translation_key == "unrecognized_model"
+    assert issue.translation_placeholders == {"type": "112", "subtype": "9999"}
+    # Blank issue with the model codes in the title - not the battery_profile.yml form,
+    # since the user attaches a diagnostics file rather than filling in fields.
+    assert issue.learn_more_url is not None
+    query = urllib.parse.parse_qs(urllib.parse.urlparse(issue.learn_more_url).query)
+    assert "template" not in query
+    assert query["title"] == ["[Battery profile] <model> (Type=112, SubType=9999)"]
+    assert "192.168.1.50" not in issue.learn_more_url
+
+
+async def test_recognized_model_raises_no_repair_issue(
+    hass: HomeAssistant, sample_response: dict[str, Any]
+) -> None:
+    coordinator = _make_coordinator(hass)
+
+    with (
+        patch(API_PATH, AsyncMock(return_value=sample_response)),
+        patch(TZ_PATH, AsyncMock(return_value=None)),
+    ):
+        await coordinator._async_update_data()
+
+    assert not [
+        issue_id for (domain, issue_id) in ir.async_get(hass).issues if domain == DOMAIN
+    ]
+
+
+async def test_repair_issue_cleared_once_model_is_recognized(
+    hass: HomeAssistant, sample_response: dict[str, Any]
+) -> None:
+    coordinator = _make_coordinator(hass)
+    issue_id = f"unrecognized_model_{sample_response['Type']}_{sample_response['SubType']}"
+
+    # Simulate an older release that didn't know this model yet.
+    with (
+        patch(API_PATH, AsyncMock(return_value=sample_response)),
+        patch(TZ_PATH, AsyncMock(return_value=None)),
+        patch.object(profiles, "PROFILES", ()),
+    ):
+        await coordinator._async_update_data()
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None
+
+    fresh = _make_coordinator(hass)
+    with (
+        patch(API_PATH, AsyncMock(return_value=sample_response)),
+        patch(TZ_PATH, AsyncMock(return_value=None)),
+    ):
+        await fresh._async_update_data()
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
+
+
+async def test_repair_issue_not_recreated_on_every_poll(
+    hass: HomeAssistant, sample_response: dict[str, Any]
+) -> None:
+    coordinator = _make_coordinator(hass)
+    unknown = {**sample_response, "SubType": 9999}
+
+    with (
+        patch(API_PATH, AsyncMock(return_value=unknown)),
+        patch(TZ_PATH, AsyncMock(return_value=None)),
+        patch(
+            "custom_components.felicity_solar_local.coordinator.ir.async_create_issue"
+        ) as create_issue,
+    ):
+        for _ in range(3):
+            await coordinator._async_update_data()
+
+    assert create_issue.call_count == 1

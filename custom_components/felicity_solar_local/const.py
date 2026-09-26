@@ -2,6 +2,11 @@
 
 DOMAIN = "felicity_solar_local"
 
+# Where users request support for a battery model the integration doesn't recognize - see
+# coordinator.py's unrecognized-model repair issue (scripts/probe.py mirrors this URL, since
+# it can't import the integration).
+NEW_ISSUE_URL = "https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new"
+
 CONF_HOST = "host"
 CONF_PORT = "port"
 CONF_UPDATE_INTERVAL = "update_interval"

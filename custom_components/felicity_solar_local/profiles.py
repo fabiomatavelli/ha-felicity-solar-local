@@ -432,6 +432,11 @@ class BatteryProfile:
     sensors: tuple[SensorEntityDescription, ...] = _COMMON_SENSORS
     parse: Callable[[dict[str, Any]], dict[str, Any]] = field(default=parse_common)
 
+    @property
+    def is_generic(self) -> bool:
+        """True for the catch-all fallback used when no model-specific profile matches."""
+        return self.type_code is None
+
     def matches(self, raw: dict[str, Any]) -> bool:
         """Return True if this profile applies to the given raw response."""
         if self.type_code is None:
