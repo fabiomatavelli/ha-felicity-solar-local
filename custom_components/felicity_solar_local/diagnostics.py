@@ -9,6 +9,7 @@ from homeassistant.core import HomeAssistant
 
 from . import FelicityLocalConfigEntry
 from .const import CONF_HOST
+from .profiles import firmware_version
 
 # "DevSN"/"wifiSN" are the raw payload keys; "serial_number" is the parsed alias
 # profiles.parse_common() derives from "DevSN". Diagnostics get pasted into public
@@ -32,6 +33,10 @@ async def async_get_config_entry_diagnostics(
         "profile_matched": not coordinator.data.profile.is_generic,
         "profile": coordinator.data.profile.name,
         "profile_confidence": coordinator.data.profile.confidence,
+        # Firmware versions help map which firmware sends which fields (e.g. BmsCnt,
+        # issue #58).
+        "firmware_version": firmware_version(coordinator.basic_info),
+        "basic_info": async_redact_data(coordinator.basic_info or {}, TO_REDACT),
         "parsed_data": async_redact_data(coordinator.data.data, TO_REDACT),
         "raw_data": async_redact_data(coordinator.data.raw, TO_REDACT),
     }

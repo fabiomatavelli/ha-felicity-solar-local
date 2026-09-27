@@ -16,7 +16,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from . import FelicityLocalConfigEntry
 from .const import CONF_ENABLE_RAW_DATA_SENSOR, DEFAULT_ENABLE_RAW_DATA_SENSOR, DOMAIN
 from .coordinator import FelicityLocalCoordinator
-from .profiles import FIRMWARE_DEPENDENT_SENSORS
+from .profiles import FIRMWARE_DEPENDENT_SENSORS, firmware_version
 
 RAW_DATA_DESCRIPTION = SensorEntityDescription(
     key="raw_data",
@@ -79,6 +79,7 @@ class FelicityBaseSensor(CoordinatorEntity[FelicityLocalCoordinator], SensorEnti
             name=f"Felicity Solar Battery {device_id}",
             manufacturer="Felicity Solar",
             model=coordinator.data.profile.name,
+            sw_version=firmware_version(coordinator.basic_info),
         )
 
 

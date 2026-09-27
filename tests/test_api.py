@@ -354,3 +354,29 @@ async def test_async_get_timezone_offset_minutes_does_not_leave_one_shot_connect
     await client.async_get_timezone_offset_minutes()
 
     assert client._writer is None
+
+
+async def test_async_get_basic_info_returns_payload(fake_server: _FakeServer) -> None:
+    port = await fake_server.start(
+        b"",
+        command_responses={
+            b"wifilocalMonitor:get dev basice infor": b'{"version":"2.10","M1SwVer":203}'
+        },
+    )
+    client = FelicityLocalClient("127.0.0.1", port, timeout=2.0)
+
+    info = await client.async_get_basic_info()
+
+    assert info == {"version": "2.10", "M1SwVer": 203}
+    assert fake_server.received_command == b"wifilocalMonitor:get dev basice infor"
+    assert client._writer is None
+
+
+async def test_async_get_basic_info_returns_none_on_failure(fake_server: _FakeServer) -> None:
+    port = await fake_server.start(
+        b"",
+        command_responses={b"wifilocalMonitor:get dev basice infor": b'{"broken"}'},
+    )
+    client = FelicityLocalClient("127.0.0.1", port, timeout=2.0)
+
+    assert await client.async_get_basic_info() is None

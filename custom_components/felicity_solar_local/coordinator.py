@@ -59,6 +59,10 @@ class FelicityLocalCoordinator(DataUpdateCoordinator[FelicityBatteryData]):
         self._invert_current_sign = invert_current_sign
         self._tz_offset_minutes: int | None = None
         self._tz_offset_fetched = False
+        # Raw "get dev basice infor" payload (firmware versions), fetched once like the
+        # timezone offset; None if the battery didn't answer it.
+        self.basic_info: dict[str, Any] | None = None
+        self._basic_info_fetched = False
         self._reported_model: tuple[Any, Any] | None = None
 
     async def _async_update_data(self) -> FelicityBatteryData:
@@ -76,6 +80,9 @@ class FelicityLocalCoordinator(DataUpdateCoordinator[FelicityBatteryData]):
         if not self._tz_offset_fetched:
             self._tz_offset_minutes = await self.client.async_get_timezone_offset_minutes()
             self._tz_offset_fetched = True
+        if not self._basic_info_fetched:
+            self.basic_info = await self.client.async_get_basic_info()
+            self._basic_info_fetched = True
         if self._tz_offset_minutes is not None:
             raw = {**raw, "timeZMin": self._tz_offset_minutes}
 

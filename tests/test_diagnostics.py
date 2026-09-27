@@ -103,3 +103,16 @@ async def test_diagnostics_profile_matched_for_known_model(
     diagnostics = await async_get_config_entry_diagnostics(hass, entry)
 
     assert diagnostics["profile_matched"] is True
+
+
+async def test_diagnostics_include_firmware_versions(
+    hass: HomeAssistant, sample_response: dict[str, Any]
+) -> None:
+    entry = await _setup_entry(hass, sample_response)
+
+    diagnostics = await async_get_config_entry_diagnostics(hass, entry)
+
+    assert diagnostics["firmware_version"] == "M1 203, M2 8, WiFi 2.10"
+    assert diagnostics["basic_info"]["M1SwVer"] == 203
+    assert diagnostics["basic_info"]["DevSN"] == REDACTED
+    assert diagnostics["basic_info"]["wifiSN"] == REDACTED

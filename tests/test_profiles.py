@@ -15,6 +15,7 @@ from custom_components.felicity_solar_local.profiles import (
     FLA48460TG2_PROFILE,
     FLB48314TG1H_PROFILE,
     LUX_E_48100LG03_PROFILE,
+    firmware_version,
     select_profile,
 )
 
@@ -395,3 +396,14 @@ def test_lux_e_48100lg03_core_fields_scale_like_common_profile(
     assert data["discharge_voltage_limit"] == 48.0
     assert data["charge_current_limit"] == 100.0
     assert data["discharge_current_limit"] == 100.0
+
+
+def test_firmware_version_skips_unpopulated_slots(basic_info_response: dict[str, Any]) -> None:
+    # DSwVer is 65535 (unpopulated) on this battery.
+    assert firmware_version(basic_info_response) == "M1 203, M2 8, WiFi 2.10"
+
+
+def test_firmware_version_none_without_versions() -> None:
+    assert firmware_version(None) is None
+    assert firmware_version({}) is None
+    assert firmware_version({"M1SwVer": 65535}) is None

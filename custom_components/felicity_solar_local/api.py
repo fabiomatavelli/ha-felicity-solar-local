@@ -33,6 +33,7 @@ from typing import Any
 
 from .const import (
     ACK_BYTE,
+    BASIC_INFO_QUERY_COMMAND,
     DATE_QUERY_COMMAND,
     DEFAULT_PORT,
     DEFAULT_TIMEOUT,
@@ -134,10 +135,24 @@ class FelicityLocalClient:
         polling connection. Best-effort: any failure returns None (treat as "unknown")
         rather than raising, since this is supplementary info, not the main poll data.
         """
+        data = await self._async_best_effort_query(DATE_QUERY_COMMAND)
+        offset = data.get("timeZMin") if data is not None else None
+        return offset if isinstance(offset, int) else None
+
+    async def async_get_basic_info(self) -> dict[str, Any] | None:
+        """Query the device's model codes and firmware versions (``get dev basice infor``).
+
+        Same connection handling and best-effort semantics as
+        async_get_timezone_offset_minutes: any failure returns None.
+        """
+        return await self._async_best_effort_query(BASIC_INFO_QUERY_COMMAND)
+
+    async def _async_best_effort_query(self, command: bytes) -> dict[str, Any] | None:
+        """Run a supplementary query over the shared connection; None on any failure."""
         async with self._lock:
             try:
                 await self._ensure_connected()
-                data = await self._query(DATE_QUERY_COMMAND)
+                data = await self._query(command)
             except FelicityLocalError:
                 await self._disconnect()
                 return None
@@ -145,8 +160,7 @@ class FelicityLocalClient:
             if not self.persistent:
                 await self._disconnect()
 
-        offset = data.get("timeZMin") if isinstance(data, dict) else None
-        return offset if isinstance(offset, int) else None
+        return data
 
     async def _ensure_connected(self) -> None:
         """Reuse the cached connection if it's still usable, else open a fresh one."""
