@@ -18,7 +18,7 @@
     },
     "abort": {
       "already_configured": "Diese Batterie ist bereits eingerichtet.",
-      "not_a_battery": "Dieses Gerät ist ein Felicity-Solar-Wechselrichter, keine Batterie. Diese Integration unterstützt nur Felicity-Batterien."
+      "not_a_battery": "Dieses Gerät ist ein Felicity-Solar-Wechselrichter, keine Batterie. Diese Integration unterstützt nur Felicity-Batterien. Wenn deine Batterien Felicity-Packs mit eigenem WLAN-Modul sind, füge stattdessen diese mit der IP-Adresse der jeweiligen Batterie hinzu."
     }
   },
   "options": {
@@ -48,7 +48,7 @@
     },
     "unsupported_inverter": {
       "title": "Felicity-Solar-Wechselrichter erkannt (Type={type})",
-      "description": "Das Gerät unter dieser Adresse ist ein Felicity-Solar-Wechselrichter, keine Batterie. Diese Integration liest nur Felicity-Batterien aus, daher bleiben ihre Batteriesensoren für dieses Gerät leer, und kein Batterieprofil kann daran etwas ändern.\n\nFür Wechselrichter wähle **Mehr erfahren**, um eine Community-Integration für Felicity-Wechselrichter zu öffnen, und entferne anschließend diesen Eintrag aus **Felicity Solar Local**."
+      "description": "Das Gerät unter dieser Adresse ist ein Felicity-Solar-Wechselrichter, keine Batterie. Diese Integration liest nur Felicity-Batterien aus, daher bleiben ihre Batteriesensoren für dieses Gerät leer, und kein Batterieprofil kann daran etwas ändern.\n\nFür Wechselrichter wähle **Mehr erfahren**, um eine Community-Integration für Felicity-Wechselrichter zu öffnen, und entferne anschließend diesen Eintrag aus **Felicity Solar Local**.\n\nWenn deine Batterien Felicity-Packs mit eigenem WLAN-Modul sind (eigene IP-Adresse, nicht die des Wechselrichters), füge sie mit der IP-Adresse der jeweiligen Batterie zu **Felicity Solar Local** hinzu. Bei mehreren gleichen Packs reicht die Diagnose einer einzigen Batterie, um ein Profil anzufragen."
     }
   },
   "entity": {

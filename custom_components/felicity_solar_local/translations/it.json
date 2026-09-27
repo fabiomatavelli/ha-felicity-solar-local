@@ -18,7 +18,7 @@
     },
     "abort": {
       "already_configured": "Questa batteria è già configurata.",
-      "not_a_battery": "Questo dispositivo è un inverter Felicity Solar, non una batteria. Questa integrazione supporta solo le batterie Felicity."
+      "not_a_battery": "Questo dispositivo è un inverter Felicity Solar, non una batteria. Questa integrazione supporta solo le batterie Felicity. Se le tue batterie sono pacchi Felicity con un proprio modulo WiFi, aggiungile usando l'indirizzo IP di ciascuna batteria."
     }
   },
   "options": {
@@ -48,7 +48,7 @@
     },
     "unsupported_inverter": {
       "title": "Inverter Felicity Solar rilevato (Type={type})",
-      "description": "Il dispositivo a questo indirizzo è un inverter Felicity Solar, non una batteria. Questa integrazione legge solo le batterie Felicity, quindi i suoi sensori della batteria resteranno vuoti per questo dispositivo, e nessun profilo batteria può cambiarlo.\n\nPer gli inverter, seleziona **Ulteriori informazioni** per un'integrazione della community dedicata agli inverter Felicity, quindi rimuovi questa voce da **Felicity Solar Local**."
+      "description": "Il dispositivo a questo indirizzo è un inverter Felicity Solar, non una batteria. Questa integrazione legge solo le batterie Felicity, quindi i suoi sensori della batteria resteranno vuoti per questo dispositivo, e nessun profilo batteria può cambiarlo.\n\nPer gli inverter, seleziona **Ulteriori informazioni** per un'integrazione della community dedicata agli inverter Felicity, quindi rimuovi questa voce da **Felicity Solar Local**.\n\nSe le tue batterie sono pacchi Felicity con un proprio modulo WiFi (un indirizzo IP separato, non quello dell'inverter), aggiungile a **Felicity Solar Local** usando l'indirizzo IP di ciascuna batteria. Se hai più pacchi identici, la diagnostica di una sola batteria basta per richiedere un profilo."
     }
   },
   "entity": {

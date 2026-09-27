@@ -18,7 +18,7 @@
     },
     "abort": {
       "already_configured": "Cette batterie est déjà configurée.",
-      "not_a_battery": "Cet appareil est un onduleur Felicity Solar, pas une batterie. Cette intégration ne prend en charge que les batteries Felicity."
+      "not_a_battery": "Cet appareil est un onduleur Felicity Solar, pas une batterie. Cette intégration ne prend en charge que les batteries Felicity. Si vos batteries sont des packs Felicity avec leur propre module WiFi, ajoutez-les plutôt avec l'adresse IP de chaque batterie."
     }
   },
   "options": {
@@ -48,7 +48,7 @@
     },
     "unsupported_inverter": {
       "title": "Onduleur Felicity Solar détecté (Type={type})",
-      "description": "L'appareil à cette adresse est un onduleur Felicity Solar, pas une batterie. Cette intégration ne lit que les batteries Felicity : ses capteurs de batterie resteront donc vides pour cet appareil, et aucun profil de batterie ne peut y remédier.\n\nPour les onduleurs, sélectionnez **En savoir plus** pour une intégration communautaire dédiée aux onduleurs Felicity, puis supprimez cette entrée de **Felicity Solar Local**."
+      "description": "L'appareil à cette adresse est un onduleur Felicity Solar, pas une batterie. Cette intégration ne lit que les batteries Felicity : ses capteurs de batterie resteront donc vides pour cet appareil, et aucun profil de batterie ne peut y remédier.\n\nPour les onduleurs, sélectionnez **En savoir plus** pour une intégration communautaire dédiée aux onduleurs Felicity, puis supprimez cette entrée de **Felicity Solar Local**.\n\nSi vos batteries sont des packs Felicity avec leur propre module WiFi (une adresse IP distincte, pas celle de l'onduleur), ajoutez-les à **Felicity Solar Local** avec l'adresse IP de chaque batterie. Si vous avez plusieurs packs identiques, les diagnostics d'une seule batterie suffisent pour demander un profil."
     }
   },
   "entity": {

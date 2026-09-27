@@ -178,7 +178,8 @@ def main(argv: list[str] | None = None) -> None:
             print(
                 f"{args.host}:{args.port} is a Felicity inverter (Type={data.get('Type')}), "
                 "not a battery; this integration only supports batteries. For inverters, "
-                f"see {INVERTER_INTEGRATION_URL}",
+                f"see {INVERTER_INTEGRATION_URL}. If your batteries are Felicity packs with "
+                "their own WiFi module, probe each battery's own IP address instead.",
                 file=sys.stderr,
             )
             sys.exit(1)
