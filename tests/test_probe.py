@@ -96,6 +96,40 @@ def test_main_report_writes_output_file(
     assert _report_payload(output.read_text()) == probe.redact(sample_response)
 
 
+def test_main_report_refuses_inverter(
+    probe: ModuleType,
+    inverter_type81_response: dict[str, Any],
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    async def fake_probe(host: str, port: int) -> dict[str, Any]:
+        return inverter_type81_response
+
+    monkeypatch.setattr(probe, "probe", fake_probe)
+
+    with pytest.raises(SystemExit) as exc:
+        probe.main(["192.168.1.50", "--report"])
+
+    assert exc.value.code == 1
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert probe.INVERTER_INTEGRATION_URL in captured.err
+
+
+def test_is_inverter_payload_matches_integration(
+    probe: ModuleType,
+    sample_response: dict[str, Any],
+    inverter_type81_response: dict[str, Any],
+) -> None:
+    # Duplicated in probe.py since it can't import the integration - keep them identical.
+    from custom_components.felicity_solar_local.const import INVERTER_INTEGRATION_URL
+    from custom_components.felicity_solar_local.profiles import is_inverter_payload
+
+    assert probe.INVERTER_INTEGRATION_URL == INVERTER_INTEGRATION_URL
+    for payload in (sample_response, inverter_type81_response, {}):
+        assert probe.is_inverter_payload(payload) == is_inverter_payload(payload)
+
+
 def test_new_issue_url_matches_integration_repair_link(
     probe: ModuleType, sample_response: dict[str, Any]
 ) -> None:

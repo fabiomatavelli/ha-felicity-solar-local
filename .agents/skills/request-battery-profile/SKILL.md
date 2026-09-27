@@ -30,6 +30,8 @@ stalled earlier requests.
 
 ## 2. Check it isn't already supported or requested
 
+- First make sure it's a battery at all. A payload with inverter fields (`ACin`, `ACout`, `PV`, `pFlow`, `busVp`) and no per-pack fields (`BattList`, `BatsocList`) comes from a Felicity inverter (e.g. `Type=81`, issue #64): this integration doesn't support inverters and no battery profile can change that, so don't open an issue - point the user to https://github.com/partach/ha_felicity instead. `probe.py --report` refuses such payloads for the same reason.
+- First make sure it's a battery at all. A payload with inverter fields (`ACin`, `ACout`, `PV`, `pFlow`, `busVp`) and no per-pack fields (`BattList`, `BatsocList`) comes from a Felicity inverter (e.g. `Type=81`, issue #64): this integration doesn't support inverters and no battery profile can change that, so don't open an issue - point the user to https://github.com/partach/ha_felicity instead. `probe.py --report` refuses such payloads for the same reason.
 - Read `Type`/`SubType` from the payload and compare with the `type_code`/`subtype_code` of
   each profile in `PROFILES` (`custom_components/felicity_solar_local/profiles.py`). If a
   profile already matches, tell the user which one, and that updating the integration is

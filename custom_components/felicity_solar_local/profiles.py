@@ -552,6 +552,23 @@ PROFILES: tuple[BatteryProfile, ...] = (
 )
 
 
+# Keys only Felicity *inverters* send on the same port (issue #64: a Type=81 three-phase
+# hybrid inverter), versus the per-pack keys every supported battery sends.
+_INVERTER_KEYS = ("ACin", "ACout", "PV", "pFlow", "busVp")
+_BATTERY_PACK_KEYS = ("BattList", "BatsocList")
+
+
+def is_inverter_payload(raw: dict[str, Any]) -> bool:
+    """True if the response comes from a Felicity inverter rather than a battery.
+
+    Inverters answer the same local query with AC/PV/bus fields and no per-pack battery
+    fields, so every battery sensor would parse as None - no battery profile can fix that.
+    """
+    if any(key in raw for key in _BATTERY_PACK_KEYS):
+        return False
+    return any(key in raw for key in _INVERTER_KEYS)
+
+
 def select_profile(raw: dict[str, Any]) -> BatteryProfile:
     """Pick the best matching profile for a raw device response."""
     for profile in PROFILES:

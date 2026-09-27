@@ -14,8 +14,8 @@ from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import FelicityLocalClient, FelicityLocalError
-from .const import DEFAULT_TIMEOUT, DOMAIN, NEW_ISSUE_URL
-from .profiles import BatteryProfile, select_profile
+from .const import DEFAULT_TIMEOUT, DOMAIN, INVERTER_INTEGRATION_URL, NEW_ISSUE_URL
+from .profiles import BatteryProfile, is_inverter_payload, select_profile
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -109,7 +109,25 @@ class FelicityLocalCoordinator(DataUpdateCoordinator[FelicityBatteryData]):
             # A different battery now answers on this host (e.g. swapped behind the same
             # IP) - drop the previous model's issue rather than leaving it stale.
             ir.async_delete_issue(self.hass, DOMAIN, _issue_id(self._reported_model))
+            ir.async_delete_issue(
+                self.hass, DOMAIN, _inverter_issue_id(self._reported_model)
+            )
         self._reported_model = model
+
+        if is_inverter_payload(raw):
+            # Not a battery at all (issue #64): a battery profile request can't help, so
+            # point at an inverter integration instead.
+            ir.async_create_issue(
+                self.hass,
+                DOMAIN,
+                _inverter_issue_id(model),
+                is_fixable=False,
+                severity=ir.IssueSeverity.WARNING,
+                translation_key="unsupported_inverter",
+                translation_placeholders={"type": str(model[0])},
+                learn_more_url=INVERTER_INTEGRATION_URL,
+            )
+            return
 
         issue_id = _issue_id(model)
         if not profile.is_generic:
@@ -133,6 +151,10 @@ class FelicityLocalCoordinator(DataUpdateCoordinator[FelicityBatteryData]):
 
 def _issue_id(model: tuple[Any, Any]) -> str:
     return f"unrecognized_model_{model[0]}_{model[1]}"
+
+
+def _inverter_issue_id(model: tuple[Any, Any]) -> str:
+    return f"unsupported_inverter_{model[0]}_{model[1]}"
 
 
 def profile_request_url(raw: dict[str, Any]) -> str:

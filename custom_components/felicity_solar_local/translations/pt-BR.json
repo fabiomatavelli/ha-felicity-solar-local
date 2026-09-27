@@ -17,7 +17,8 @@
       "unknown": "Erro inesperado."
     },
     "abort": {
-      "already_configured": "Esta bateria já está configurada."
+      "already_configured": "Esta bateria já está configurada.",
+      "not_a_battery": "Este dispositivo é um inversor Felicity Solar, não uma bateria. Esta integração só é compatível com baterias Felicity."
     }
   },
   "options": {
@@ -44,6 +45,10 @@
     "unrecognized_model": {
       "title": "Modelo de bateria Felicity Solar não reconhecido (Type={type}, SubType={subtype})",
       "description": "Esta bateria informa um código de modelo para o qual a integração ainda não tem um perfil, então está usando um perfil genérico: a maioria dos sensores costuma funcionar, mas alguns valores (temperaturas, capacidade, limites de corrente) podem estar errados ou ausentes.\n\nPara que um perfil dedicado seja adicionado, selecione **Saiba mais** para abrir uma issue no GitHub e então:\n\n1. Baixe os diagnósticos desta bateria: **Configurações** > **Dispositivos e serviços** > **Felicity Solar Local** > menu ⋮ da entrada da bateria > **Baixar diagnósticos**. Os números de série e o endereço IP já vêm ocultados.\n2. Anexe esse arquivo à issue (arraste e solte na caixa de texto) e informe o modelo exato que aparece na etiqueta da bateria.\n3. Se você tiver o app da Felicity, adicione algumas leituras dele (SOC, tensão, corrente, temperaturas) de mais ou menos o mesmo momento, para que o novo perfil possa ser conferido.\n\nEsta mensagem desaparece quando uma atualização da integração reconhecer o modelo."
+    },
+    "unsupported_inverter": {
+      "title": "Inversor Felicity Solar detectado (Type={type})",
+      "description": "O dispositivo neste endereço é um inversor Felicity Solar, não uma bateria. Esta integração só lê baterias Felicity, então os sensores de bateria vão continuar vazios para este dispositivo, e nenhum perfil de bateria resolve isso.\n\nPara inversores, selecione **Saiba mais** para ver uma integração da comunidade focada em inversores Felicity e depois remova esta entrada do **Felicity Solar Local**."
     }
   },
   "entity": {

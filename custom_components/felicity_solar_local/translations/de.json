@@ -17,7 +17,8 @@
       "unknown": "Unerwarteter Fehler."
     },
     "abort": {
-      "already_configured": "Diese Batterie ist bereits eingerichtet."
+      "already_configured": "Diese Batterie ist bereits eingerichtet.",
+      "not_a_battery": "Dieses Gerät ist ein Felicity-Solar-Wechselrichter, keine Batterie. Diese Integration unterstützt nur Felicity-Batterien."
     }
   },
   "options": {
@@ -44,6 +45,10 @@
     "unrecognized_model": {
       "title": "Unbekanntes Felicity-Solar-Batteriemodell (Type={type}, SubType={subtype})",
       "description": "Diese Batterie meldet einen Modellcode, für den die Integration noch kein Profil hat, daher wird ein generisches Profil verwendet: Die meisten Sensoren funktionieren in der Regel, einige Werte (Temperaturen, Kapazität, Stromgrenzen) können aber falsch sein oder fehlen.\n\nDamit ein eigenes Profil hinzugefügt werden kann, wähle **Mehr erfahren**, um ein GitHub-Issue zu öffnen, und dann:\n\n1. Lade die Diagnosedaten dieser Batterie herunter: **Einstellungen** > **Geräte & Dienste** > **Felicity Solar Local** > ⋮-Menü des Batterieeintrags > **Diagnosedaten herunterladen**. Seriennummern und IP-Adresse sind bereits unkenntlich gemacht.\n2. Hänge diese Datei an das Issue an (per Drag & Drop in das Textfeld) und gib das genaue Modell vom Typenschild der Batterie an.\n3. Falls du die Felicity-App hast, ergänze ein paar ihrer Messwerte (SOC, Spannung, Strom, Temperaturen) von ungefähr demselben Zeitpunkt, damit das neue Profil gegengeprüft werden kann.\n\nDiese Meldung verschwindet, sobald ein Update der Integration das Modell erkennt."
+    },
+    "unsupported_inverter": {
+      "title": "Felicity-Solar-Wechselrichter erkannt (Type={type})",
+      "description": "Das Gerät unter dieser Adresse ist ein Felicity-Solar-Wechselrichter, keine Batterie. Diese Integration liest nur Felicity-Batterien aus, daher bleiben ihre Batteriesensoren für dieses Gerät leer, und kein Batterieprofil kann daran etwas ändern.\n\nFür Wechselrichter wähle **Mehr erfahren**, um eine Community-Integration für Felicity-Wechselrichter zu öffnen, und entferne anschließend diesen Eintrag aus **Felicity Solar Local**."
     }
   },
   "entity": {

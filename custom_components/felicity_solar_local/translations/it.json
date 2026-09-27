@@ -17,7 +17,8 @@
       "unknown": "Errore imprevisto."
     },
     "abort": {
-      "already_configured": "Questa batteria è già configurata."
+      "already_configured": "Questa batteria è già configurata.",
+      "not_a_battery": "Questo dispositivo è un inverter Felicity Solar, non una batteria. Questa integrazione supporta solo le batterie Felicity."
     }
   },
   "options": {
@@ -44,6 +45,10 @@
     "unrecognized_model": {
       "title": "Modello di batteria Felicity Solar non riconosciuto (Type={type}, SubType={subtype})",
       "description": "Questa batteria riporta un codice modello per cui l'integrazione non ha ancora un profilo, quindi sta usando un profilo generico: la maggior parte dei sensori di solito funziona, ma alcuni valori (temperature, capacità, limiti di corrente) potrebbero essere errati o mancanti.\n\nPer far aggiungere un profilo dedicato, seleziona **Ulteriori informazioni** per aprire una issue su GitHub, poi:\n\n1. Scarica la diagnostica di questa batteria: **Impostazioni** > **Dispositivi e servizi** > **Felicity Solar Local** > menu ⋮ della voce della batteria > **Scarica diagnostica**. I numeri di serie e l'indirizzo IP sono già oscurati.\n2. Allega quel file alla issue (trascinalo nella casella di testo) e indica il modello esatto riportato sull'etichetta della batteria.\n3. Se hai l'app Felicity, aggiungi alcune sue letture (SOC, tensione, corrente, temperature) più o meno dello stesso momento, così da poter verificare il nuovo profilo.\n\nQuesto messaggio scompare quando un aggiornamento dell'integrazione riconosce il modello."
+    },
+    "unsupported_inverter": {
+      "title": "Inverter Felicity Solar rilevato (Type={type})",
+      "description": "Il dispositivo a questo indirizzo è un inverter Felicity Solar, non una batteria. Questa integrazione legge solo le batterie Felicity, quindi i suoi sensori della batteria resteranno vuoti per questo dispositivo, e nessun profilo batteria può cambiarlo.\n\nPer gli inverter, seleziona **Ulteriori informazioni** per un'integrazione della community dedicata agli inverter Felicity, quindi rimuovi questa voce da **Felicity Solar Local**."
     }
   },
   "entity": {

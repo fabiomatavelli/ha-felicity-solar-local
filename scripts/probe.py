@@ -37,6 +37,11 @@ REDACTED = "**REDACTED**"
 REPORT_TITLE_PREFIX = "[Battery profile]"
 NEW_ISSUE_URL = "https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new"
 
+# Keep in sync with profiles.is_inverter_payload() and const.INVERTER_INTEGRATION_URL.
+INVERTER_KEYS = ("ACin", "ACout", "PV", "pFlow", "busVp")
+BATTERY_PACK_KEYS = ("BattList", "BatsocList")
+INVERTER_INTEGRATION_URL = "https://github.com/partach/ha_felicity"
+
 
 async def probe(host: str, port: int) -> dict[str, Any]:
     """Query the battery once and return its parsed JSON snapshot."""
@@ -81,6 +86,13 @@ def report_title(data: dict[str, Any]) -> str:
         f"{REPORT_TITLE_PREFIX} <model> (Type={data.get('Type')}, "
         f"SubType={data.get('SubType')})"
     )
+
+
+def is_inverter_payload(data: dict[str, Any]) -> bool:
+    """True if the device is a Felicity inverter rather than a battery (issue #64)."""
+    if any(key in data for key in BATTERY_PACK_KEYS):
+        return False
+    return any(key in data for key in INVERTER_KEYS)
 
 
 def new_issue_url(data: dict[str, Any]) -> str:
@@ -161,6 +173,15 @@ def main(argv: list[str] | None = None) -> None:
         sys.exit(1)
 
     if args.report:
+        if is_inverter_payload(data):
+            # A battery profile request can't help an inverter - don't generate one.
+            print(
+                f"{args.host}:{args.port} is a Felicity inverter (Type={data.get('Type')}), "
+                "not a battery; this integration only supports batteries. For inverters, "
+                f"see {INVERTER_INTEGRATION_URL}",
+                file=sys.stderr,
+            )
+            sys.exit(1)
         body = render_report(data)
         if args.output:
             args.output.write_text(body)

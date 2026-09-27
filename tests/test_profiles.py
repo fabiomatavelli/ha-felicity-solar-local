@@ -16,6 +16,7 @@ from custom_components.felicity_solar_local.profiles import (
     FLB48314TG1H_PROFILE,
     LUX_E_48100LG03_PROFILE,
     firmware_version,
+    is_inverter_payload,
     select_profile,
 )
 
@@ -407,3 +408,30 @@ def test_firmware_version_none_without_versions() -> None:
     assert firmware_version(None) is None
     assert firmware_version({}) is None
     assert firmware_version({"M1SwVer": 65535}) is None
+
+
+def test_is_inverter_payload_detects_type81_inverter(
+    inverter_type81_response: dict[str, Any],
+) -> None:
+    assert is_inverter_payload(inverter_type81_response)
+    # Falls back to the generic profile, where every battery reading parses as None.
+    assert select_profile(inverter_type81_response) is DEFAULT_PROFILE
+    data = DEFAULT_PROFILE.parse(inverter_type81_response)
+    assert data["soc"] is None
+    assert data["voltage"] is None
+
+
+@pytest.mark.parametrize(
+    "fixture_name",
+    [
+        "sample_response",
+        "fla24100_response",
+        "fla48300_response",
+        "fla48460tg2_response",
+        "lux_e_48100lg03_response",
+    ],
+)
+def test_is_inverter_payload_false_for_every_battery(
+    fixture_name: str, request: pytest.FixtureRequest
+) -> None:
+    assert not is_inverter_payload(request.getfixturevalue(fixture_name))

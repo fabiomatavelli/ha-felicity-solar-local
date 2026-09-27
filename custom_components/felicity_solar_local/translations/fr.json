@@ -17,7 +17,8 @@
       "unknown": "Erreur inattendue."
     },
     "abort": {
-      "already_configured": "Cette batterie est déjà configurée."
+      "already_configured": "Cette batterie est déjà configurée.",
+      "not_a_battery": "Cet appareil est un onduleur Felicity Solar, pas une batterie. Cette intégration ne prend en charge que les batteries Felicity."
     }
   },
   "options": {
@@ -44,6 +45,10 @@
     "unrecognized_model": {
       "title": "Modèle de batterie Felicity Solar non reconnu (Type={type}, SubType={subtype})",
       "description": "Cette batterie indique un code de modèle pour lequel l'intégration n'a pas encore de profil ; un profil générique est donc utilisé : la plupart des capteurs fonctionnent généralement, mais certaines valeurs (températures, capacité, limites de courant) peuvent être fausses ou absentes.\n\nPour faire ajouter un profil dédié, sélectionnez **En savoir plus** pour ouvrir une issue GitHub, puis :\n\n1. Téléchargez les diagnostics de cette batterie : **Paramètres** > **Appareils et services** > **Felicity Solar Local** > menu ⋮ de l'entrée de la batterie > **Télécharger les diagnostics**. Les numéros de série et l'adresse IP sont déjà masqués.\n2. Joignez ce fichier à l'issue (glissez-déposez-le dans la zone de texte) et indiquez le modèle exact figurant sur l'étiquette de la batterie.\n3. Si vous avez l'application Felicity, ajoutez quelques-unes de ses mesures (SOC, tension, courant, températures) prises à peu près au même moment, afin de pouvoir recouper le nouveau profil.\n\nCe message disparaît dès qu'une mise à jour de l'intégration reconnaît le modèle."
+    },
+    "unsupported_inverter": {
+      "title": "Onduleur Felicity Solar détecté (Type={type})",
+      "description": "L'appareil à cette adresse est un onduleur Felicity Solar, pas une batterie. Cette intégration ne lit que les batteries Felicity : ses capteurs de batterie resteront donc vides pour cet appareil, et aucun profil de batterie ne peut y remédier.\n\nPour les onduleurs, sélectionnez **En savoir plus** pour une intégration communautaire dédiée aux onduleurs Felicity, puis supprimez cette entrée de **Felicity Solar Local**."
     }
   },
   "entity": {
