@@ -14,6 +14,7 @@ from custom_components.felicity_solar_local.profiles import (
     FLA48300_PROFILE,
     FLA48460TG2_PROFILE,
     FLB48314TG1H_PROFILE,
+    LUX_E_48100LG03_PROFILE,
     select_profile,
 )
 
@@ -350,3 +351,47 @@ def test_cell_numbers_point_at_matching_cell_sensor(
     data = select_profile(raw).parse(raw)
     assert data[f"cell_{data['max_cell_number']}_voltage"] == data["max_cell_voltage"]
     assert data[f"cell_{data['min_cell_number']}_voltage"] == data["min_cell_voltage"]
+
+
+def test_select_profile_matches_lux_e_48100lg03(lux_e_48100lg03_response: dict[str, Any]) -> None:
+    assert select_profile(lux_e_48100lg03_response) is LUX_E_48100LG03_PROFILE
+    assert LUX_E_48100LG03_PROFILE.confidence == "verified"
+
+
+def test_lux_e_48100lg03_temperatures_come_from_btemlist_not_btemp(
+    lux_e_48100lg03_response: dict[str, Any],
+) -> None:
+    # BTemp[1] would parse as a bogus 76.9 °C; the vendor app showed 20-21 °C (issue #59).
+    assert lux_e_48100lg03_response["BTemp"][1] == [769, 256]
+    data = LUX_E_48100LG03_PROFILE.parse(lux_e_48100lg03_response)
+    assert data["temperature_1"] == 20.0
+    assert data["temperature_2"] == 21.0
+    assert data["temperature_3"] == 21.0
+    assert data["temperature_4"] == 21.0
+    assert data["temperature_max"] == 21.0
+    assert data["temperature_min"] == 20.0
+
+
+def test_lux_e_48100lg03_core_fields_scale_like_common_profile(
+    lux_e_48100lg03_response: dict[str, Any],
+) -> None:
+    data = LUX_E_48100LG03_PROFILE.parse(lux_e_48100lg03_response)
+
+    assert data["voltage"] == 52.84
+    assert data["current"] == -2.4
+    assert data["power"] == -126.82
+    assert data["soc"] == 70.0
+    assert data["soh"] == 100.0
+    assert data["capacity"] == 100.0
+    assert data["cycle_count"] is None
+    assert data["max_cell_voltage"] == 3.304
+    assert data["min_cell_voltage"] == 3.298
+    assert data["max_cell_number"] == 11
+    assert data["min_cell_number"] == 9
+    assert data["cell_11_voltage"] == 3.304
+    assert data["cell_9_voltage"] == 3.298
+    assert data["charging_state"] == "discharging"
+    assert data["charge_voltage_limit"] == 57.6
+    assert data["discharge_voltage_limit"] == 48.0
+    assert data["charge_current_limit"] == 100.0
+    assert data["discharge_current_limit"] == 100.0
