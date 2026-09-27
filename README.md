@@ -14,7 +14,7 @@ onboard WiFi module using its local TCP/JSON protocol.
 
 - **Local polling, no cloud**: connects straight to the battery's IP over TCP.
 - **UI configuration**: add a battery by IP, no YAML required.
-- **All battery data**: voltage, current, power, SOC, SOH, capacity, cycle count, all 16
+- **All battery data**: voltage, current, power, SOC, SOH, capacity, cycle count (only on firmware that reports it), all 16
   individual cell voltages, min/max cell voltage, temperatures, charge/discharge limits,
   fault/warning codes.
 - **Nothing hidden**: an optional diagnostic "Raw data" sensor exposes the complete device
