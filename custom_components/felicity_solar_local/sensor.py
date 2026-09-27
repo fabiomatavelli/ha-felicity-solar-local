@@ -7,6 +7,7 @@ from typing import Any
 
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -15,6 +16,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from . import FelicityLocalConfigEntry
 from .const import CONF_ENABLE_RAW_DATA_SENSOR, DEFAULT_ENABLE_RAW_DATA_SENSOR, DOMAIN
 from .coordinator import FelicityLocalCoordinator
+from .profiles import FIRMWARE_DEPENDENT_SENSORS
 
 RAW_DATA_DESCRIPTION = SensorEntityDescription(
     key="raw_data",
@@ -30,16 +32,37 @@ async def async_setup_entry(
 ) -> None:
     """Set up Felicity Solar Local sensors for a config entry."""
     coordinator = entry.runtime_data
+    registry = er.async_get(hass)
+    device_id = _device_id(coordinator)
 
-    entities: list[SensorEntity] = [
-        FelicitySensor(coordinator, description)
-        for description in coordinator.data.profile.sensors
-    ]
+    entities: list[SensorEntity] = []
+    for description in coordinator.data.profile.sensors:
+        if (
+            description.key in FIRMWARE_DEPENDENT_SENSORS
+            and coordinator.data.data.get(description.key) is None
+        ):
+            # This battery's firmware doesn't send the field, so the entity would only
+            # ever read "unknown". Also drop one left registered by an earlier version of
+            # the integration; it comes back on reload once a firmware update adds the field.
+            stale = registry.async_get_entity_id(
+                "sensor", DOMAIN, f"{device_id}_{description.key}"
+            )
+            if stale is not None:
+                registry.async_remove(stale)
+            continue
+        entities.append(FelicitySensor(coordinator, description))
 
     if entry.options.get(CONF_ENABLE_RAW_DATA_SENSOR, DEFAULT_ENABLE_RAW_DATA_SENSOR):
         entities.append(FelicityRawDataSensor(coordinator))
 
     async_add_entities(entities)
+
+
+def _device_id(coordinator: FelicityLocalCoordinator) -> str:
+    """Stable per-battery id: the serial number, or host:port if the battery hides it."""
+    return coordinator.data.data.get("serial_number") or (
+        f"{coordinator.host}:{coordinator.port}"
+    )
 
 
 class FelicityBaseSensor(CoordinatorEntity[FelicityLocalCoordinator], SensorEntity):
@@ -49,9 +72,7 @@ class FelicityBaseSensor(CoordinatorEntity[FelicityLocalCoordinator], SensorEnti
 
     def __init__(self, coordinator: FelicityLocalCoordinator) -> None:
         super().__init__(coordinator)
-        device_id = coordinator.data.data.get("serial_number") or (
-            f"{coordinator.host}:{coordinator.port}"
-        )
+        device_id = _device_id(coordinator)
         self._device_id = device_id
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, device_id)},

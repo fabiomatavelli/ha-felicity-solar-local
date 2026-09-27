@@ -162,3 +162,60 @@ async def test_unload_entry(hass: HomeAssistant, sample_response: dict[str, Any]
         await hass.async_block_till_done()
 
     assert entry.state.value == "not_loaded"
+
+
+async def _setup(hass: HomeAssistant, response: dict[str, Any]) -> MockConfigEntry:
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        unique_id=response["DevSN"],
+        data={CONF_HOST: "192.168.1.50", CONF_PORT: 53970},
+    )
+    entry.add_to_hass(hass)
+
+    with (
+        patch(API_PATH, AsyncMock(return_value=response)),
+        patch(TZ_PATH, AsyncMock(return_value=60)),
+    ):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+    return entry
+
+
+async def test_cycle_count_sensor_created_when_firmware_reports_it(
+    hass: HomeAssistant, fla48300_response: dict[str, Any]
+) -> None:
+    serial = fla48300_response["DevSN"]
+    await _setup(hass, fla48300_response)
+
+    registry = er.async_get(hass)
+    entity_id = registry.async_get_entity_id("sensor", DOMAIN, f"{serial}_cycle_count")
+    assert entity_id is not None
+    state = hass.states.get(entity_id)
+    assert state is not None
+    assert state.state == "219"
+
+
+async def test_cycle_count_sensor_skipped_when_firmware_omits_it(
+    hass: HomeAssistant, sample_response: dict[str, Any]
+) -> None:
+    # sample_response.json comes from firmware that doesn't send BmsCnt (issue #58).
+    assert "BmsCnt" not in sample_response
+    serial = sample_response["DevSN"]
+    await _setup(hass, sample_response)
+
+    registry = er.async_get(hass)
+    assert registry.async_get_entity_id("sensor", DOMAIN, f"{serial}_cycle_count") is None
+    assert registry.async_get_entity_id("sensor", DOMAIN, f"{serial}_voltage") is not None
+
+
+async def test_stale_cycle_count_entity_removed_when_firmware_omits_it(
+    hass: HomeAssistant, sample_response: dict[str, Any]
+) -> None:
+    # Earlier versions always registered cycle_count, leaving it stuck at "unknown".
+    serial = sample_response["DevSN"]
+    registry = er.async_get(hass)
+    registry.async_get_or_create("sensor", DOMAIN, f"{serial}_cycle_count")
+
+    await _setup(hass, sample_response)
+
+    assert registry.async_get_entity_id("sensor", DOMAIN, f"{serial}_cycle_count") is None

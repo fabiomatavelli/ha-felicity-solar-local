@@ -74,6 +74,12 @@ def _raw(data: dict[str, Any], key: str) -> Any:
     return None if value in _SENTINELS else value
 
 
+# Sensors backed by a field only some firmware versions send (see parse_common()). sensor.py
+# only creates these when the first reading actually carries a value, rather than leaving an
+# entity stuck at "unknown" forever on firmware that never reports it.
+FIRMWARE_DEPENDENT_SENSORS = frozenset({"cycle_count"})
+
+
 # Bstate bitmask flags. Bit 14 (heating) is a separate flag and intentionally not
 # decoded here.
 _BSTATE_DISCHARGING_BIT = 1 << 12
@@ -133,8 +139,8 @@ def parse_common(raw: dict[str, Any]) -> dict[str, Any]:
 
     ``BmsCnt`` (charge cycle count) is only present on newer firmware - see issue #42,
     where it was confirmed against the vendor app on a battery running the latest
-    firmware. Older firmware simply omits the key, so ``cycle_count`` reads as
-    unavailable there rather than wrong.
+    firmware. Older firmware simply omits the key (issue #58), so ``cycle_count`` parses
+    as None there rather than wrong - and see ``FIRMWARE_DEPENDENT_SENSORS``.
     """
     voltage = _scaled(raw, "BattList", 0, 0, 1000)
     current = _scaled(raw, "BattList", 1, 0, 10)
