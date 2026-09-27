@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.4.0...v1.4.1) (2026-09-27)
+
+
+### Bug Fixes
+
+* tell inverter owners the integration only supports batteries ([#65](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/65)) ([c1813e5](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/c1813e5f5cea6998199e62502ab33aa0e1ba6b57))
+
 ## [1.4.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.3.0...v1.4.0) (2026-09-27)
 
 
