@@ -7,6 +7,10 @@ DOMAIN = "felicity_solar_local"
 # it can't import the integration).
 NEW_ISSUE_URL = "https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/new"
 
+# Where inverter owners are pointed instead (see profiles.is_inverter_payload()): a separate
+# community integration focused on Felicity inverters.
+INVERTER_INTEGRATION_URL = "https://github.com/partach/ha_felicity"
+
 CONF_HOST = "host"
 CONF_PORT = "port"
 CONF_UPDATE_INTERVAL = "update_interval"

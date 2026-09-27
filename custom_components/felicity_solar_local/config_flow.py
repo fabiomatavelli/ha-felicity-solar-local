@@ -32,6 +32,7 @@ from .const import (
     MIN_UPDATE_INTERVAL,
     MIN_UPDATE_INTERVAL_PERSISTENT,
 )
+from .profiles import is_inverter_payload
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -75,6 +76,8 @@ class FelicityLocalConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 _LOGGER.exception("Unexpected error validating Felicity Solar battery")
                 errors["base"] = "unknown"
             else:
+                if is_inverter_payload(raw):
+                    return self.async_abort(reason="not_a_battery")
                 serial_number = raw.get("DevSN")
                 unique_id = serial_number or f"{host}:{port}"
                 await self.async_set_unique_id(unique_id)

@@ -80,6 +80,22 @@ async def test_user_flow_errors(
     assert result["errors"] == {"base": expected_error}
 
 
+async def test_user_flow_aborts_for_inverter(
+    hass: HomeAssistant, inverter_type81_response: dict[str, Any]
+) -> None:
+    with patch(API_PATH, AsyncMock(return_value=inverter_type81_response)):
+        result = await hass.config_entries.flow.async_init(
+            DOMAIN, context={"source": config_entries.SOURCE_USER}
+        )
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], {CONF_HOST: "192.168.1.50", CONF_PORT: 53970}
+        )
+
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "not_a_battery"
+    assert not hass.config_entries.async_entries(DOMAIN)
+
+
 async def test_user_flow_aborts_on_duplicate(
     hass: HomeAssistant, sample_response: dict[str, Any]
 ) -> None:

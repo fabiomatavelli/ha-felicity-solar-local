@@ -116,3 +116,19 @@ async def test_diagnostics_include_firmware_versions(
     assert diagnostics["basic_info"]["M1SwVer"] == 203
     assert diagnostics["basic_info"]["DevSN"] == REDACTED
     assert diagnostics["basic_info"]["wifiSN"] == REDACTED
+
+
+async def test_diagnostics_redact_inverter_serial_in_basic_info(
+    hass: HomeAssistant,
+    sample_response: dict[str, Any],
+    basic_info_response: dict[str, Any],
+    mock_basic_info: AsyncMock,
+) -> None:
+    """Inverters report their own serial as InvSN in basic info (issue #64)."""
+    mock_basic_info.return_value = {**basic_info_response, "InvSN": "INV-TEST-SERIAL"}
+    entry = await _setup_entry(hass, sample_response)
+
+    diagnostics = await async_get_config_entry_diagnostics(hass, entry)
+
+    assert diagnostics["basic_info"]["InvSN"] == REDACTED
+    assert "INV-TEST-SERIAL" not in str(diagnostics)

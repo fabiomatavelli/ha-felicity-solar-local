@@ -17,7 +17,8 @@
       "unknown": "Erro inesperado."
     },
     "abort": {
-      "already_configured": "Esta bateria já está configurada."
+      "already_configured": "Esta bateria já está configurada.",
+      "not_a_battery": "Este dispositivo é um inversor Felicity Solar, não uma bateria. Esta integração só suporta baterias Felicity. Se as suas baterias forem Felicity com módulo WiFi próprio, adicione-as usando o endereço IP de cada bateria."
     }
   },
   "options": {
@@ -44,6 +45,10 @@
     "unrecognized_model": {
       "title": "Modelo de bateria Felicity Solar não reconhecido (Type={type}, SubType={subtype})",
       "description": "Esta bateria reporta um código de modelo para o qual a integração ainda não tem perfil, pelo que está a usar um perfil genérico: a maioria dos sensores costuma funcionar, mas alguns valores (temperaturas, capacidade, limites de corrente) podem estar errados ou em falta.\n\nPara que seja adicionado um perfil dedicado, selecione **Saber mais** para abrir uma issue no GitHub e depois:\n\n1. Transfira os diagnósticos desta bateria: **Definições** > **Dispositivos e serviços** > **Felicity Solar Local** > menu ⋮ da entrada da bateria > **Transferir diagnósticos**. Os números de série e o endereço IP já estão ocultados.\n2. Anexe esse ficheiro à issue (arraste-o e largue-o na caixa de texto) e indique o modelo exato que consta da etiqueta da bateria.\n3. Se tiver a aplicação da Felicity, acrescente algumas leituras dela (SOC, tensão, corrente, temperaturas) de mais ou menos o mesmo momento, para que o novo perfil possa ser verificado.\n\nEsta mensagem desaparece quando uma atualização da integração reconhecer o modelo."
+    },
+    "unsupported_inverter": {
+      "title": "Inversor Felicity Solar detetado (Type={type})",
+      "description": "O dispositivo neste endereço é um inversor Felicity Solar, não uma bateria. Esta integração só lê baterias Felicity, por isso os sensores de bateria vão continuar vazios para este dispositivo, e nenhum perfil de bateria resolve isso.\n\nPara inversores, selecione **Saber mais** para ver uma integração da comunidade focada em inversores Felicity e depois remova esta entrada do **Felicity Solar Local**.\n\nSe as suas baterias forem Felicity com módulo WiFi próprio (um endereço IP separado, não o do inversor), adicione-as ao **Felicity Solar Local** usando o endereço IP de cada bateria. Se tiver várias baterias iguais, o diagnóstico de uma só basta para pedir um perfil."
     }
   },
   "entity": {

@@ -30,6 +30,7 @@ stalled earlier requests.
 
 ## 2. Check it isn't already supported or requested
 
+- First make sure it's a battery at all. A payload with inverter fields (`ACin`, `ACout`, `PV`, `pFlow`, `busVp`) and no per-pack fields (`BattList`, `BatsocList`) comes from a Felicity inverter (e.g. `Type=81`, issue #64): this integration doesn't support inverters and no battery profile can change that, so don't open an issue - point the user to https://github.com/partach/ha_felicity instead. If their batteries are Felicity packs with their own WiFi module (a separate IP, not the inverter's), they can add each battery by its own IP and, if it's unrecognized, request a profile from that battery's diagnostics (one pack is enough for several identical ones). `probe.py --report` refuses inverter payloads for the same reason.
 - Read `Type`/`SubType` from the payload and compare with the `type_code`/`subtype_code` of
   each profile in `PROFILES` (`custom_components/felicity_solar_local/profiles.py`). If a
   profile already matches, tell the user which one, and that updating the integration is

@@ -17,7 +17,8 @@
       "unknown": "Unexpected error."
     },
     "abort": {
-      "already_configured": "This battery is already configured."
+      "already_configured": "This battery is already configured.",
+      "not_a_battery": "This device is a Felicity Solar inverter, not a battery. This integration only supports Felicity batteries. If your batteries are Felicity packs with their own WiFi module, add them instead, using each battery's own IP address."
     }
   },
   "options": {
@@ -44,6 +45,10 @@
     "unrecognized_model": {
       "title": "Unrecognized Felicity Solar battery model (Type={type}, SubType={subtype})",
       "description": "This battery reports a model code the integration doesn't have a profile for yet, so it's using a generic best-effort profile: most sensors usually work, but some values (temperatures, capacity, current limits) may be wrong or missing.\n\nTo get a dedicated profile added, select **Learn more** to open a GitHub issue, then:\n\n1. Download this battery's diagnostics: **Settings** > **Devices & services** > **Felicity Solar Local** > the ⋮ menu of the battery's entry > **Download diagnostics**. The serial numbers and IP address are already redacted.\n2. Attach that file to the issue (drag and drop it into the text box), and add the exact model from the battery's label.\n3. If you have the Felicity app, add a few of its readings (SOC, voltage, current, temperatures) from about the same moment, so the new profile can be cross-checked.\n\nThis message goes away once an integration update recognizes the model."
+    },
+    "unsupported_inverter": {
+      "title": "Felicity Solar inverter detected (Type={type})",
+      "description": "The device at this address is a Felicity Solar inverter, not a battery. This integration only reads Felicity batteries, so its battery sensors will stay empty for this device, and no battery profile can change that.\n\nFor inverters, select **Learn more** for a community integration focused on Felicity inverters, then remove this entry from **Felicity Solar Local**.\n\nIf your batteries are Felicity packs with their own WiFi module (a separate IP address, not the inverter's), add them to **Felicity Solar Local** using each battery's own IP address. If you have several identical packs, one battery's diagnostics are enough to request a profile."
     }
   },
   "entity": {

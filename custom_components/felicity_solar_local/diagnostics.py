@@ -11,10 +11,11 @@ from . import FelicityLocalConfigEntry
 from .const import CONF_HOST
 from .profiles import firmware_version
 
-# "DevSN"/"wifiSN" are the raw payload keys; "serial_number" is the parsed alias
+# "DevSN"/"wifiSN" are the raw payload keys, "InvSN" the inverter serial the basic-info
+# query can carry (issue #64); "serial_number" is the parsed alias
 # profiles.parse_common() derives from "DevSN". Diagnostics get pasted into public
 # issue threads, so every spelling of the serial has to be covered.
-TO_REDACT = {CONF_HOST, "DevSN", "wifiSN", "serial_number"}
+TO_REDACT = {CONF_HOST, "DevSN", "wifiSN", "InvSN", "serial_number"}
 
 
 async def async_get_config_entry_diagnostics(

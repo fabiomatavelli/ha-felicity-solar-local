@@ -14,7 +14,12 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.felicity_solar_local import profiles
 from custom_components.felicity_solar_local.api import FelicityConnectionError
-from custom_components.felicity_solar_local.const import CONF_HOST, CONF_PORT, DOMAIN
+from custom_components.felicity_solar_local.const import (
+    CONF_HOST,
+    CONF_PORT,
+    DOMAIN,
+    INVERTER_INTEGRATION_URL,
+)
 from custom_components.felicity_solar_local.coordinator import FelicityLocalCoordinator
 from custom_components.felicity_solar_local.profiles import FLB48314TG1H_PROFILE
 
@@ -214,6 +219,27 @@ async def test_unrecognized_model_raises_repair_issue(
     assert "template" not in query
     assert query["title"] == ["[Battery profile] <model> (Type=112, SubType=9999)"]
     assert "192.168.1.50" not in issue.learn_more_url
+
+
+async def test_inverter_raises_unsupported_inverter_issue(
+    hass: HomeAssistant, inverter_type81_response: dict[str, Any]
+) -> None:
+    coordinator = _make_coordinator(hass)
+
+    with (
+        patch(API_PATH, AsyncMock(return_value=inverter_type81_response)),
+        patch(TZ_PATH, AsyncMock(return_value=None)),
+    ):
+        await coordinator._async_update_data()
+
+    registry = ir.async_get(hass)
+    issue = registry.async_get_issue(DOMAIN, "unsupported_inverter_81_None")
+    assert issue is not None
+    assert issue.translation_key == "unsupported_inverter"
+    assert issue.translation_placeholders == {"type": "81"}
+    assert issue.learn_more_url == INVERTER_INTEGRATION_URL
+    # No battery profile request for a device that isn't a battery.
+    assert registry.async_get_issue(DOMAIN, "unrecognized_model_81_None") is None
 
 
 async def test_recognized_model_raises_no_repair_issue(
