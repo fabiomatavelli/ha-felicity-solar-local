@@ -1,0 +1,17 @@
+{
+  "CommVer": 1,
+  "version": "2.10",
+  "wifiSN": "F075704831426060274",
+  "COM": 3,
+  "iotType": 3,
+  "modID": 1,
+  "DevSN": "075704831426060274",
+  "Type": 112,
+  "SubType": 7353,
+  "DSwVer": 65535,
+  "M1SwVer": 203,
+  "M2SwVer": 8,
+  "DHwVer": 0,
+  "CtHwVer": 0,
+  "PwHwVer": 65535
+}

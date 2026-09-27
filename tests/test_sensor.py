@@ -7,6 +7,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -219,3 +220,35 @@ async def test_stale_cycle_count_entity_removed_when_firmware_omits_it(
     await _setup(hass, sample_response)
 
     assert registry.async_get_entity_id("sensor", DOMAIN, f"{serial}_cycle_count") is None
+
+
+def _battery_device(hass: HomeAssistant, serial: str) -> dr.DeviceEntry | None:
+    # Looked up through an entity rather than by identifier: device_registry's
+    # async_get_device() is deprecated in newer Home Assistant releases.
+    entity_id = er.async_get(hass).async_get_entity_id("sensor", DOMAIN, f"{serial}_voltage")
+    assert entity_id is not None
+    device_id = er.async_get(hass).entities[entity_id].device_id
+    assert device_id is not None
+    return dr.async_get(hass).async_get(device_id)
+
+
+async def test_device_reports_firmware_version(
+    hass: HomeAssistant, sample_response: dict[str, Any]
+) -> None:
+    await _setup(hass, sample_response)
+
+    device = _battery_device(hass, sample_response["DevSN"])
+    assert device is not None
+    assert device.sw_version == "M1 203, M2 8, WiFi 2.10"
+
+
+async def test_device_without_firmware_info(
+    hass: HomeAssistant, sample_response: dict[str, Any], mock_basic_info: AsyncMock
+) -> None:
+    # Older WiFi modules may not answer the basic-info query at all.
+    mock_basic_info.return_value = None
+    await _setup(hass, sample_response)
+
+    device = _battery_device(hass, sample_response["DevSN"])
+    assert device is not None
+    assert device.sw_version is None

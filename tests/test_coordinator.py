@@ -87,6 +87,26 @@ async def test_update_data_fetches_timezone_offset_once_and_merges_it(
     assert tz_mock.call_count == 1
 
 
+async def test_update_data_fetches_basic_info_once(
+    hass: HomeAssistant,
+    sample_response: dict[str, Any],
+    basic_info_response: dict[str, Any],
+    mock_basic_info: AsyncMock,
+) -> None:
+    coordinator = _make_coordinator(hass)
+
+    with (
+        patch(API_PATH, AsyncMock(return_value=sample_response)),
+        patch(TZ_PATH, AsyncMock(return_value=60)),
+    ):
+        await coordinator._async_update_data()
+        await coordinator._async_update_data()
+
+    assert coordinator.basic_info == basic_info_response
+    # Firmware versions don't change between polls.
+    assert mock_basic_info.call_count == 1
+
+
 async def test_update_data_does_not_retry_timezone_offset_after_a_failed_fetch(
     hass: HomeAssistant, sample_response: dict[str, Any]
 ) -> None:

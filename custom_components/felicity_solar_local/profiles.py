@@ -128,6 +128,27 @@ def _device_timestamp(raw: dict[str, Any]) -> datetime | None:
     return naive.replace(tzinfo=tzinfo)
 
 
+# Firmware version fields from the basic-info query (see const.BASIC_INFO_QUERY_COMMAND),
+# with the label each gets in the device's software version. "version" is the WiFi
+# module's own firmware; M1/M2/D are the device's firmware slots as the payload names them.
+_FIRMWARE_FIELDS = (("M1SwVer", "M1"), ("M2SwVer", "M2"), ("DSwVer", "D"), ("version", "WiFi"))
+
+
+def firmware_version(basic_info: dict[str, Any] | None) -> str | None:
+    """Summarize the basic-info payload's firmware versions, e.g. ``M1 203, M2 8, WiFi 2.10``.
+
+    Unpopulated slots (65535 etc.) are left out; None if no version is known at all.
+    """
+    if not basic_info:
+        return None
+    parts = [
+        f"{label} {value}"
+        for key, label in _FIRMWARE_FIELDS
+        if (value := _raw(basic_info, key)) is not None and value != ""
+    ]
+    return ", ".join(parts) or None
+
+
 def parse_common(raw: dict[str, Any]) -> dict[str, Any]:
     """Parse the fields verified against the FLB48314TG1-H.
 

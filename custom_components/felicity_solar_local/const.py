@@ -51,4 +51,8 @@ QUERY_COMMAND = b"wifilocalMonitor:get dev real infor"
 # queried once (not every poll) to learn the device's UTC offset. Confirmed live: both
 # batteries returned timeZMin=60 (UTC+1).
 DATE_QUERY_COMMAND = b"wifilocalMonitor:get Date"
+# Separate command returning the device's model codes and firmware/hardware versions, e.g.
+# {"version": "2.10", "Type": 112, "SubType": 7353, "M1SwVer": 203, "M2SwVer": 8, ...}.
+# Versions don't change between polls, so like the date query it's queried once.
+BASIC_INFO_QUERY_COMMAND = b"wifilocalMonitor:get dev basice infor"
 ACK_BYTE = b"."
