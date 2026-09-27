@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.4.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.3.0...v1.4.0) (2026-09-27)
+
+
+### Features
+
+* **profiles:** add verified Lux-e 48100LG03 (SubType 7100) profile ([#59](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/59)) ([#60](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/60)) ([45cff94](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/45cff94772667f7d9b7fce3f551e0d5c18490159))
+* show battery firmware versions on the device and in diagnostics ([#62](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/62)) ([455d42a](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/455d42a32eb70fb2f23d1627feafe0a010478cff)), closes [#58](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/58)
+
+
+### Bug Fixes
+
+* **sensor:** skip cycle count sensor when the firmware doesn't report it ([#61](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/61)) ([3dde4aa](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/3dde4aabb7ea3c0e7665056ff25440c2a8628784)), closes [#58](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/58)
+
 ## [1.3.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.2.0...v1.3.0) (2026-09-26)
 
 
