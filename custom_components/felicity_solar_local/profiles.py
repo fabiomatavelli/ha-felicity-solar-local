@@ -1,15 +1,11 @@
 """Battery model profiles: field mapping/scaling per Felicity Solar battery model.
 
 The local WiFi protocol (see api.py) returns the same *shape* of JSON across the Felicity
-battery family, but exact scaling/meaning has been verified against real hardware for five
-models: the FLB48314TG1-H (Type=112, SubType=7353), cross-checked field-by-field against the
-same battery's readings from Felicity's cloud API; the FLA24100 (Type=112, SubType=6100),
-whose temperature mapping was cross-checked live against the vendor app; the FLA48300
-(Type=112, SubType=7300), cross-checked live against the vendor app; the FLA48460TG2/GT2
-(Type=112, SubType=7500), whose temperature mapping (same BTemp/BtemList issue as the
-FLA24100) was cross-checked live against the vendor app; and the Lux-e 48100LG03 (Type=112,
-SubType=7100), whose temperature mapping (same issue again) was cross-checked against the
-vendor app. See the project README for the full verification table.
+battery family, but exact scaling/meaning is only trusted once verified against real hardware.
+The reference model is the FLB48314TG1-H (Type=112, SubType=7353), cross-checked
+field-by-field against the same battery's readings from Felicity's cloud API; every other
+verified model, with the issue it was reported in and its caveats, is listed in the project
+README's "Battery model support" table.
 
 Profiles are looked up by the device's self-reported ``Type``/``SubType`` codes, so adding
 support for another verified model later is a matter of adding one more ``BatteryProfile``
@@ -277,6 +273,25 @@ def parse_lux_e_48100lg03(raw: dict[str, Any]) -> dict[str, Any]:
     return data
 
 
+def parse_fla48171_eu(raw: dict[str, Any]) -> dict[str, Any]:
+    """Parse for the FLA48171-EU (Type=112, SubType=7204) - a 51.2 V/171 Ah, 16-cell pack.
+
+    Identical to ``parse_common`` except for the temperature mapping, same issue as the
+    FLA24100 (see ``parse_fla24100``): ``BTemp[1]`` is not a temperature pair on this model -
+    it reported [256, 256] (a bogus 25.6 °C max) while the vendor app showed 20 °C max/min,
+    matching the first four ``BtemList`` slots. Reported and cross-checked against the vendor
+    app in issue #69.
+
+    Known open question, left unmodified here (same as the FLA48460TG2): ``BatsocList[0][2]``
+    (``capacity``) reads 200000 (200.0 Ah) on this model while the vendor app and nameplate
+    say 171 Ah - the field's actual meaning on this model hasn't been identified, so there's
+    nothing verified to substitute it with.
+    """
+    data = parse_common(raw)
+    _apply_btemlist_temperatures(data, raw)
+    return data
+
+
 _DIAGNOSTIC_INT_SENSORS: tuple[SensorEntityDescription, ...] = tuple(
     SensorEntityDescription(
         key=key,
@@ -532,6 +547,16 @@ LUX_E_48100LG03_PROFILE = BatteryProfile(
     parse=parse_lux_e_48100lg03,
 )
 
+# Reported in issue #69, where voltage, current, SOC, cycle count, limits, max/min cell and
+# the BtemList temperature mapping were cross-checked against the vendor app.
+FLA48171_EU_PROFILE = BatteryProfile(
+    name="FLA48171-EU",
+    confidence="verified",
+    type_code=112,
+    subtype_code=7204,
+    parse=parse_fla48171_eu,
+)
+
 # Fallback for any Felicity battery reporting a Type/SubType we haven't verified yet.
 # Same field shape/scaling as the verified profile (the protocol is believed to be shared
 # across the Felicity WiFi-battery family) but not confirmed against real hardware - treat
@@ -549,6 +574,7 @@ PROFILES: tuple[BatteryProfile, ...] = (
     FLA48300_PROFILE,
     FLA48460TG2_PROFILE,
     LUX_E_48100LG03_PROFILE,
+    FLA48171_EU_PROFILE,
 )
 
 

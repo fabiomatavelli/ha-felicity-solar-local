@@ -11,6 +11,7 @@ import pytest
 from custom_components.felicity_solar_local.profiles import (
     DEFAULT_PROFILE,
     FLA24100_PROFILE,
+    FLA48171_EU_PROFILE,
     FLA48300_PROFILE,
     FLA48460TG2_PROFILE,
     FLB48314TG1H_PROFILE,
@@ -342,7 +343,14 @@ def test_fla48460tg2_core_fields_scale_like_common_profile(
 
 @pytest.mark.parametrize(
     "fixture",
-    ["sample_response", "fla24100_response", "fla48300_response", "fla48460tg2_response"],
+    [
+        "sample_response",
+        "fla24100_response",
+        "fla48300_response",
+        "fla48460tg2_response",
+        "lux_e_48100lg03_response",
+        "fla48171_eu_response",
+    ],
 )
 def test_cell_numbers_point_at_matching_cell_sensor(
     fixture: str, request: pytest.FixtureRequest
@@ -399,6 +407,47 @@ def test_lux_e_48100lg03_core_fields_scale_like_common_profile(
     assert data["discharge_current_limit"] == 100.0
 
 
+def test_select_profile_matches_fla48171_eu(fla48171_eu_response: dict[str, Any]) -> None:
+    assert select_profile(fla48171_eu_response) is FLA48171_EU_PROFILE
+    assert FLA48171_EU_PROFILE.confidence == "verified"
+
+
+def test_fla48171_eu_temperatures_come_from_btemlist_not_btemp(
+    fla48171_eu_response: dict[str, Any],
+) -> None:
+    # BTemp[1] would parse as a bogus 25.6 °C max; the vendor app showed 20 °C (issue #69).
+    assert fla48171_eu_response["BTemp"][1] == [256, 256]
+    data = FLA48171_EU_PROFILE.parse(fla48171_eu_response)
+    for i in range(1, 5):
+        assert data[f"temperature_{i}"] == 20.0
+    assert data["temperature_max"] == 20.0
+    assert data["temperature_min"] == 20.0
+
+
+def test_fla48171_eu_core_fields_scale_like_common_profile(
+    fla48171_eu_response: dict[str, Any],
+) -> None:
+    data = FLA48171_EU_PROFILE.parse(fla48171_eu_response)
+
+    assert data["voltage"] == 53.84
+    assert data["current"] == -0.6
+    assert data["power"] == -32.3
+    assert data["soc"] == 100.0
+    assert data["soh"] == 100.0
+    # Known caveat: the vendor app/nameplate say 171 Ah (see parse_fla48171_eu).
+    assert data["capacity"] == 200.0
+    assert data["cycle_count"] == 2
+    assert data["max_cell_voltage"] == 3.371
+    assert data["min_cell_voltage"] == 3.356
+    assert data["max_cell_number"] == 1
+    assert data["min_cell_number"] == 6
+    assert data["charging_state"] == "discharging"
+    assert data["charge_voltage_limit"] == 57.6
+    assert data["discharge_voltage_limit"] == 48.0
+    assert data["charge_current_limit"] == 0.0
+    assert data["discharge_current_limit"] == 120.0
+
+
 def test_firmware_version_skips_unpopulated_slots(basic_info_response: dict[str, Any]) -> None:
     # DSwVer is 65535 (unpopulated) on this battery.
     assert firmware_version(basic_info_response) == "M1 203, M2 8, WiFi 2.10"
@@ -429,6 +478,7 @@ def test_is_inverter_payload_detects_type81_inverter(
         "fla48300_response",
         "fla48460tg2_response",
         "lux_e_48100lg03_response",
+        "fla48171_eu_response",
     ],
 )
 def test_is_inverter_payload_false_for_every_battery(
