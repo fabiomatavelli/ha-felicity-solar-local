@@ -1,17 +1,11 @@
 """Battery model profiles: field mapping/scaling per Felicity Solar battery model.
 
 The local WiFi protocol (see api.py) returns the same *shape* of JSON across the Felicity
-battery family, but exact scaling/meaning has been verified against real hardware for six
-models: the FLB48314TG1-H (Type=112, SubType=7353), cross-checked field-by-field against the
-same battery's readings from Felicity's cloud API; the FLA24100 (Type=112, SubType=6100),
-whose temperature mapping was cross-checked live against the vendor app; the FLA48300
-(Type=112, SubType=7300), cross-checked live against the vendor app; the FLA48460TG2/GT2
-(Type=112, SubType=7500), whose temperature mapping (same BTemp/BtemList issue as the
-FLA24100) was cross-checked live against the vendor app; the Lux-e 48100LG03 (Type=112,
-SubType=7100), whose temperature mapping (same issue again) was cross-checked against the
-vendor app; and the FLA48171-EU (Type=112, SubType=7204), whose temperature mapping (same
-issue again) was cross-checked against the vendor app. See the project README for the full
-verification table.
+battery family, but exact scaling/meaning is only trusted once verified against real hardware.
+The reference model is the FLB48314TG1-H (Type=112, SubType=7353), cross-checked
+field-by-field against the same battery's readings from Felicity's cloud API; every other
+verified model, with the issue it was reported in and its caveats, is listed in the project
+README's "Battery model support" table.
 
 Profiles are looked up by the device's self-reported ``Type``/``SubType`` codes, so adding
 support for another verified model later is a matter of adding one more ``BatteryProfile``
