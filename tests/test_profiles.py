@@ -323,8 +323,8 @@ def test_fla48460tg2_core_fields_scale_like_common_profile(
     assert data["power"] == 213.64
     assert data["soc"] == 75.0
     assert data["soh"] == 100.0
-    # Known caveat: doesn't match the 460 Ah nameplate rating - see parse_fla48460tg2's
-    # docstring and the README notes for this model. Left unmodified since the field's
+    # Known caveat: doesn't match the 460 Ah nameplate rating - see the FLA48460TG2_PROFILE
+    # comment and the README notes for this model. Left unmodified since the field's
     # actual meaning on this model hasn't been identified.
     assert data["capacity"] == 500.0
     assert data["max_cell_voltage"] == 3.343
@@ -434,7 +434,7 @@ def test_fla48171_eu_core_fields_scale_like_common_profile(
     assert data["power"] == -32.3
     assert data["soc"] == 100.0
     assert data["soh"] == 100.0
-    # Known caveat: the vendor app/nameplate say 171 Ah (see parse_fla48171_eu).
+    # Known caveat: the vendor app/nameplate say 171 Ah (see FLA48171_EU_PROFILE).
     assert data["capacity"] == 200.0
     assert data["cycle_count"] == 2
     assert data["max_cell_voltage"] == 3.371
