@@ -7,6 +7,8 @@ A Home Assistant custom integration that reads Felicity Solar battery data **dir
 your local network** - no cloud account, no internet dependency. It talks to the battery's
 onboard WiFi module using its local TCP/JSON protocol.
 
+Lux-e branded batteries, which use the same WiFi module and protocol, are supported too (see [Battery model support](#-battery-model-support)).
+
 > Looking for the cloud-based integration instead (Shine/FSolar account, inverters + batteries)?
 > See [`felicity_solar_hacs`](https://github.com/matheustavarestrindade/felicity_solar_hacs).
 
@@ -108,6 +110,7 @@ anything you'll post publicly, use `--report` instead (see below), which redacts
 | Felicity Solar FLA48460TG2 (GT2) | 112 / 7500 | ✅ Verified | Reported in [#50](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/50); 48 V/460 Ah, 16-cell pack. Temperatures are sourced from `BtemList` (same `BTemp` issue as the FLA24100), cross-checked live against the vendor app. Known caveat: the `capacity` sensor reads 500 Ah regardless of the 460 Ah nameplate rating - the field's actual meaning on this model isn't identified yet. |
 | Lux-e 48100LG03 | 112 / 7100 | ✅ Verified | Reported in [#59](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/59); 48 V/100 Ah, 16-cell pack. Temperatures are sourced from `BtemList` (same `BTemp` issue as the FLA24100); voltage, current, SOC and temperatures cross-checked against the vendor app. |
 | Felicity Solar FLA48171-EU | 112 / 7204 | ✅ Verified | Reported in [#69](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/69); 51.2 V/171 Ah, 16-cell pack. Temperatures are sourced from `BtemList` (same `BTemp` issue as the FLA24100); voltage, current, SOC, cycle count, limits, max/min cell and temperatures cross-checked against the vendor app. Known caveat: the `capacity` sensor reads 200 Ah while the vendor app and nameplate say 171 Ah - the field's actual meaning on this model isn't identified yet. |
+| Lux-e 48250LG03 | 112 / 7250 | ✅ Verified | Reported in [#73](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/73); 48 V/250 Ah, 16-cell pack. Temperatures are sourced from `BtemList` (same `BTemp` issue as the FLA24100); voltage, current, SOC, capacity, limits, cell voltages and temperatures cross-checked against the vendor app. Cycle count isn't reported by its firmware (M1 519). |
 | Felicity inverters (e.g. Type 81 three-phase hybrid) | — | ❌ Not supported | This integration only reads batteries. Inverters answer on the same port, but with a different payload - see [#64](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/64). Setup is refused and existing entries get a repair pointing to [partach/ha_felicity](https://github.com/partach/ha_felicity), a community integration focused on Felicity inverters. Felicity batteries with their own WiFi module can still be added here, each by its own IP address (for several identical packs, one battery's diagnostics are enough for a profile request). |
 | Other Felicity WiFi batteries | — | ⚠️ Untested (best-effort) | Same protocol assumed, falls back to a generic profile with unverified scaling. [Request a profile](#-battery-model-support) (just attach the diagnostics download) or [contribute one](CONTRIBUTING.md#adding-a-new-battery-model-profile) for your model. |
 

@@ -16,6 +16,7 @@ from custom_components.felicity_solar_local.profiles import (
     FLA48460TG2_PROFILE,
     FLB48314TG1H_PROFILE,
     LUX_E_48100LG03_PROFILE,
+    LUX_E_48250LG03_PROFILE,
     firmware_version,
     is_inverter_payload,
     select_profile,
@@ -350,6 +351,7 @@ def test_fla48460tg2_core_fields_scale_like_common_profile(
         "fla48460tg2_response",
         "lux_e_48100lg03_response",
         "fla48171_eu_response",
+        "lux_e_48250lg03_response",
     ],
 )
 def test_cell_numbers_point_at_matching_cell_sensor(
@@ -406,6 +408,46 @@ def test_lux_e_48100lg03_core_fields_scale_like_common_profile(
     assert data["charge_current_limit"] == 100.0
     assert data["discharge_current_limit"] == 100.0
 
+
+
+def test_select_profile_matches_lux_e_48250lg03(lux_e_48250lg03_response: dict[str, Any]) -> None:
+    assert select_profile(lux_e_48250lg03_response) is LUX_E_48250LG03_PROFILE
+    assert LUX_E_48250LG03_PROFILE.confidence == "verified"
+
+
+def test_lux_e_48250lg03_temperatures_come_from_btemlist_not_btemp(
+    lux_e_48250lg03_response: dict[str, Any],
+) -> None:
+    # BTemp[1] would parse as a bogus 25.6 °C max; the vendor app showed 20 °C (issue #73).
+    assert lux_e_48250lg03_response["BTemp"][1] == [256, 256]
+    data = LUX_E_48250LG03_PROFILE.parse(lux_e_48250lg03_response)
+    for i in range(1, 5):
+        assert data[f"temperature_{i}"] == 20.0
+    assert data["temperature_max"] == 20.0
+    assert data["temperature_min"] == 20.0
+
+
+def test_lux_e_48250lg03_core_fields_scale_like_common_profile(
+    lux_e_48250lg03_response: dict[str, Any],
+) -> None:
+    data = LUX_E_48250LG03_PROFILE.parse(lux_e_48250lg03_response)
+
+    assert data["voltage"] == 51.04
+    assert data["current"] == 0.0
+    assert data["power"] == 0.0
+    assert data["soc"] == 22.0
+    assert data["soh"] == 100.0
+    assert data["capacity"] == 250.0
+    assert data["cycle_count"] is None
+    assert data["max_cell_voltage"] == 3.195
+    assert data["min_cell_voltage"] == 3.18
+    assert data["max_cell_number"] == 7
+    assert data["min_cell_number"] == 8
+    assert data["charging_state"] == "standby"
+    assert data["charge_voltage_limit"] == 57.6
+    assert data["discharge_voltage_limit"] == 48.0
+    assert data["charge_current_limit"] == 150.0
+    assert data["discharge_current_limit"] == 150.0
 
 def test_select_profile_matches_fla48171_eu(fla48171_eu_response: dict[str, Any]) -> None:
     assert select_profile(fla48171_eu_response) is FLA48171_EU_PROFILE
@@ -479,6 +521,7 @@ def test_is_inverter_payload_detects_type81_inverter(
         "fla48460tg2_response",
         "lux_e_48100lg03_response",
         "fla48171_eu_response",
+        "lux_e_48250lg03_response",
     ],
 )
 def test_is_inverter_payload_false_for_every_battery(
