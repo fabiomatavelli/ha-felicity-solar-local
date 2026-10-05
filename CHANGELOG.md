@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.5.0...v1.6.0) (2026-10-05)
+
+
+### Features
+
+* **profiles:** add verified Lux-e 48250LG03 (SubType 7250) profile ([#73](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/73)) ([#76](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/76)) ([45856a7](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/45856a774d4a4f85a8e715f3d9ee2879ad8b1220))
+
 ## [1.5.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.4.1...v1.5.0) (2026-10-03)
 
 
