@@ -508,6 +508,19 @@ FLA48171_EU_PROFILE = BatteryProfile(
     parse=parse_btemlist_temperatures,
 )
 
+# Reported in issue #73 (Lux-e branded pack): a 48 V/250 Ah, 16-cell pack. BTemp[1] reported
+# [256, 256] (a bogus 25.6 °C max) while the vendor app showed 20 °C on all four probes,
+# matching BtemList. Voltage, current, SOC, capacity, limits, cell voltages, charging state
+# and the BtemList temperature mapping were cross-checked against the vendor app. Its
+# firmware (M1 519) doesn't send BmsCnt, so cycle_count stays unavailable.
+LUX_E_48250LG03_PROFILE = BatteryProfile(
+    name="Lux-e 48250LG03",
+    confidence="verified",
+    type_code=112,
+    subtype_code=7250,
+    parse=parse_btemlist_temperatures,
+)
+
 # Fallback for any Felicity battery reporting a Type/SubType we haven't verified yet.
 # Same field shape/scaling as the verified profile (the protocol is believed to be shared
 # across the Felicity WiFi-battery family) but not confirmed against real hardware - treat
@@ -526,6 +539,7 @@ PROFILES: tuple[BatteryProfile, ...] = (
     FLA48460TG2_PROFILE,
     LUX_E_48100LG03_PROFILE,
     FLA48171_EU_PROFILE,
+    LUX_E_48250LG03_PROFILE,
 )
 
 
