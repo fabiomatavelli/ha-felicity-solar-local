@@ -155,7 +155,7 @@ There's a second command, `wifilocalMonitor:get Date`, which returns the device'
 copy of the current time. The main query's own `date` field carries no timezone, so this
 command is queried once per coordinator lifetime (not every poll, since the offset only
 changes across DST transitions) to correctly timezone-localize the **Device timestamp**
-sensor. It's sent over the same connection as the main query when persistent, never a second
+sensor. That sensor is disabled by default, since its value changes on every poll and would write a new state to the recorder every few seconds; enable it from the entity's settings if you need it. It's sent over the same connection as the main query when persistent, never a second
 concurrent one - the device's embedded TCP stack may only tolerate one client at a time.
 
 ## 👨‍💻 Author
