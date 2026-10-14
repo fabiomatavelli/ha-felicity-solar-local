@@ -149,10 +149,19 @@ def parse_common(raw: dict[str, Any]) -> dict[str, Any]:
     """Parse the fields verified against the FLB48314TG1-H.
 
     Primary sensors are sourced from this pack's own per-pack readings (the ``*List``
-    fields, ``BLVolCu``, ``BMaxMin``, ``BTemp``) rather than the ``Batt``/``Batsoc``/
-    ``LVolCur`` bank-level aggregates, whose exact combination semantics (e.g. current
-    doesn't cleanly sum/double the way voltage and static limits do) weren't fully
-    resolved during live validation.
+    fields, ``BLVolCu``, ``BMaxMin``) rather than the ``Batt``/``Batsoc``/``LVolCur``
+    bank-level aggregates, whose exact combination semantics (e.g. current doesn't cleanly
+    sum/double the way voltage and static limits do) weren't fully resolved during live
+    validation.
+
+    Temperatures come from the first four ``BtemList`` slots, the pack's own probes, which
+    matched the vendor app on every model cross-checked so far. ``BTemp`` is not used: it
+    behaves like another bank-level aggregate. In every capture so far ``BTemp[0]`` holds
+    the bank's max/min temperature (two packs at 23 and 24 °C both reported ``[240, 230]``),
+    and ``BTemp[1]`` is not a temperature at all but where those extremes are (the pack's
+    ``modID`` in the high byte, the probe in the low byte, e.g. 512 = pack 2, probe 0),
+    which reads as a bogus 25.6 to 76.9 °C once scaled. Unpopulated ``BtemList`` slots hold
+    the usual 32767/65535 sentinels, which ``_path`` already filters out.
 
     ``BmsCnt`` (charge cycle count) is only present on newer firmware - see issue #42,
     where it was confirmed against the vendor app on a battery running the latest
@@ -162,13 +171,8 @@ def parse_common(raw: dict[str, Any]) -> dict[str, Any]:
     voltage = _scaled(raw, "BattList", 0, 0, 1000)
     current = _scaled(raw, "BattList", 1, 0, 10)
     bstate = _raw(raw, "Bstate")
-    temperature_1 = _scaled(raw, "BTemp", 0, 0, 10)
-    temperature_2 = _scaled(raw, "BTemp", 0, 1, 10)
-    temperature_3 = _scaled(raw, "BTemp", 1, 0, 10)
-    temperature_4 = _scaled(raw, "BTemp", 1, 1, 10)
-    temperatures = [
-        t for t in (temperature_1, temperature_2, temperature_3, temperature_4) if t is not None
-    ]
+    probes = [_scaled(raw, "BtemList", 0, i, 10) for i in range(4)]
+    temperatures = [t for t in probes if t is not None]
 
     data: dict[str, Any] = {
         "voltage": voltage,
@@ -183,10 +187,10 @@ def parse_common(raw: dict[str, Any]) -> dict[str, Any]:
         "min_cell_voltage": _scaled(raw, "BMaxMin", 0, 1, 1000),
         "max_cell_number": _cell_number(raw, 0),
         "min_cell_number": _cell_number(raw, 1),
-        "temperature_1": temperature_1,
-        "temperature_2": temperature_2,
-        "temperature_3": temperature_3,
-        "temperature_4": temperature_4,
+        "temperature_1": probes[0],
+        "temperature_2": probes[1],
+        "temperature_3": probes[2],
+        "temperature_4": probes[3],
         "temperature_max": max(temperatures) if temperatures else None,
         "temperature_min": min(temperatures) if temperatures else None,
         "charge_voltage_limit": _scaled(raw, "BLVolCu", 0, 0, 10),
@@ -206,27 +210,6 @@ def parse_common(raw: dict[str, Any]) -> dict[str, Any]:
     for i in range(CELL_COUNT):
         data[f"cell_{i + 1}_voltage"] = _scaled(raw, "BatcelList", 0, i, 1000)
 
-    return data
-
-
-def parse_btemlist_temperatures(raw: dict[str, Any]) -> dict[str, Any]:
-    """Parse like ``parse_common``, but take the temperatures from ``BtemList``.
-
-    For models where ``BTemp[1]`` is not a temperature pair: it reports values such as 256,
-    257, 512 or 769 that don't follow the actual temperature (a bogus 25.6 to 76.9 °C once
-    scaled), while the vendor app agrees with the first four ``BtemList`` slots, which hold
-    the actual probes. Unpopulated slots hold the usual 32767/65535 sentinels, which ``_path``
-    already filters out. Each profile using this parser says where it was cross-checked.
-    """
-    data = parse_common(raw)
-    temperatures: list[float] = []
-    for i in range(4):
-        value = _scaled(raw, "BtemList", 0, i, 10)
-        data[f"temperature_{i + 1}"] = value
-        if value is not None:
-            temperatures.append(value)
-    data["temperature_max"] = max(temperatures) if temperatures else None
-    data["temperature_min"] = min(temperatures) if temperatures else None
     return data
 
 
@@ -441,16 +424,14 @@ class BatteryProfile:
         return raw.get("Type") == self.type_code and raw.get("SubType") == self.subtype_code
 
 
-# The reference model. Like the FLA24100, BTemp[1] isn't a temperature pair: on firmware
-# M1 203 two packs both reported [512, 256] (a bogus 51.2 °C max) while the vendor app showed
-# 23 °C and 24 °C, matching each pack's BtemList (BTemp[0] read 24/23 on both, so it doesn't
-# identify the pack either).
+# The reference model. On firmware M1 203, two packs in one bank both reported BTemp
+# [[240, 230], [512, 256]] (a bogus 51.2 °C max under the old BTemp mapping) while the vendor
+# app showed 23 °C and 24 °C, matching each pack's own BtemList.
 FLB48314TG1H_PROFILE = BatteryProfile(
     name="FLB48314TG1-H",
     confidence="verified",
     type_code=112,
     subtype_code=7353,
-    parse=parse_btemlist_temperatures,
 )
 
 # A 24 V, 8-cell pack. BTemp[1] only ever reported 256 to 259 and 512 and didn't follow
@@ -461,7 +442,6 @@ FLA24100_PROFILE = BatteryProfile(
     confidence="verified",
     type_code=112,
     subtype_code=6100,
-    parse=parse_btemlist_temperatures,
 )
 
 # Reported in issue #42 as an FLA48300; the reporter later confirmed the label model is
@@ -485,7 +465,6 @@ FLA48460TG2_PROFILE = BatteryProfile(
     confidence="verified",
     type_code=112,
     subtype_code=7500,
-    parse=parse_btemlist_temperatures,
 )
 
 # Reported in issue #59 (Felicity LUX-E series): a 48 V/100 Ah, 16-cell pack. BTemp[1]
@@ -497,7 +476,6 @@ LUX_E_48100LG03_PROFILE = BatteryProfile(
     confidence="verified",
     type_code=112,
     subtype_code=7100,
-    parse=parse_btemlist_temperatures,
 )
 
 # Reported in issue #69: a 51.2 V/171 Ah, 16-cell pack. BTemp[1] reported [256, 256] (a
@@ -511,7 +489,6 @@ FLA48171_EU_PROFILE = BatteryProfile(
     confidence="verified",
     type_code=112,
     subtype_code=7204,
-    parse=parse_btemlist_temperatures,
 )
 
 # Reported in issue #73 (Felicity LUX-E series): a 48 V/250 Ah, 16-cell pack. BTemp[1] reported
@@ -524,7 +501,6 @@ LUX_E_48250LG03_PROFILE = BatteryProfile(
     confidence="verified",
     type_code=112,
     subtype_code=7250,
-    parse=parse_btemlist_temperatures,
 )
 
 # Fallback for any Felicity battery reporting a Type/SubType we haven't verified yet.

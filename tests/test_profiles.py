@@ -88,17 +88,47 @@ def test_parse_treats_sentinels_as_missing(sample_response: dict[str, Any]) -> N
 def test_parse_temperature_max_min_are_none_when_all_probes_sentinel(
     sample_response: dict[str, Any],
 ) -> None:
-    modified = {**sample_response, "BTemp": [[65535, 65535], [65535, 65535]]}
+    modified = {**sample_response, "BtemList": [[32767, 32767, 65535, 32767] + [32767] * 4]}
     data = DEFAULT_PROFILE.parse(modified)
     assert data["temperature_max"] is None
     assert data["temperature_min"] is None
 
 
 def test_parse_temperature_max_min_skip_missing_probes(sample_response: dict[str, Any]) -> None:
-    modified = {**sample_response, "BTemp": [[260, 65535], [256, 256]]}
+    modified = {**sample_response, "BtemList": [[260, 65535, 250, 32767] + [32767] * 4]}
     data = DEFAULT_PROFILE.parse(modified)
+    assert data["temperature_2"] is None
+    assert data["temperature_4"] is None
     assert data["temperature_max"] == 26.0
-    assert data["temperature_min"] == 25.6
+    assert data["temperature_min"] == 25.0
+
+
+@pytest.mark.parametrize(
+    "fixture",
+    [
+        "sample_response",
+        "fla24100_response",
+        "fla48300_response",
+        "fla48460tg2_response",
+        "lux_e_48100lg03_response",
+        "fla48171_eu_response",
+        "lux_e_48250lg03_response",
+    ],
+)
+def test_temperatures_ignore_btemp_bank_aggregate(
+    fixture: str, request: pytest.FixtureRequest
+) -> None:
+    # BTemp is a bank-level aggregate (BTemp[1] isn't even a temperature), so changing it
+    # must not move any temperature sensor, on any profile including the generic one.
+    raw = request.getfixturevalue(fixture)
+    expected = select_profile(raw).parse(raw)
+    modified = {**raw, "BTemp": [[999, 999], [769, 512]]}
+    for profile in (select_profile(raw), DEFAULT_PROFILE):
+        data = profile.parse(modified)
+        for i in range(1, 5):
+            assert data[f"temperature_{i}"] == expected[f"temperature_{i}"]
+        assert data["temperature_max"] == expected["temperature_max"]
+        assert data["temperature_min"] == expected["temperature_min"]
 
 
 
@@ -250,10 +280,8 @@ def test_select_profile_matches_fla48300(fla48300_response: dict[str, Any]) -> N
 
 
 def test_fla48300_uses_common_parsing(fla48300_response: dict[str, Any]) -> None:
-    # No custom parse() override - the raw data reported in issue #42 lines up with the
-    # common field shape/scaling as-is (capacity matches the "300" in FLA48300, cell
-    # voltages/min/max/count all agree), so this profile relies on parse_common directly.
-    assert FLA48300_PROFILE.parse is not FLA24100_PROFILE.parse
+    # The raw data reported in issue #42 lines up with the common field shape/scaling as-is
+    # (capacity matches the "300" in FLA48300, cell voltages/min/max/count all agree).
     data = FLA48300_PROFILE.parse(fla48300_response)
 
     assert data["voltage"] == 56.16
@@ -273,12 +301,13 @@ def test_fla48300_uses_common_parsing(fla48300_response: dict[str, Any]) -> None
     assert data["charging_state"] == "standby"
     assert data["warning"] == 4
     assert data["serial_number"] == "072604830000000000"
+    # From BtemList; the old BTemp mapping read BTemp[1] = [256, 257] as 25.6/25.7 °C.
     assert data["temperature_1"] == 31.0
     assert data["temperature_2"] == 30.0
-    assert data["temperature_3"] == 25.6
-    assert data["temperature_4"] == 25.7
+    assert data["temperature_3"] == 30.0
+    assert data["temperature_4"] == 31.0
     assert data["temperature_max"] == 31.0
-    assert data["temperature_min"] == 25.6
+    assert data["temperature_min"] == 30.0
     assert data["charge_voltage_limit"] == 57.6
     assert data["discharge_voltage_limit"] == 48.0
     assert data["charge_current_limit"] == 0.0
