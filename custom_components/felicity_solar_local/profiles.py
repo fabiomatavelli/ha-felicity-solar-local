@@ -488,7 +488,7 @@ FLA48460TG2_PROFILE = BatteryProfile(
 # BtemList. Voltage, current, SOC and the BtemList temperature mapping were cross-checked
 # against the vendor app.
 LUX_E_48100LG03_PROFILE = BatteryProfile(
-    name="Lux-e 48100LG03",
+    name="LUX-E-48100LG03",
     confidence="verified",
     type_code=112,
     subtype_code=7100,
@@ -515,7 +515,7 @@ FLA48171_EU_PROFILE = BatteryProfile(
 # and the BtemList temperature mapping were cross-checked against the vendor app. Its
 # firmware (M1 519) doesn't send BmsCnt, so cycle_count stays unavailable.
 LUX_E_48250LG03_PROFILE = BatteryProfile(
-    name="Lux-e 48250LG03",
+    name="LUX-E-48250LG03",
     confidence="verified",
     type_code=112,
     subtype_code=7250,
