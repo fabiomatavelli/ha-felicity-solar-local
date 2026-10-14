@@ -48,12 +48,10 @@ def test_parse_scales_verified_fields_correctly(sample_response: dict[str, Any])
     assert data["min_cell_voltage"] == 3.376
     assert data["max_cell_number"] == 9
     assert data["min_cell_number"] == 1
-    assert data["temperature_1"] == 26.0
-    assert data["temperature_2"] == 26.0
-    assert data["temperature_3"] == 25.6
-    assert data["temperature_4"] == 25.6
+    for i in range(1, 5):
+        assert data[f"temperature_{i}"] == 26.0
     assert data["temperature_max"] == 26.0
-    assert data["temperature_min"] == 25.6
+    assert data["temperature_min"] == 26.0
     assert data["charge_voltage_limit"] == 57.6
     assert data["discharge_voltage_limit"] == 48.0
     assert data["charge_current_limit"] == 32.0
@@ -91,17 +89,36 @@ def test_parse_temperature_max_min_are_none_when_all_probes_sentinel(
     sample_response: dict[str, Any],
 ) -> None:
     modified = {**sample_response, "BTemp": [[65535, 65535], [65535, 65535]]}
-    data = FLB48314TG1H_PROFILE.parse(modified)
+    data = DEFAULT_PROFILE.parse(modified)
     assert data["temperature_max"] is None
     assert data["temperature_min"] is None
 
 
 def test_parse_temperature_max_min_skip_missing_probes(sample_response: dict[str, Any]) -> None:
     modified = {**sample_response, "BTemp": [[260, 65535], [256, 256]]}
-    data = FLB48314TG1H_PROFILE.parse(modified)
+    data = DEFAULT_PROFILE.parse(modified)
     assert data["temperature_max"] == 26.0
     assert data["temperature_min"] == 25.6
 
+
+
+@pytest.mark.parametrize(("btemlist_value", "expected"), [(230, 23.0), (240, 24.0)])
+def test_flb48314tg1h_temperatures_come_from_btemlist_not_btemp(
+    sample_response: dict[str, Any], btemlist_value: int, expected: float
+) -> None:
+    # Live readings from two packs on firmware M1 203: BTemp[1] would parse as a bogus
+    # 51.2 °C max, and BTemp[0] was identical on both, while the vendor app showed 23 °C and
+    # 24 °C, matching each pack's BtemList.
+    modified = {
+        **sample_response,
+        "BTemp": [[240, 230], [512, 256]],
+        "BtemList": [[btemlist_value] * 4 + [32767] * 4],
+    }
+    data = FLB48314TG1H_PROFILE.parse(modified)
+    for i in range(1, 5):
+        assert data[f"temperature_{i}"] == expected
+    assert data["temperature_max"] == expected
+    assert data["temperature_min"] == expected
 
 def test_default_profile_uses_same_shape(sample_response: dict[str, Any]) -> None:
     data = DEFAULT_PROFILE.parse(sample_response)

@@ -441,11 +441,16 @@ class BatteryProfile:
         return raw.get("Type") == self.type_code and raw.get("SubType") == self.subtype_code
 
 
+# The reference model. Like the FLA24100, BTemp[1] isn't a temperature pair: on firmware
+# M1 203 two packs both reported [512, 256] (a bogus 51.2 °C max) while the vendor app showed
+# 23 °C and 24 °C, matching each pack's BtemList (BTemp[0] read 24/23 on both, so it doesn't
+# identify the pack either).
 FLB48314TG1H_PROFILE = BatteryProfile(
     name="FLB48314TG1-H",
     confidence="verified",
     type_code=112,
     subtype_code=7353,
+    parse=parse_btemlist_temperatures,
 )
 
 # A 24 V, 8-cell pack. BTemp[1] only ever reported 256 to 259 and 512 and didn't follow
