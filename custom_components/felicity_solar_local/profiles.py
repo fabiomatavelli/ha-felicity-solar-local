@@ -163,6 +163,12 @@ def parse_common(raw: dict[str, Any]) -> dict[str, Any]:
     which reads as a bogus 25.6 to 76.9 °C once scaled. Unpopulated ``BtemList`` slots hold
     the usual 32767/65535 sentinels, which ``_path`` already filters out.
 
+    ``capacity`` (``BatsocList[0][2]``) is the capacity the BMS reports, not necessarily
+    the nameplate rating. It matches the capacity class the ``SubType`` seems to encode
+    (7353 -> 350 Ah, 7500 -> 500 Ah, 7204 -> 200 Ah, and likewise for 7100, 7250, 7300
+    and 6100), which can be larger than the model's nameplate: the 314 Ah FLB48314TG1-H
+    reports 350 Ah. There's no nameplate field in the payload to use instead.
+
     ``BmsCnt`` (charge cycle count) is only present on newer firmware - see issue #42,
     where it was confirmed against the vendor app on a battery running the latest
     firmware. Older firmware simply omits the key (issue #58), so ``cycle_count`` parses
@@ -457,9 +463,9 @@ FLA48300_PROFILE = BatteryProfile(
 # Reported in issue #50: a 48 V, 16-cell pack. BTemp[1] reports a fixed 256/257 regardless
 # of the actual temperature (same issue as the FLA24100); the BtemList temperature mapping
 # was cross-checked live against the vendor app and confirmed correct.
-# Known open question: BatsocList[0][2] (capacity) reads 500000 (500.0 Ah) regardless of
-# the 460 Ah nameplate rating. The field's actual meaning on this model hasn't been
-# identified, so there's nothing verified to substitute it with.
+# Known caveat: BatsocList[0][2] (capacity) reads 500000 (500.0 Ah) against the 460 Ah
+# nameplate: the BMS reports the capacity class of its SubType (500 Ah for 7500), not the
+# nameplate rating; see parse_common().
 FLA48460TG2_PROFILE = BatteryProfile(
     name="FLA48460TG2 (GT2)",
     confidence="verified",
@@ -482,8 +488,8 @@ LUX_E_48100LG03_PROFILE = BatteryProfile(
 # bogus 25.6 °C max) while the vendor app showed 20 °C, matching BtemList. Voltage, current,
 # SOC, cycle count, limits, max/min cell and the BtemList temperature mapping were
 # cross-checked against the vendor app.
-# Known open question (same as the FLA48460TG2): BatsocList[0][2] (capacity) reads 200000
-# (200.0 Ah) while the vendor app and nameplate say 171 Ah.
+# Known caveat (same as the FLA48460TG2): BatsocList[0][2] (capacity) reads 200000
+# (200.0 Ah), the BMS-reported capacity, while the vendor app and nameplate say 171 Ah.
 FLA48171_EU_PROFILE = BatteryProfile(
     name="FLA48171-EU",
     confidence="verified",
