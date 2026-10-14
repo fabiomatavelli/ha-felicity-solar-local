@@ -383,11 +383,14 @@ _COMMON_SENSORS: tuple[SensorEntityDescription, ...] = (
         translation_key="serial_number",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
+    # Disabled by default: it changes on every poll, so it would write a new state to the
+    # recorder every few seconds for little day-to-day use.
     SensorEntityDescription(
         key="device_timestamp",
         translation_key="device_timestamp",
         device_class=SensorDeviceClass.TIMESTAMP,
         entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
     ),
     *(
         SensorEntityDescription(

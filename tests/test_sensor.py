@@ -182,6 +182,20 @@ async def _setup(hass: HomeAssistant, response: dict[str, Any]) -> MockConfigEnt
     return entry
 
 
+async def test_device_timestamp_sensor_disabled_by_default(
+    hass: HomeAssistant, sample_response: dict[str, Any]
+) -> None:
+    # It changes on every poll, so it's registered but left disabled to spare the recorder.
+    serial = sample_response["DevSN"]
+    await _setup(hass, sample_response)
+
+    registry = er.async_get(hass)
+    entity_id = registry.async_get_entity_id("sensor", DOMAIN, f"{serial}_device_timestamp")
+    assert entity_id is not None
+    assert registry.entities[entity_id].disabled is True
+    assert hass.states.get(entity_id) is None
+
+
 async def test_cycle_count_sensor_created_when_firmware_reports_it(
     hass: HomeAssistant, fla48300_response: dict[str, Any]
 ) -> None:
