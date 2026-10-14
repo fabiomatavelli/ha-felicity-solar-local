@@ -47,6 +47,16 @@ cross-checked (e.g. against that model's cloud-reported values, the way FLB48314
 `coordinator.py` and `sensor.py` need no changes for this - `select_profile()` is the only
 dispatch point.
 
+### Model names
+
+Spell model names exactly as Felicity does, from the battery's label or the official product page (e.g. https://www.felicityess.com/product/lithium-ion-battery-lux-e-48100lg03/), not as the reporter typed them: issue titles and descriptions often use variants like `Lux-e 48100LG03` or `LuxY FLA48300`.
+
+- Keep the official casing and hyphens: `LUX-E-48100LG03`, `LUX-E-48250LG03`, `LUX-Y-48300LG01`, `FLA48171-EU`.
+- LUX-E and LUX-Y are Felicity series, not separate brands, so don't call them "branded" packs.
+- If a model is also known by another name (e.g. an older designation the reporter used first), put the official name first and the alias in parentheses in the README, e.g. `LUX-Y-48300LG01 (FLA48300)`.
+- Use the same spelling everywhere it's shown: the profile's `name` (Home Assistant's device model), the README support table, `tests/conftest.py` fixture docstrings and code comments. Python identifiers and fixture file names use the snake/upper-case form (`LUX_E_48100LG03_PROFILE`, `lux_e_48100lg03_response.json`).
+- Changing a profile's `name` later is safe: it's display-only (device model, entity attribute, diagnostics), and entity unique IDs don't depend on it.
+
 ## Requesting a new battery profile (no code)
 
 If the user wants support for their battery model but doesn't want to write the profile themselves, don't open a PR - help them open a "battery profile request" issue instead, by following `.agents/skills/request-battery-profile/SKILL.md` (read it directly if your agent doesn't load skills automatically). In short: get the complete payload from the integration's diagnostics download (preferred - no extra tooling, already redacted) or `python3 scripts/probe.py --report <ip>`, check the model isn't already in `PROFILES`, fill in the model name and vendor-app readings, and only run `gh issue create` after the user confirms the final body.
