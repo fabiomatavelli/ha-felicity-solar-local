@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.6.1](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.6.0...v1.6.1) (2026-10-14)
+
+
+### Bug Fixes
+
+* **profiles:** name the SubType 7300 profile LUX-Y-48300LG01 ([#42](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/42)) ([#81](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/81)) ([5d53412](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/5d5341213a0bb67d7c9b25fd80bfc92883937934))
+* **profiles:** read temperatures from BtemList on every model ([#84](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/84)) ([750b363](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/750b3630e2d73ab15dd54dc738d940ddfe574992))
+* **sensor:** disable the device timestamp sensor by default ([#87](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/87)) ([65f9fdb](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/65f9fdbd311edcd0f3753e3de86d8de7e6845134))
+
 ## [1.6.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.5.0...v1.6.0) (2026-10-05)
 
 
