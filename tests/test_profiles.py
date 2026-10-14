@@ -255,7 +255,7 @@ def test_fla48300_uses_common_parsing(fla48300_response: dict[str, Any]) -> None
     assert data["cell_16_voltage"] == 3.587
     assert data["charging_state"] == "standby"
     assert data["warning"] == 4
-    assert data["serial_number"] == "072604830025153540"
+    assert data["serial_number"] == "072604830000000000"
     assert data["temperature_1"] == 31.0
     assert data["temperature_2"] == 30.0
     assert data["temperature_3"] == 25.6
