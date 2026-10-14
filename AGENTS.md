@@ -54,6 +54,8 @@ Spell model names exactly as Felicity does, from the battery's label or the offi
 - Keep the official casing and hyphens: `LUX-E-48100LG03`, `LUX-E-48250LG03`, `LUX-Y-48300LG01`, `FLA48171-EU`.
 - LUX-E and LUX-Y are Felicity series, not separate brands, so don't call them "branded" packs.
 - If a model is also known by another name (e.g. an older designation the reporter used first), put the official name first and the alias in parentheses in the README, e.g. `LUX-Y-48300LG01 (FLA48300)`.
+- In the README "Battery model support" table, every battery row starts with `Felicity Solar` (e.g. `Felicity Solar LUX-E-48100LG03`), including the LUX-E and LUX-Y series.
+- Keep the battery rows of that table sorted alphabetically by model name (ignoring the `Felicity Solar` prefix), and insert new models in their sorted position rather than at the end. The "Felicity inverters" and "Other Felicity WiFi batteries" rows always stay last.
 - Use the same spelling everywhere it's shown: the profile's `name` (Home Assistant's device model), the README support table, `tests/conftest.py` fixture docstrings and code comments. Python identifiers and fixture file names use the snake/upper-case form (`LUX_E_48100LG03_PROFILE`, `lux_e_48100lg03_response.json`).
 - Changing a profile's `name` later is safe: it's display-only (device model, entity attribute, diagnostics), and entity unique IDs don't depend on it.
 
