@@ -61,7 +61,10 @@ def fla24100_response() -> dict[str, Any]:
 
 @pytest.fixture
 def fla48300_response() -> dict[str, Any]:
-    """Raw device JSON reported by a Felicity Solar FLA48300 (see issue #42)."""
+    """Raw device JSON reported by a Felicity Solar LUX-Y-48300LG01 (FLA48300, see issue #42).
+
+    The serial numbers are placeholders, not the reporter's real ones.
+    """
     path = Path(__file__).parent / "fixtures" / "fla48300_response.json"
     return json.loads(path.read_text())
 

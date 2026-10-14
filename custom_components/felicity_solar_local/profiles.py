@@ -459,10 +459,11 @@ FLA24100_PROFILE = BatteryProfile(
     parse=parse_btemlist_temperatures,
 )
 
-# Reported in issue #42, where the field shape/scaling was cross-checked live against the
-# vendor app (including BmsCnt/cycle_count, added above) and confirmed 100% correct.
+# Reported in issue #42 as an FLA48300; the reporter later confirmed the label model is
+# LUX-Y-48300LG01. The field shape/scaling was cross-checked live against the vendor app
+# (including BmsCnt/cycle_count, added above) and confirmed 100% correct.
 FLA48300_PROFILE = BatteryProfile(
-    name="FLA48300",
+    name="LUX-Y-48300LG01",
     confidence="verified",
     type_code=112,
     subtype_code=7300,
@@ -482,7 +483,7 @@ FLA48460TG2_PROFILE = BatteryProfile(
     parse=parse_btemlist_temperatures,
 )
 
-# Reported in issue #59 (Lux-e branded pack): a 48 V/100 Ah, 16-cell pack. BTemp[1]
+# Reported in issue #59 (Felicity LUX-E series): a 48 V/100 Ah, 16-cell pack. BTemp[1]
 # reported [769, 256] (a bogus 76.9 °C max) while the vendor app showed 20-21 °C, matching
 # BtemList. Voltage, current, SOC and the BtemList temperature mapping were cross-checked
 # against the vendor app.
@@ -508,7 +509,7 @@ FLA48171_EU_PROFILE = BatteryProfile(
     parse=parse_btemlist_temperatures,
 )
 
-# Reported in issue #73 (Lux-e branded pack): a 48 V/250 Ah, 16-cell pack. BTemp[1] reported
+# Reported in issue #73 (Felicity LUX-E series): a 48 V/250 Ah, 16-cell pack. BTemp[1] reported
 # [256, 256] (a bogus 25.6 °C max) while the vendor app showed 20 °C on all four probes,
 # matching BtemList. Voltage, current, SOC, capacity, limits, cell voltages, charging state
 # and the BtemList temperature mapping were cross-checked against the vendor app. Its
