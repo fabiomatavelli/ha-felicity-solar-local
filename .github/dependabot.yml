@@ -10,3 +10,9 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    # Every pip dependency lives in requirements-test.txt, so separate PRs
+    # touch adjacent lines and conflict with each other once one is merged.
+    groups:
+      test-dependencies:
+        patterns:
+          - "*"
