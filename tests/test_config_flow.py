@@ -181,6 +181,34 @@ async def test_reconfigure_flow_errors(
     assert entry.data[CONF_HOST] == "192.168.1.50"
 
 
+async def test_reconfigure_flow_allows_host_change_without_serial(
+    hass: HomeAssistant, sample_response: dict[str, Any]
+) -> None:
+    # A battery that reports no serial can only be identified by its address, so
+    # the identity check is skipped and a host change must still go through.
+    no_serial = {k: v for k, v in sample_response.items() if k != "DevSN"}
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        unique_id="192.168.1.50:53970",
+        data={CONF_HOST: "192.168.1.50", CONF_PORT: 53970},
+    )
+    entry.add_to_hass(hass)
+
+    with (
+        patch(API_PATH, AsyncMock(return_value=no_serial)),
+        patch(TZ_PATH, AsyncMock(return_value=None)),
+    ):
+        result = await entry.start_reconfigure_flow(hass)
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], {CONF_HOST: "192.168.1.99", CONF_PORT: 53970}
+        )
+        await hass.async_block_till_done()
+
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "reconfigure_successful"
+    assert entry.data == {CONF_HOST: "192.168.1.99", CONF_PORT: 53970}
+
+
 async def test_reconfigure_flow_aborts_for_wrong_device(
     hass: HomeAssistant, sample_response: dict[str, Any]
 ) -> None:

@@ -127,12 +127,15 @@ class FelicityLocalConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if raw is not None:
                 if is_inverter_payload(raw):
                     return self.async_abort(reason="not_a_battery")
-                # Identify the device the way async_step_user does and make sure
-                # the entry is still pointed at the same battery after the change.
+                # Only verify identity when the battery reports a serial. A
+                # serial-less device can't be told apart from another by anything
+                # but its address, so there's nothing to check against - refusing
+                # the change would lock the user out of the one case (a device
+                # with no serial) where editing the host matters most.
                 serial_number = raw.get("DevSN")
-                unique_id = serial_number or f"{host}:{port}"
-                await self.async_set_unique_id(unique_id)
-                self._abort_if_unique_id_mismatch(reason="wrong_device")
+                if serial_number:
+                    await self.async_set_unique_id(serial_number)
+                    self._abort_if_unique_id_mismatch(reason="wrong_device")
                 return self.async_update_reload_and_abort(
                     reconfigure_entry,
                     data_updates={CONF_HOST: host, CONF_PORT: port},
