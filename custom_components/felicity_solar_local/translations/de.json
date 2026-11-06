@@ -8,6 +8,14 @@
           "host": "Host (IP-Adresse)",
           "port": "Port"
         }
+      },
+      "reconfigure": {
+        "title": "Verbindung zur Felicity-Solar-Batterie neu konfigurieren",
+        "description": "Aktualisiere die lokale IP-Adresse oder den Port, über den das WLAN-Modul dieser Batterie erreicht wird. Es muss dieselbe Batterie bleiben - die Seriennummer wird vor dem Speichern der Änderung geprüft.",
+        "data": {
+          "host": "Host (IP-Adresse)",
+          "port": "Port"
+        }
       }
     },
     "error": {
@@ -18,7 +26,9 @@
     },
     "abort": {
       "already_configured": "Diese Batterie ist bereits eingerichtet.",
-      "not_a_battery": "Dieses Gerät ist ein Felicity-Solar-Wechselrichter, keine Batterie. Diese Integration unterstützt nur Felicity-Batterien. Wenn deine Batterien Felicity-Packs mit eigenem WLAN-Modul sind, füge stattdessen diese mit der IP-Adresse der jeweiligen Batterie hinzu."
+      "not_a_battery": "Dieses Gerät ist ein Felicity-Solar-Wechselrichter, keine Batterie. Diese Integration unterstützt nur Felicity-Batterien. Wenn deine Batterien Felicity-Packs mit eigenem WLAN-Modul sind, füge stattdessen diese mit der IP-Adresse der jeweiligen Batterie hinzu.",
+      "reconfigure_successful": "Die Verbindung zur Batterie wurde aktualisiert.",
+      "wrong_device": "Diese Adresse gehört zu einer anderen Felicity-Solar-Batterie (ihre Seriennummer passt nicht zu diesem Eintrag). Um sie hinzuzufügen, erstelle einen neuen Eintrag, statt diesen neu zu konfigurieren."
     }
   },
   "options": {
