@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.7.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.6.1...v1.7.0) (2026-11-06)
+
+
+### Features
+
+* **config_flow:** add per-field help text to the setup step ([#102](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/102)) ([85a7cfd](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/85a7cfd50dc6149d1453d692ef1047fcfd76bffb))
+* **config_flow:** add reconfigure flow for host/port changes ([#96](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/96)) ([efdf2c1](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/efdf2c16a5d9f1deeebcea9556d46c07b3343490))
+* declare bronze integration quality scale ([#97](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/97)) ([dc56ede](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/dc56edec21e8ac565507981779879cffdd61adb6))
+* **translations:** add Ukrainian and Russian translations ([#100](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/100)) ([e30e2f7](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/e30e2f74426ee6792cc13eea5bfcf8047301166c))
+
 ## [1.6.1](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.6.0...v1.6.1) (2026-10-14)
 
 
