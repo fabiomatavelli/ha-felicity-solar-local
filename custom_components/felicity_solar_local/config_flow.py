@@ -53,6 +53,34 @@ class FelicityLocalConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
+    async def _async_validate(
+        self, host: str, port: int
+    ) -> tuple[dict[str, Any] | None, dict[str, str]]:
+        """Open a connection and fetch one snapshot to validate host/port.
+
+        Returns ``(raw, errors)``: on success ``raw`` is the device snapshot and
+        ``errors`` is empty; on failure ``raw`` is ``None`` and ``errors`` carries
+        a ``base`` key for the form.
+        """
+        errors: dict[str, str] = {}
+        client = FelicityLocalClient(host, port)
+        try:
+            raw = await client.async_get_data()
+        except FelicityTimeoutError:
+            errors["base"] = "timeout"
+        except FelicityConnectionError:
+            errors["base"] = "cannot_connect"
+        except FelicityProtocolError:
+            errors["base"] = "invalid_response"
+        except Exception:
+            _LOGGER.exception("Unexpected error validating Felicity Solar battery")
+            errors["base"] = "unknown"
+        else:
+            return raw, errors
+        finally:
+            await client.async_close()
+        return None, errors
+
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
@@ -63,19 +91,8 @@ class FelicityLocalConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             host = user_input[CONF_HOST]
             port = int(user_input[CONF_PORT])
 
-            client = FelicityLocalClient(host, port)
-            try:
-                raw = await client.async_get_data()
-            except FelicityTimeoutError:
-                errors["base"] = "timeout"
-            except FelicityConnectionError:
-                errors["base"] = "cannot_connect"
-            except FelicityProtocolError:
-                errors["base"] = "invalid_response"
-            except Exception:
-                _LOGGER.exception("Unexpected error validating Felicity Solar battery")
-                errors["base"] = "unknown"
-            else:
+            raw, errors = await self._async_validate(host, port)
+            if raw is not None:
                 if is_inverter_payload(raw):
                     return self.async_abort(reason="not_a_battery")
                 serial_number = raw.get("DevSN")
@@ -88,8 +105,6 @@ class FelicityLocalConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     title=title,
                     data={CONF_HOST: host, CONF_PORT: port},
                 )
-            finally:
-                await client.async_close()
 
         return self.async_show_form(
             step_id="user",
