@@ -22,7 +22,7 @@ Felicity's LUX-E and LUX-Y series (e.g. LUX-E-48100LG03, LUX-Y-48300LG01) are su
 - **Nothing hidden**: an optional diagnostic "Raw data" sensor exposes the complete device
   payload as attributes, even fields not mapped to a dedicated sensor (off by default - see
   Configuration below).
-- **Translated**: English, Portuguese (Brazil and Portugal), Spanish, German, French and Italian. Spotted an awkward translation? PRs from native speakers are very welcome.
+- **Translated**: English, Portuguese (Brazil and Portugal), Spanish, German, French, Italian, Ukrainian and Russian. Spotted an awkward translation? PRs from native speakers are very welcome.
 - **Multi-model aware**: sensor field mapping is looked up per battery model (see
   [Battery model support](#-battery-model-support) below) instead of hardcoded to one model.
 
