@@ -8,6 +8,14 @@
           "host": "Hôte (adresse IP)",
           "port": "Port"
         }
+      },
+      "reconfigure": {
+        "title": "Reconfigurer la connexion à la batterie Felicity Solar",
+        "description": "Mettez à jour l'adresse IP locale ou le port utilisés pour joindre le module WiFi de cette batterie. Il doit toujours s'agir de la même batterie - le numéro de série est vérifié avant l'enregistrement de la modification.",
+        "data": {
+          "host": "Hôte (adresse IP)",
+          "port": "Port"
+        }
       }
     },
     "error": {
@@ -18,7 +26,9 @@
     },
     "abort": {
       "already_configured": "Cette batterie est déjà configurée.",
-      "not_a_battery": "Cet appareil est un onduleur Felicity Solar, pas une batterie. Cette intégration ne prend en charge que les batteries Felicity. Si vos batteries sont des packs Felicity avec leur propre module WiFi, ajoutez-les plutôt avec l'adresse IP de chaque batterie."
+      "not_a_battery": "Cet appareil est un onduleur Felicity Solar, pas une batterie. Cette intégration ne prend en charge que les batteries Felicity. Si vos batteries sont des packs Felicity avec leur propre module WiFi, ajoutez-les plutôt avec l'adresse IP de chaque batterie.",
+      "reconfigure_successful": "La connexion à la batterie a été mise à jour.",
+      "wrong_device": "Cette adresse correspond à une autre batterie Felicity Solar (son numéro de série ne correspond pas à cette entrée). Pour l'ajouter, créez une nouvelle entrée au lieu de reconfigurer celle-ci."
     }
   },
   "options": {

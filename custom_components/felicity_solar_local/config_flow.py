@@ -112,6 +112,44 @@ class FelicityLocalConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        """Handle reconfiguration of an existing entry: change host/port."""
+        errors: dict[str, str] = {}
+        reconfigure_entry = self._get_reconfigure_entry()
+
+        if user_input is not None:
+            host = user_input[CONF_HOST]
+            port = int(user_input[CONF_PORT])
+
+            raw, errors = await self._async_validate(host, port)
+            if raw is not None:
+                if is_inverter_payload(raw):
+                    return self.async_abort(reason="not_a_battery")
+                # Identify the device the way async_step_user does and make sure
+                # the entry is still pointed at the same battery after the change.
+                serial_number = raw.get("DevSN")
+                unique_id = serial_number or f"{host}:{port}"
+                await self.async_set_unique_id(unique_id)
+                self._abort_if_unique_id_mismatch(reason="wrong_device")
+                return self.async_update_reload_and_abort(
+                    reconfigure_entry,
+                    data_updates={CONF_HOST: host, CONF_PORT: port},
+                )
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=self.add_suggested_values_to_schema(
+                DATA_SCHEMA,
+                {
+                    CONF_HOST: reconfigure_entry.data[CONF_HOST],
+                    CONF_PORT: reconfigure_entry.data[CONF_PORT],
+                },
+            ),
+            errors=errors,
+        )
+
     @staticmethod
     @callback
     def async_get_options_flow(
