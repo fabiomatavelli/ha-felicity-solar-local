@@ -4,7 +4,14 @@ rules:
     status: exempt
     comment: This integration does not register any custom actions.
   appropriate-polling: done
-  brands: done
+  brands:
+    status: exempt
+    comment: >-
+      The integration ships its brand icons in
+      custom_components/felicity_solar_local/brand/, served by Home Assistant's
+      Brands Proxy API (2026.3+) and read by HACS/Marketplace from the
+      repository; it is not submitted to the legacy home-assistant/brands
+      custom_integrations folder.
   common-modules: done
   config-flow-test-coverage: done
   config-flow: done
