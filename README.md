@@ -1,6 +1,6 @@
 # 🔋 Felicity Solar Local for Home Assistant
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge)](https://github.com/hacs/integration)
+[![Home Assistant Marketplace](https://img.shields.io/badge/Home%20Assistant-Marketplace-%2303a9f4.svg?style=for-the-badge&logo=home-assistant&logoColor=white)](https://my.home-assistant.io/redirect/hacs_repository/?owner=fabiomatavelli&repository=ha-felicity-solar-local&category=integration)
 [![Tests](https://github.com/fabiomatavelli/ha-felicity-solar-local/actions/workflows/test.yml/badge.svg)](https://github.com/fabiomatavelli/ha-felicity-solar-local/actions/workflows/test.yml)
 
 A Home Assistant custom integration that reads Felicity Solar battery data **directly over
@@ -30,19 +30,22 @@ Felicity's LUX-E and LUX-Y series (e.g. LUX-E-48100LG03, LUX-Y-48300LG01) are su
 
 Requires **Home Assistant 2026.3.0 or newer**.
 
-### Method 1: HACS (Recommended)
+### Method 1: Marketplace / HACS (Recommended)
 
-This integration is in the default HACS store, so no custom repository is needed.
+This integration is in the default catalog, so no custom repository is needed. On Home
+Assistant 2026.11 and newer, the community catalog is the built-in **Marketplace**
+(**Settings** > **Marketplace**); on 2026.3-2026.10 it's **HACS**. Both install from the same
+catalog.
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=fabiomatavelli&repository=ha-felicity-solar-local&category=integration)
+[![Open your Home Assistant instance and open this repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=fabiomatavelli&repository=ha-felicity-solar-local&category=integration)
 
-**One-click:** click the badge above (requires [My Home Assistant](https://www.home-assistant.io/integrations/my/) set up on your instance) and click **Download** in the dialog that opens.
+**One-click:** click the badge above (requires [My Home Assistant](https://www.home-assistant.io/integrations/my/) set up on your instance) and select **Download** in the dialog that opens.
 
 **Manual steps:**
 
-1. Open Home Assistant and go to **HACS**.
-2. Search for **Felicity Solar Local** and click it.
-3. Click **Download** in the bottom right.
+1. In Home Assistant, open the **Marketplace** (**Settings** > **Marketplace**), or **HACS** on older versions.
+2. Search for **Felicity Solar Local** and select it.
+3. Select **Download** and confirm.
 4. **Restart Home Assistant**.
 
 ### Method 2: Manual
