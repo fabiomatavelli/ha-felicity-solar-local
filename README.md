@@ -100,6 +100,17 @@ python3 scripts/probe.py <battery-ip>
 This prints the payload untouched, serial numbers (`DevSN`/`wifiSN`) included - for
 anything you'll post publicly, use `--report` instead (see below), which redacts them.
 
+### Removing the integration
+
+This integration follows standard Home Assistant removal - no extra steps are needed:
+
+1. Go to **Settings** > **Devices & services** and select **Felicity Solar Local**.
+2. For each battery entry, select the ⋮ menu and choose **Delete**.
+
+This removes the config entry and all of its devices and entities. If you installed the
+integration from the Marketplace (HACS) and want to remove its files as well, uninstall it
+from there afterwards and restart Home Assistant.
+
 ## 🔋 Battery model support
 
 | Model | Type / SubType | Status | Notes |
