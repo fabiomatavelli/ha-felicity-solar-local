@@ -7,6 +7,10 @@
         "data": {
           "host": "Host (indirizzo IP)",
           "port": "Porta"
+        },
+        "data_description": {
+          "host": "L'indirizzo IP locale della batteria, ad es. 192.168.1.50 - trovalo nell'elenco dei client DHCP del tuo router.",
+          "port": "Porta TCP del protocollo locale della batteria. Lascia il valore predefinito (53970) a meno che tu non l'abbia cambiato sul dispositivo."
         }
       },
       "reconfigure": {
