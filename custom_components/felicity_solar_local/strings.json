@@ -7,6 +7,10 @@
         "data": {
           "host": "Host (IP address)",
           "port": "Port"
+        },
+        "data_description": {
+          "host": "The battery's local IP address, e.g. 192.168.1.50 - find it in your router's DHCP client list.",
+          "port": "TCP port of the battery's local protocol. Leave the default (53970) unless you changed it on the device."
         }
       },
       "reconfigure": {
