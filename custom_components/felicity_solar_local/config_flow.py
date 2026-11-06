@@ -53,6 +53,34 @@ class FelicityLocalConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
+    async def _async_validate(
+        self, host: str, port: int
+    ) -> tuple[dict[str, Any] | None, dict[str, str]]:
+        """Open a connection and fetch one snapshot to validate host/port.
+
+        Returns ``(raw, errors)``: on success ``raw`` is the device snapshot and
+        ``errors`` is empty; on failure ``raw`` is ``None`` and ``errors`` carries
+        a ``base`` key for the form.
+        """
+        errors: dict[str, str] = {}
+        client = FelicityLocalClient(host, port)
+        try:
+            raw = await client.async_get_data()
+        except FelicityTimeoutError:
+            errors["base"] = "timeout"
+        except FelicityConnectionError:
+            errors["base"] = "cannot_connect"
+        except FelicityProtocolError:
+            errors["base"] = "invalid_response"
+        except Exception:
+            _LOGGER.exception("Unexpected error validating Felicity Solar battery")
+            errors["base"] = "unknown"
+        else:
+            return raw, errors
+        finally:
+            await client.async_close()
+        return None, errors
+
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
@@ -63,19 +91,8 @@ class FelicityLocalConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             host = user_input[CONF_HOST]
             port = int(user_input[CONF_PORT])
 
-            client = FelicityLocalClient(host, port)
-            try:
-                raw = await client.async_get_data()
-            except FelicityTimeoutError:
-                errors["base"] = "timeout"
-            except FelicityConnectionError:
-                errors["base"] = "cannot_connect"
-            except FelicityProtocolError:
-                errors["base"] = "invalid_response"
-            except Exception:
-                _LOGGER.exception("Unexpected error validating Felicity Solar battery")
-                errors["base"] = "unknown"
-            else:
+            raw, errors = await self._async_validate(host, port)
+            if raw is not None:
                 if is_inverter_payload(raw):
                     return self.async_abort(reason="not_a_battery")
                 serial_number = raw.get("DevSN")
@@ -88,12 +105,51 @@ class FelicityLocalConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     title=title,
                     data={CONF_HOST: host, CONF_PORT: port},
                 )
-            finally:
-                await client.async_close()
 
         return self.async_show_form(
             step_id="user",
             data_schema=DATA_SCHEMA,
+            errors=errors,
+        )
+
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        """Handle reconfiguration of an existing entry: change host/port."""
+        errors: dict[str, str] = {}
+        reconfigure_entry = self._get_reconfigure_entry()
+
+        if user_input is not None:
+            host = user_input[CONF_HOST]
+            port = int(user_input[CONF_PORT])
+
+            raw, errors = await self._async_validate(host, port)
+            if raw is not None:
+                if is_inverter_payload(raw):
+                    return self.async_abort(reason="not_a_battery")
+                # Only verify identity when the battery reports a serial. A
+                # serial-less device can't be told apart from another by anything
+                # but its address, so there's nothing to check against - refusing
+                # the change would lock the user out of the one case (a device
+                # with no serial) where editing the host matters most.
+                serial_number = raw.get("DevSN")
+                if serial_number:
+                    await self.async_set_unique_id(serial_number)
+                    self._abort_if_unique_id_mismatch(reason="wrong_device")
+                return self.async_update_reload_and_abort(
+                    reconfigure_entry,
+                    data_updates={CONF_HOST: host, CONF_PORT: port},
+                )
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=self.add_suggested_values_to_schema(
+                DATA_SCHEMA,
+                {
+                    CONF_HOST: reconfigure_entry.data[CONF_HOST],
+                    CONF_PORT: reconfigure_entry.data[CONF_PORT],
+                },
+            ),
             errors=errors,
         )
 
