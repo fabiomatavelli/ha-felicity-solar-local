@@ -1,6 +1,6 @@
 # 🔋 Felicity Solar Local for Home Assistant
 
-[![Home Assistant Marketplace](https://img.shields.io/badge/Home%20Assistant-Marketplace-%2303a9f4.svg?style=for-the-badge&logo=home-assistant&logoColor=white)](https://my.home-assistant.io/redirect/hacs_repository/?owner=fabiomatavelli&repository=ha-felicity-solar-local&category=integration)
+[![Home Assistant Marketplace / HACS](https://img.shields.io/badge/Home%20Assistant-Marketplace%20%2F%20HACS-%2303a9f4.svg?style=for-the-badge&logo=home-assistant&logoColor=white)](https://my.home-assistant.io/redirect/hacs_repository/?owner=fabiomatavelli&repository=ha-felicity-solar-local&category=integration)
 [![Tests](https://github.com/fabiomatavelli/ha-felicity-solar-local/actions/workflows/test.yml/badge.svg)](https://github.com/fabiomatavelli/ha-felicity-solar-local/actions/workflows/test.yml)
 
 A Home Assistant custom integration that reads Felicity Solar battery data **directly over
