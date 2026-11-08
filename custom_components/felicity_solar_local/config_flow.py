@@ -9,6 +9,7 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.helpers import selector
+from homeassistant.helpers.service_info.dhcp import DhcpServiceInfo
 
 from .api import (
     FelicityConnectionError,
@@ -52,6 +53,9 @@ class FelicityLocalConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Felicity Solar Local."""
 
     VERSION = 1
+
+    _discovered_host: str
+    _discovered_title: str
 
     async def _async_validate(
         self, host: str, port: int
@@ -110,6 +114,50 @@ class FelicityLocalConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=DATA_SCHEMA,
             errors=errors,
+        )
+
+    async def async_step_dhcp(
+        self, discovery_info: DhcpServiceInfo
+    ) -> config_entries.ConfigFlowResult:
+        """Handle a battery WiFi module found by its DHCP hostname."""
+        host = discovery_info.ip
+        # Skip the TCP probe for addresses already in use, so DHCP renewals of
+        # known batteries don't open a second connection to their module.
+        self._async_abort_entries_match({CONF_HOST: host})
+
+        raw, _ = await self._async_validate(host, DEFAULT_PORT)
+        if raw is None:
+            return self.async_abort(reason="cannot_connect")
+        if is_inverter_payload(raw):
+            return self.async_abort(reason="not_a_battery")
+
+        serial_number = raw.get("DevSN")
+        await self.async_set_unique_id(serial_number or f"{host}:{DEFAULT_PORT}")
+        # The module's address comes from DHCP and can change: follow it.
+        self._abort_if_unique_id_configured(updates={CONF_HOST: host})
+
+        self._discovered_host = host
+        self._discovered_title = f"Felicity Solar Battery {serial_number or host}"
+        self.context["title_placeholders"] = {"name": self._discovered_title}
+        return await self.async_step_discovery_confirm()
+
+    async def async_step_discovery_confirm(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        """Confirm adding a discovered battery."""
+        if user_input is not None:
+            return self.async_create_entry(
+                title=self._discovered_title,
+                data={CONF_HOST: self._discovered_host, CONF_PORT: DEFAULT_PORT},
+            )
+
+        self._set_confirm_only()
+        return self.async_show_form(
+            step_id="discovery_confirm",
+            description_placeholders={
+                "name": self._discovered_title,
+                "host": self._discovered_host,
+            },
         )
 
     async def async_step_reconfigure(

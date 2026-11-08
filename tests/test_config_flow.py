@@ -9,6 +9,7 @@ import pytest
 from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
+from homeassistant.helpers.service_info.dhcp import DhcpServiceInfo
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.felicity_solar_local.api import (
@@ -116,6 +117,91 @@ async def test_user_flow_aborts_on_duplicate(
 
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "already_configured"
+
+
+DHCP_INFO = DhcpServiceInfo(
+    ip="192.168.1.50", hostname="fls_bl602-abcdef", macaddress="aabbccabcdef"
+)
+
+
+async def test_dhcp_flow_success(
+    hass: HomeAssistant, sample_response: dict[str, Any]
+) -> None:
+    with (
+        patch(API_PATH, AsyncMock(return_value=sample_response)),
+        patch(TZ_PATH, AsyncMock(return_value=None)),
+    ):
+        result = await hass.config_entries.flow.async_init(
+            DOMAIN, context={"source": config_entries.SOURCE_DHCP}, data=DHCP_INFO
+        )
+        assert result["type"] is FlowResultType.FORM
+        assert result["step_id"] == "discovery_confirm"
+        result = await hass.config_entries.flow.async_configure(result["flow_id"], {})
+
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert result["data"] == {CONF_HOST: "192.168.1.50", CONF_PORT: 53970}
+    assert result["result"].unique_id == sample_response["DevSN"]
+
+
+async def test_dhcp_flow_updates_host_of_known_battery(
+    hass: HomeAssistant, sample_response: dict[str, Any]
+) -> None:
+    existing = MockConfigEntry(
+        domain=DOMAIN,
+        unique_id=sample_response["DevSN"],
+        data={CONF_HOST: "192.168.1.99", CONF_PORT: 53970},
+    )
+    existing.add_to_hass(hass)
+
+    with patch(API_PATH, AsyncMock(return_value=sample_response)):
+        result = await hass.config_entries.flow.async_init(
+            DOMAIN, context={"source": config_entries.SOURCE_DHCP}, data=DHCP_INFO
+        )
+
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "already_configured"
+    assert existing.data[CONF_HOST] == "192.168.1.50"
+
+
+async def test_dhcp_flow_skips_probe_for_known_host(hass: HomeAssistant) -> None:
+    MockConfigEntry(
+        domain=DOMAIN, data={CONF_HOST: "192.168.1.50", CONF_PORT: 53970}
+    ).add_to_hass(hass)
+
+    with patch(API_PATH, AsyncMock()) as get_data:
+        result = await hass.config_entries.flow.async_init(
+            DOMAIN, context={"source": config_entries.SOURCE_DHCP}, data=DHCP_INFO
+        )
+
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "already_configured"
+    get_data.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    ("api_mock", "reason"),
+    [
+        (AsyncMock(side_effect=FelicityConnectionError("boom")), "cannot_connect"),
+        (AsyncMock(side_effect=FelicityTimeoutError("boom")), "cannot_connect"),
+        ("inverter", "not_a_battery"),
+    ],
+)
+async def test_dhcp_flow_aborts(
+    hass: HomeAssistant,
+    inverter_type81_response: dict[str, Any],
+    api_mock: AsyncMock | str,
+    reason: str,
+) -> None:
+    if api_mock == "inverter":
+        api_mock = AsyncMock(return_value=inverter_type81_response)
+    with patch(API_PATH, api_mock):
+        result = await hass.config_entries.flow.async_init(
+            DOMAIN, context={"source": config_entries.SOURCE_DHCP}, data=DHCP_INFO
+        )
+
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == reason
+    assert not hass.config_entries.async_entries(DOMAIN)
 
 
 async def test_reconfigure_flow_success(

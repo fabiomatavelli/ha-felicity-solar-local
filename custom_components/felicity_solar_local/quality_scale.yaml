@@ -61,14 +61,8 @@ rules:
   # Gold
   devices: todo
   diagnostics: todo
-  discovery-update-info:
-    status: exempt
-    comment: The battery is configured by IP address; the integration has no discovery.
-  discovery:
-    status: exempt
-    comment: >-
-      The local protocol offers no discovery mechanism (no mDNS/SSDP/DHCP
-      fingerprint); the battery is added by IP address.
+  discovery-update-info: done
+  discovery: done
   docs-data-update: todo
   docs-examples: todo
   docs-known-limitations: todo

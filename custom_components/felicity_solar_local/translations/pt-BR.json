@@ -1,6 +1,11 @@
 {
   "config": {
+    "flow_title": "{name}",
     "step": {
+      "discovery_confirm": {
+        "title": "Bateria Felicity Solar descoberta",
+        "description": "Configurar {name} em {host}?"
+      },
       "user": {
         "title": "Conectar a uma bateria Felicity Solar",
         "description": "Informe o endereço IP local do módulo WiFi da bateria. A consulta é feita via TCP na rede local - não é preciso conta na nuvem.",
@@ -29,6 +34,7 @@
       "unknown": "Erro inesperado."
     },
     "abort": {
+      "cannot_connect": "Não foi possível conectar à bateria descoberta.",
       "already_configured": "Esta bateria já está configurada.",
       "not_a_battery": "Este dispositivo é um inversor Felicity Solar, não uma bateria. Esta integração só é compatível com baterias Felicity. Se as suas baterias forem Felicity com módulo WiFi próprio, adicione-as usando o endereço IP de cada bateria.",
       "reconfigure_successful": "A conexão com a bateria foi atualizada.",

@@ -1,6 +1,11 @@
 {
   "config": {
+    "flow_title": "{name}",
     "step": {
+      "discovery_confirm": {
+        "title": "Batterie Felicity Solar découverte",
+        "description": "Configurer {name} à l'adresse {host} ?"
+      },
       "user": {
         "title": "Se connecter à une batterie Felicity Solar",
         "description": "Saisissez l'adresse IP locale du module WiFi de la batterie. Elle est interrogée en TCP sur le réseau local - aucun compte cloud n'est nécessaire.",
@@ -29,6 +34,7 @@
       "unknown": "Erreur inattendue."
     },
     "abort": {
+      "cannot_connect": "Impossible de se connecter à la batterie découverte.",
       "already_configured": "Cette batterie est déjà configurée.",
       "not_a_battery": "Cet appareil est un onduleur Felicity Solar, pas une batterie. Cette intégration ne prend en charge que les batteries Felicity. Si vos batteries sont des packs Felicity avec leur propre module WiFi, ajoutez-les plutôt avec l'adresse IP de chaque batterie.",
       "reconfigure_successful": "La connexion à la batterie a été mise à jour.",
