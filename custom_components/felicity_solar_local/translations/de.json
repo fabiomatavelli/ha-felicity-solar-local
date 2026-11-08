@@ -1,6 +1,11 @@
 {
   "config": {
+    "flow_title": "{name}",
     "step": {
+      "discovery_confirm": {
+        "title": "Felicity Solar Batterie gefunden",
+        "description": "{name} unter {host} einrichten?"
+      },
       "user": {
         "title": "Mit einer Felicity-Solar-Batterie verbinden",
         "description": "Gib die lokale IP-Adresse des WLAN-Moduls der Batterie ein. Sie wird per TCP im lokalen Netzwerk abgefragt - kein Cloud-Konto erforderlich.",
@@ -29,6 +34,7 @@
       "unknown": "Unerwarteter Fehler."
     },
     "abort": {
+      "cannot_connect": "Verbindung zur gefundenen Batterie fehlgeschlagen.",
       "already_configured": "Diese Batterie ist bereits eingerichtet.",
       "not_a_battery": "Dieses Gerät ist ein Felicity-Solar-Wechselrichter, keine Batterie. Diese Integration unterstützt nur Felicity-Batterien. Wenn deine Batterien Felicity-Packs mit eigenem WLAN-Modul sind, füge stattdessen diese mit der IP-Adresse der jeweiligen Batterie hinzu.",
       "reconfigure_successful": "Die Verbindung zur Batterie wurde aktualisiert.",

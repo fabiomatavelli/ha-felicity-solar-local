@@ -63,6 +63,8 @@ catalog.
 4. Enter the battery's IP address (port defaults to `53970`).
 5. Repeat for each additional battery - one config entry per battery/IP.
 
+Home Assistant also discovers batteries on its own through DHCP: their WiFi modules request an address with a `FLS_BL602-xxxxxx` hostname, and each one that answers as a battery shows up under **Settings** > **Devices & Services** > **Discovered**, ready to add with one click. Discovery also keeps a configured battery's IP address up to date when its DHCP lease changes. It only works when Home Assistant sees the battery's DHCP traffic (same network/VLAN) or a router integration reports it as a device tracker; otherwise add the battery by IP as above.
+
 Update interval (default 5s) and the **Keep connection open** toggle (on by default) can be
 changed afterwards from the integration's **Configure** button. The battery's TCP server
 tolerates multiple queries on the same open connection, so by default the integration keeps
