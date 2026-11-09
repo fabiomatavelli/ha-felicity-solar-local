@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.7.0...v1.8.0) (2026-11-08)
+
+
+### Features
+
+* **config_flow:** discover batteries via DHCP hostname ([#104](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/104)) ([77d7d82](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/77d7d822963a7c11c25f04d8e02985fa374118db))
+
 ## [1.7.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.6.1...v1.7.0) (2026-11-06)
 
 
