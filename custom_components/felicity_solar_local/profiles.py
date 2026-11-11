@@ -512,6 +512,19 @@ LUX_E_48250LG03_PROFILE = BatteryProfile(
     subtype_code=7250,
 )
 
+# Reported in issue #103: a 24 V/460 Ah, 8-cell pack. BTemp[1] reported [256, 258] (a bogus
+# 25.8 °C max) while the vendor app showed 33 °C, matching BtemList. Voltage, current, SOC,
+# limits, cell voltages and the BtemList temperature mapping were cross-checked against the
+# vendor app. Its firmware (M1 522) doesn't send BmsCnt, so cycle_count stays unavailable.
+# Known caveat (same as the FLA48460TG2): BatsocList[0][2] (capacity) reads 500000
+# (500.0 Ah), the BMS-reported capacity, while the vendor app and nameplate say 460 Ah.
+FLA24460_EU_PROFILE = BatteryProfile(
+    name="FLA24460-EU",
+    confidence="verified",
+    type_code=112,
+    subtype_code=6500,
+)
+
 # Fallback for any Felicity battery reporting a Type/SubType we haven't verified yet.
 # Same field shape/scaling as the verified profile (the protocol is believed to be shared
 # across the Felicity WiFi-battery family) but not confirmed against real hardware - treat
@@ -531,6 +544,7 @@ PROFILES: tuple[BatteryProfile, ...] = (
     LUX_E_48100LG03_PROFILE,
     FLA48171_EU_PROFILE,
     LUX_E_48250LG03_PROFILE,
+    FLA24460_EU_PROFILE,
 )
 
 
