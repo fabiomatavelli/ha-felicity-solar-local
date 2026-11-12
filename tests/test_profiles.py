@@ -11,12 +11,14 @@ import pytest
 from custom_components.felicity_solar_local.profiles import (
     DEFAULT_PROFILE,
     FLA24100_PROFILE,
+    FLA24460_EU_PROFILE,
     FLA48171_EU_PROFILE,
     FLA48300_PROFILE,
     FLA48460TG2_PROFILE,
     FLB48314TG1H_PROFILE,
     LUX_E_48100LG03_PROFILE,
     LUX_E_48250LG03_PROFILE,
+    PROFILES,
     firmware_version,
     is_inverter_payload,
     select_profile,
@@ -25,6 +27,11 @@ from custom_components.felicity_solar_local.profiles import (
 
 def test_select_profile_matches_flb48314tg1h(sample_response: dict[str, Any]) -> None:
     assert select_profile(sample_response) is FLB48314TG1H_PROFILE
+
+
+def test_profiles_have_unique_type_subtype() -> None:
+    # select_profile() returns the first match, so a duplicate pair would make PROFILES order matter.
+    assert len({(p.type_code, p.subtype_code) for p in PROFILES}) == len(PROFILES)
 
 
 def test_select_profile_falls_back_to_default_for_unknown_model(
@@ -108,10 +115,11 @@ def test_parse_temperature_max_min_skip_missing_probes(sample_response: dict[str
     [
         "sample_response",
         "fla24100_response",
+        "fla24460_eu_response",
+        "fla48171_eu_response",
         "fla48300_response",
         "fla48460tg2_response",
         "lux_e_48100lg03_response",
-        "fla48171_eu_response",
         "lux_e_48250lg03_response",
     ],
 )
@@ -393,10 +401,11 @@ def test_fla48460tg2_core_fields_scale_like_common_profile(
     [
         "sample_response",
         "fla24100_response",
+        "fla24460_eu_response",
+        "fla48171_eu_response",
         "fla48300_response",
         "fla48460tg2_response",
         "lux_e_48100lg03_response",
-        "fla48171_eu_response",
         "lux_e_48250lg03_response",
     ],
 )
@@ -563,10 +572,11 @@ def test_is_inverter_payload_detects_type81_inverter(
     [
         "sample_response",
         "fla24100_response",
+        "fla24460_eu_response",
+        "fla48171_eu_response",
         "fla48300_response",
         "fla48460tg2_response",
         "lux_e_48100lg03_response",
-        "fla48171_eu_response",
         "lux_e_48250lg03_response",
     ],
 )
@@ -574,3 +584,45 @@ def test_is_inverter_payload_false_for_every_battery(
     fixture_name: str, request: pytest.FixtureRequest
 ) -> None:
     assert not is_inverter_payload(request.getfixturevalue(fixture_name))
+
+
+def test_select_profile_matches_fla24460_eu(fla24460_eu_response: dict[str, Any]) -> None:
+    assert select_profile(fla24460_eu_response) is FLA24460_EU_PROFILE
+    assert FLA24460_EU_PROFILE.confidence == "verified"
+
+
+def test_fla24460_eu_temperatures_come_from_btemlist_not_btemp(
+    fla24460_eu_response: dict[str, Any],
+) -> None:
+    # BTemp[1] would parse as a bogus 25.8 °C max; the vendor app showed 33 °C (issue #103).
+    assert fla24460_eu_response["BTemp"][1] == [256, 258]
+    data = FLA24460_EU_PROFILE.parse(fla24460_eu_response)
+    assert [data[f"temperature_{i}"] for i in range(1, 5)] == [33.0, 33.0, 32.0, 33.0]
+    assert data["temperature_max"] == 33.0
+    assert data["temperature_min"] == 32.0
+
+
+def test_fla24460_eu_core_fields_scale_like_common_profile(
+    fla24460_eu_response: dict[str, Any],
+) -> None:
+    data = FLA24460_EU_PROFILE.parse(fla24460_eu_response)
+
+    assert data["voltage"] == 28.33
+    assert data["current"] == 0.0
+    assert data["power"] == 0.0
+    assert data["soc"] == 100.0
+    assert data["soh"] == 100.0
+    # Known caveat: the vendor app/nameplate say 460 Ah (see FLA24460_EU_PROFILE).
+    assert data["capacity"] == 500.0
+    assert data["cycle_count"] is None
+    assert data["max_cell_voltage"] == 3.571
+    assert data["min_cell_voltage"] == 3.514
+    assert data["max_cell_number"] == 6
+    assert data["min_cell_number"] == 4
+    assert data["cell_8_voltage"] == 3.547
+    assert data["cell_9_voltage"] is None
+    assert data["charging_state"] == "standby"
+    assert data["charge_voltage_limit"] == 28.8
+    assert data["discharge_voltage_limit"] == 24.0
+    assert data["charge_current_limit"] == 0.0
+    assert data["discharge_current_limit"] == 200.0
