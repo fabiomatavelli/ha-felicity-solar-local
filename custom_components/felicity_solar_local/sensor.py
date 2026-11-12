@@ -44,9 +44,7 @@ async def async_setup_entry(
             # This battery's firmware doesn't send the field, so the entity would only
             # ever read "unknown". Also drop one left registered by an earlier version of
             # the integration; it comes back on reload once a firmware update adds the field.
-            stale = registry.async_get_entity_id(
-                "sensor", DOMAIN, f"{device_id}_{description.key}"
-            )
+            stale = registry.async_get_entity_id("sensor", DOMAIN, f"{device_id}_{description.key}")
             if stale is not None:
                 registry.async_remove(stale)
             continue
@@ -60,9 +58,7 @@ async def async_setup_entry(
 
 def _device_id(coordinator: FelicityLocalCoordinator) -> str:
     """Stable per-battery id: the serial number, or host:port if the battery hides it."""
-    return coordinator.data.data.get("serial_number") or (
-        f"{coordinator.host}:{coordinator.port}"
-    )
+    return coordinator.data.data.get("serial_number") or (f"{coordinator.host}:{coordinator.port}")
 
 
 class FelicityBaseSensor(CoordinatorEntity[FelicityLocalCoordinator], SensorEntity):

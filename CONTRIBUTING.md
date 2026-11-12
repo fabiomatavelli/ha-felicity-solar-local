@@ -19,10 +19,11 @@ weekly; review and merge it like any other PR (it goes through the same required
 
 ```console
 ruff check .
+ruff format --check .
 pytest
 ```
 
-Both must pass before a PR can be merged (enforced by CI - see `.github/workflows/test.yml`
+All must pass before a PR can be merged (enforced by CI - see `.github/workflows/test.yml`
 and `validate.yml`, which also run `hassfest` and the HACS validation action).
 
 ## Adding a new battery model profile

@@ -18,8 +18,7 @@ def auto_enable_custom_integrations(enable_custom_integrations: None) -> None:
 
 
 BASIC_INFO_PATH = (
-    "custom_components.felicity_solar_local.coordinator.FelicityLocalClient"
-    ".async_get_basic_info"
+    "custom_components.felicity_solar_local.coordinator.FelicityLocalClient.async_get_basic_info"
 )
 
 
@@ -31,9 +30,7 @@ def basic_info_response() -> dict[str, Any]:
 
 
 @pytest.fixture(autouse=True)
-def mock_basic_info(
-    request: pytest.FixtureRequest, basic_info_response: dict[str, Any]
-) -> Any:
+def mock_basic_info(request: pytest.FixtureRequest, basic_info_response: dict[str, Any]) -> Any:
     """Answer the coordinator's one-off firmware query so no test hits the network.
 
     test_api.py exercises the real client against a fake server, so it's left alone there.

@@ -55,9 +55,7 @@ async def test_setup_entry_creates_sensors_with_correct_state(
 
     # Per-cell voltage sensors are registered but disabled by default (16 of them would
     # otherwise clutter the entity list) - confirm registration without expecting a state.
-    cell_entity_id = registry.async_get_entity_id(
-        "sensor", DOMAIN, f"{serial}_cell_1_voltage"
-    )
+    cell_entity_id = registry.async_get_entity_id("sensor", DOMAIN, f"{serial}_cell_1_voltage")
     assert cell_entity_id is not None
     assert registry.entities[cell_entity_id].disabled is True
 

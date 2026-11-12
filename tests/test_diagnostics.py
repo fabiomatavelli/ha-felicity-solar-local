@@ -24,9 +24,7 @@ TZ_PATH = (
 )
 
 
-async def _setup_entry(
-    hass: HomeAssistant, sample_response: dict[str, Any]
-) -> MockConfigEntry:
+async def _setup_entry(hass: HomeAssistant, sample_response: dict[str, Any]) -> MockConfigEntry:
     entry = MockConfigEntry(
         domain=DOMAIN,
         unique_id=sample_response["DevSN"],

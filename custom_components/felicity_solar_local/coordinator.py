@@ -109,9 +109,7 @@ class FelicityLocalCoordinator(DataUpdateCoordinator[FelicityBatteryData]):
             # A different battery now answers on this host (e.g. swapped behind the same
             # IP) - drop the previous model's issue rather than leaving it stale.
             ir.async_delete_issue(self.hass, DOMAIN, _issue_id(self._reported_model))
-            ir.async_delete_issue(
-                self.hass, DOMAIN, _inverter_issue_id(self._reported_model)
-            )
+            ir.async_delete_issue(self.hass, DOMAIN, _inverter_issue_id(self._reported_model))
         self._reported_model = model
 
         if is_inverter_payload(raw):

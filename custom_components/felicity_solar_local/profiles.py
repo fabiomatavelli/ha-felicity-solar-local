@@ -44,7 +44,7 @@ def _path(data: dict[str, Any], key: str, row: int, col: int) -> Any:
     """Safely pull data[key][row][col], returning None if missing/short/wrong shape."""
     try:
         value = data[key][row][col]
-    except (KeyError, IndexError, TypeError):
+    except KeyError, IndexError, TypeError:
         return None
     return None if value in _SENTINELS else value
 
@@ -183,7 +183,9 @@ def parse_common(raw: dict[str, Any]) -> dict[str, Any]:
     data: dict[str, Any] = {
         "voltage": voltage,
         "current": current,
-        "power": round(voltage * current, 2) if voltage is not None and current is not None else None,
+        "power": round(voltage * current, 2)
+        if voltage is not None and current is not None
+        else None,
         "charging_state": _charging_state(bstate),
         "soc": _scaled(raw, "BatsocList", 0, 0, 100),
         "soh": _scaled(raw, "BatsocList", 0, 1, 10),

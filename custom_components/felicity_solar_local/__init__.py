@@ -35,9 +35,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: FelicityLocalConfigEntry
     persistent_connection = entry.options.get(
         CONF_PERSISTENT_CONNECTION, DEFAULT_PERSISTENT_CONNECTION
     )
-    invert_current_sign = entry.options.get(
-        CONF_INVERT_CURRENT_SIGN, DEFAULT_INVERT_CURRENT_SIGN
-    )
+    invert_current_sign = entry.options.get(CONF_INVERT_CURRENT_SIGN, DEFAULT_INVERT_CURRENT_SIGN)
 
     coordinator = FelicityLocalCoordinator(
         hass=hass,
