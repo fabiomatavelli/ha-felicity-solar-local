@@ -32,9 +32,7 @@ def _report_payload(body: str) -> dict[str, Any]:
     return json.loads(match.group(1))
 
 
-def test_redact_replaces_serials_only(
-    probe: ModuleType, sample_response: dict[str, Any]
-) -> None:
+def test_redact_replaces_serials_only(probe: ModuleType, sample_response: dict[str, Any]) -> None:
     original = dict(sample_response)
     redacted = probe.redact(sample_response)
 
@@ -56,9 +54,7 @@ def test_render_report_embeds_full_redacted_payload(
     assert payload == probe.redact(sample_response)
     assert sample_response["DevSN"] not in body
     assert sample_response["wifiSN"] not in body
-    assert (
-        f"Type={sample_response['Type']}, SubType={sample_response['SubType']}" in body
-    )
+    assert f"Type={sample_response['Type']}, SubType={sample_response['SubType']}" in body
 
 
 def test_render_report_headings_match_issue_form(probe: ModuleType) -> None:

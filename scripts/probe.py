@@ -45,9 +45,7 @@ INVERTER_INTEGRATION_URL = "https://github.com/partach/ha_felicity"
 
 async def probe(host: str, port: int) -> dict[str, Any]:
     """Query the battery once and return its parsed JSON snapshot."""
-    reader, writer = await asyncio.wait_for(
-        asyncio.open_connection(host, port), timeout=TIMEOUT
-    )
+    reader, writer = await asyncio.wait_for(asyncio.open_connection(host, port), timeout=TIMEOUT)
 
     try:
         writer.write(QUERY_COMMAND)
@@ -82,10 +80,7 @@ def redact(data: dict[str, Any]) -> dict[str, Any]:
 
 def report_title(data: dict[str, Any]) -> str:
     """Suggested GitHub issue title for a profile request."""
-    return (
-        f"{REPORT_TITLE_PREFIX} <model> (Type={data.get('Type')}, "
-        f"SubType={data.get('SubType')})"
-    )
+    return f"{REPORT_TITLE_PREFIX} <model> (Type={data.get('Type')}, SubType={data.get('SubType')})"
 
 
 def is_inverter_payload(data: dict[str, Any]) -> bool:
@@ -193,8 +188,7 @@ def main(argv: list[str] | None = None) -> None:
         )
         return
 
-    print(f"\nType={data.get('Type')} SubType={data.get('SubType')} "
-          f"DevSN={data.get('DevSN')}\n")
+    print(f"\nType={data.get('Type')} SubType={data.get('SubType')} DevSN={data.get('DevSN')}\n")
     print(json.dumps(data, indent=2))
 
 

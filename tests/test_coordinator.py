@@ -253,9 +253,7 @@ async def test_recognized_model_raises_no_repair_issue(
     ):
         await coordinator._async_update_data()
 
-    assert not [
-        issue_id for (domain, issue_id) in ir.async_get(hass).issues if domain == DOMAIN
-    ]
+    assert not [issue_id for (domain, issue_id) in ir.async_get(hass).issues if domain == DOMAIN]
 
 
 async def test_repair_issue_cleared_once_model_is_recognized(

@@ -41,9 +41,7 @@ DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_HOST): selector.TextSelector(),
         vol.Required(CONF_PORT, default=DEFAULT_PORT): selector.NumberSelector(
-            selector.NumberSelectorConfig(
-                min=1, max=65535, mode=selector.NumberSelectorMode.BOX
-            )
+            selector.NumberSelectorConfig(min=1, max=65535, mode=selector.NumberSelectorMode.BOX)
         ),
     }
 )

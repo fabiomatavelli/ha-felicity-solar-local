@@ -73,9 +73,7 @@ class _FakeServer:
         self.port = self._server.sockets[0].getsockname()[1]
         return self.port
 
-    async def _handle(
-        self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter
-    ) -> None:
+    async def _handle(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
         self.connection_count += 1
         if self._hold_open:
             # Simulate a device that never replies, to exercise the read timeout.
@@ -294,9 +292,7 @@ async def test_async_get_timezone_offset_minutes_parses_response(
 ) -> None:
     port = await fake_server.start(
         b"",
-        command_responses={
-            b"wifilocalMonitor:get Date": b'{"CommVer":1,"timeZMin":60,"rssi":-79}'
-        },
+        command_responses={b"wifilocalMonitor:get Date": b'{"CommVer":1,"timeZMin":60,"rssi":-79}'},
     )
     client = FelicityLocalClient("127.0.0.1", port, timeout=2.0)
 
@@ -327,9 +323,7 @@ async def test_async_get_timezone_offset_minutes_reuses_open_persistent_connecti
     port = await fake_server.start(
         json.dumps(sample_response).encode(),
         stay_open=True,
-        command_responses={
-            b"wifilocalMonitor:get Date": b'{"CommVer":1,"timeZMin":60,"rssi":-79}'
-        },
+        command_responses={b"wifilocalMonitor:get Date": b'{"CommVer":1,"timeZMin":60,"rssi":-79}'},
     )
     client = FelicityLocalClient("127.0.0.1", port, timeout=2.0, persistent=True)
 
@@ -345,9 +339,7 @@ async def test_async_get_timezone_offset_minutes_does_not_leave_one_shot_connect
 ) -> None:
     port = await fake_server.start(
         b"",
-        command_responses={
-            b"wifilocalMonitor:get Date": b'{"CommVer":1,"timeZMin":60,"rssi":-79}'
-        },
+        command_responses={b"wifilocalMonitor:get Date": b'{"CommVer":1,"timeZMin":60,"rssi":-79}'},
     )
     client = FelicityLocalClient("127.0.0.1", port, timeout=2.0)  # persistent=False
 

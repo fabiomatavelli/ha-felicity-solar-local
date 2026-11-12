@@ -32,7 +32,7 @@ since a squash-merge uses the PR title as the commit `release-please` sees on `m
 
 ## Before committing
 
-- `ruff check .` must pass.
+- `ruff check .` and `ruff format --check .` must pass.
 - `pytest` must pass (`pip install -r requirements-test.txt` first).
 - Never commit real LAN IP addresses, hostnames, or credentials. Tests and fixtures use
   `tests/fixtures/sample_response.json` (a real but non-identifying device payload) and
