@@ -71,7 +71,7 @@ def _extract_path(data: dict[str, Any], path: tuple[str, int, int]) -> Any:
     key, row, col = path
     try:
         return data[key][row][col]
-    except (KeyError, IndexError, TypeError):
+    except KeyError, IndexError, TypeError:
         return None
 
 
@@ -176,9 +176,7 @@ class FelicityLocalClient:
                 timeout=self.timeout,
             )
         except TimeoutError as err:
-            raise FelicityTimeoutError(
-                f"Timed out connecting to {self.host}:{self.port}"
-            ) from err
+            raise FelicityTimeoutError(f"Timed out connecting to {self.host}:{self.port}") from err
         except OSError as err:
             raise FelicityConnectionError(
                 f"Could not connect to {self.host}:{self.port}: {err}"
@@ -209,9 +207,7 @@ class FelicityLocalClient:
             elif hasattr(socket, "TCP_KEEPALIVE"):  # macOS equivalent of TCP_KEEPIDLE
                 sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPALIVE, TCP_KEEPALIVE_IDLE)
             if hasattr(socket, "TCP_KEEPINTVL"):
-                sock.setsockopt(
-                    socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, TCP_KEEPALIVE_INTERVAL
-                )
+                sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, TCP_KEEPALIVE_INTERVAL)
             if hasattr(socket, "TCP_KEEPCNT"):
                 sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, TCP_KEEPALIVE_COUNT)
         except OSError:
@@ -242,7 +238,7 @@ class FelicityLocalClient:
             leftover = await asyncio.wait_for(
                 self._reader.read(65536), timeout=STRAY_BYTES_FLUSH_TIMEOUT
             )
-        except (TimeoutError, OSError):
+        except TimeoutError, OSError:
             return
         if leftover:
             _LOGGER.debug(
@@ -298,10 +294,8 @@ class FelicityLocalClient:
         try:
             writer.write(ACK_BYTE)
             await asyncio.wait_for(writer.drain(), timeout=self.timeout)
-        except (TimeoutError, OSError):
-            _LOGGER.debug(
-                "Failed to send ack byte to %s:%s (non-fatal)", self.host, self.port
-            )
+        except TimeoutError, OSError:
+            _LOGGER.debug("Failed to send ack byte to %s:%s (non-fatal)", self.host, self.port)
 
         return data
 

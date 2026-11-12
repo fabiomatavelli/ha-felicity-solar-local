@@ -139,7 +139,6 @@ def test_temperatures_ignore_btemp_bank_aggregate(
         assert data["temperature_min"] == expected["temperature_min"]
 
 
-
 @pytest.mark.parametrize(("btemlist_value", "expected"), [(230, 23.0), (240, 24.0)])
 def test_flb48314tg1h_temperatures_come_from_btemlist_not_btemp(
     sample_response: dict[str, Any], btemlist_value: int, expected: float
@@ -157,6 +156,7 @@ def test_flb48314tg1h_temperatures_come_from_btemlist_not_btemp(
         assert data[f"temperature_{i}"] == expected
     assert data["temperature_max"] == expected
     assert data["temperature_min"] == expected
+
 
 def test_default_profile_uses_same_shape(sample_response: dict[str, Any]) -> None:
     data = DEFAULT_PROFILE.parse(sample_response)
@@ -464,7 +464,6 @@ def test_lux_e_48100lg03_core_fields_scale_like_common_profile(
     assert data["discharge_current_limit"] == 100.0
 
 
-
 def test_select_profile_matches_lux_e_48250lg03(lux_e_48250lg03_response: dict[str, Any]) -> None:
     assert select_profile(lux_e_48250lg03_response) is LUX_E_48250LG03_PROFILE
     assert LUX_E_48250LG03_PROFILE.confidence == "verified"
@@ -503,6 +502,7 @@ def test_lux_e_48250lg03_core_fields_scale_like_common_profile(
     assert data["discharge_voltage_limit"] == 48.0
     assert data["charge_current_limit"] == 150.0
     assert data["discharge_current_limit"] == 150.0
+
 
 def test_select_profile_matches_fla48171_eu(fla48171_eu_response: dict[str, Any]) -> None:
     assert select_profile(fla48171_eu_response) is FLA48171_EU_PROFILE

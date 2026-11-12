@@ -36,9 +36,7 @@ TZ_PATH = (
 )
 
 
-async def test_user_flow_success(
-    hass: HomeAssistant, sample_response: dict[str, Any]
-) -> None:
+async def test_user_flow_success(hass: HomeAssistant, sample_response: dict[str, Any]) -> None:
     # CREATE_ENTRY triggers a real async_setup_entry, which spins up a coordinator that
     # polls immediately - FelicityLocalClient is the same class regardless of which
     # module imported it, so this also covers the coordinator's client.
@@ -124,9 +122,7 @@ DHCP_INFO = DhcpServiceInfo(
 )
 
 
-async def test_dhcp_flow_success(
-    hass: HomeAssistant, sample_response: dict[str, Any]
-) -> None:
+async def test_dhcp_flow_success(hass: HomeAssistant, sample_response: dict[str, Any]) -> None:
     with (
         patch(API_PATH, AsyncMock(return_value=sample_response)),
         patch(TZ_PATH, AsyncMock(return_value=None)),
@@ -164,9 +160,9 @@ async def test_dhcp_flow_updates_host_of_known_battery(
 
 
 async def test_dhcp_flow_skips_probe_for_known_host(hass: HomeAssistant) -> None:
-    MockConfigEntry(
-        domain=DOMAIN, data={CONF_HOST: "192.168.1.50", CONF_PORT: 53970}
-    ).add_to_hass(hass)
+    MockConfigEntry(domain=DOMAIN, data={CONF_HOST: "192.168.1.50", CONF_PORT: 53970}).add_to_hass(
+        hass
+    )
 
     with patch(API_PATH, AsyncMock()) as get_data:
         result = await hass.config_entries.flow.async_init(
