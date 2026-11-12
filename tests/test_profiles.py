@@ -18,6 +18,7 @@ from custom_components.felicity_solar_local.profiles import (
     FLB48314TG1H_PROFILE,
     LUX_E_48100LG03_PROFILE,
     LUX_E_48250LG03_PROFILE,
+    PROFILES,
     firmware_version,
     is_inverter_payload,
     select_profile,
@@ -26,6 +27,11 @@ from custom_components.felicity_solar_local.profiles import (
 
 def test_select_profile_matches_flb48314tg1h(sample_response: dict[str, Any]) -> None:
     assert select_profile(sample_response) is FLB48314TG1H_PROFILE
+
+
+def test_profiles_have_unique_type_subtype() -> None:
+    # select_profile() returns the first match, so a duplicate pair would make PROFILES order matter.
+    assert len({(p.type_code, p.subtype_code) for p in PROFILES}) == len(PROFILES)
 
 
 def test_select_profile_falls_back_to_default_for_unknown_model(
