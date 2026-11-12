@@ -47,6 +47,8 @@ cross-checked (e.g. against that model's cloud-reported values, the way FLB48314
 `coordinator.py` and `sensor.py` need no changes for this - `select_profile()` is the only
 dispatch point.
 
+Keep model entries sorted by their identifier, inserting new ones in place rather than at the end: the profile constants and the `PROFILES` tuple in `profiles.py` (e.g. `FLA24100_PROFILE`, `FLA24460_EU_PROFILE`, ..., `LUX_E_48250LG03_PROFILE`), the battery fixtures in `tests/conftest.py`, and the parametrized fixture lists in `tests/test_profiles.py` (after `sample_response`, which stays first as the reference payload). The order is cosmetic: each profile matches a unique `Type`/`SubType`.
+
 ### Model names
 
 Spell model names exactly as Felicity does, from the battery's label or the official product page (e.g. https://www.felicityess.com/product/lithium-ion-battery-lux-e-48100lg03/), not as the reporter typed them: issue titles and descriptions often use variants like `Lux-e 48100LG03` or `LuxY FLA48300`.

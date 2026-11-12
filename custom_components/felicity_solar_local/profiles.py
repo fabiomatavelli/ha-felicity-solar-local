@@ -433,16 +433,6 @@ class BatteryProfile:
         return raw.get("Type") == self.type_code and raw.get("SubType") == self.subtype_code
 
 
-# The reference model. On firmware M1 203, two packs in one bank both reported BTemp
-# [[240, 230], [512, 256]] (a bogus 51.2 °C max under the old BTemp mapping) while the vendor
-# app showed 23 °C and 24 °C, matching each pack's own BtemList.
-FLB48314TG1H_PROFILE = BatteryProfile(
-    name="FLB48314TG1-H",
-    confidence="verified",
-    type_code=112,
-    subtype_code=7353,
-)
-
 # A 24 V, 8-cell pack. BTemp[1] only ever reported 256 to 259 and 512 and didn't follow
 # ambient changes: the vendor app showed 26 °C where BTemp[1][1] == 512 scaled to 51.2 °C.
 # The BtemList temperature mapping was cross-checked live against the vendor app.
@@ -451,6 +441,32 @@ FLA24100_PROFILE = BatteryProfile(
     confidence="verified",
     type_code=112,
     subtype_code=6100,
+)
+
+# Reported in issue #103: a 24 V/460 Ah, 8-cell pack. BTemp[1] reported [256, 258] (a bogus
+# 25.8 °C max) while the vendor app showed 33 °C, matching BtemList. Voltage, current, SOC,
+# limits, cell voltages and the BtemList temperature mapping were cross-checked against the
+# vendor app. Its firmware (M1 522) doesn't send BmsCnt, so cycle_count stays unavailable.
+# Known caveat (same as the FLA48460TG2): BatsocList[0][2] (capacity) reads 500000
+# (500.0 Ah), the BMS-reported capacity, while the vendor app and nameplate say 460 Ah.
+FLA24460_EU_PROFILE = BatteryProfile(
+    name="FLA24460-EU",
+    confidence="verified",
+    type_code=112,
+    subtype_code=6500,
+)
+
+# Reported in issue #69: a 51.2 V/171 Ah, 16-cell pack. BTemp[1] reported [256, 256] (a
+# bogus 25.6 °C max) while the vendor app showed 20 °C, matching BtemList. Voltage, current,
+# SOC, cycle count, limits, max/min cell and the BtemList temperature mapping were
+# cross-checked against the vendor app.
+# Known caveat (same as the FLA48460TG2): BatsocList[0][2] (capacity) reads 200000
+# (200.0 Ah), the BMS-reported capacity, while the vendor app and nameplate say 171 Ah.
+FLA48171_EU_PROFILE = BatteryProfile(
+    name="FLA48171-EU",
+    confidence="verified",
+    type_code=112,
+    subtype_code=7204,
 )
 
 # Reported in issue #42 as an FLA48300; the reporter later confirmed the label model is
@@ -476,6 +492,16 @@ FLA48460TG2_PROFILE = BatteryProfile(
     subtype_code=7500,
 )
 
+# The reference model. On firmware M1 203, two packs in one bank both reported BTemp
+# [[240, 230], [512, 256]] (a bogus 51.2 °C max under the old BTemp mapping) while the vendor
+# app showed 23 °C and 24 °C, matching each pack's own BtemList.
+FLB48314TG1H_PROFILE = BatteryProfile(
+    name="FLB48314TG1-H",
+    confidence="verified",
+    type_code=112,
+    subtype_code=7353,
+)
+
 # Reported in issue #59 (Felicity LUX-E series): a 48 V/100 Ah, 16-cell pack. BTemp[1]
 # reported [769, 256] (a bogus 76.9 °C max) while the vendor app showed 20-21 °C, matching
 # BtemList. Voltage, current, SOC and the BtemList temperature mapping were cross-checked
@@ -485,19 +511,6 @@ LUX_E_48100LG03_PROFILE = BatteryProfile(
     confidence="verified",
     type_code=112,
     subtype_code=7100,
-)
-
-# Reported in issue #69: a 51.2 V/171 Ah, 16-cell pack. BTemp[1] reported [256, 256] (a
-# bogus 25.6 °C max) while the vendor app showed 20 °C, matching BtemList. Voltage, current,
-# SOC, cycle count, limits, max/min cell and the BtemList temperature mapping were
-# cross-checked against the vendor app.
-# Known caveat (same as the FLA48460TG2): BatsocList[0][2] (capacity) reads 200000
-# (200.0 Ah), the BMS-reported capacity, while the vendor app and nameplate say 171 Ah.
-FLA48171_EU_PROFILE = BatteryProfile(
-    name="FLA48171-EU",
-    confidence="verified",
-    type_code=112,
-    subtype_code=7204,
 )
 
 # Reported in issue #73 (Felicity LUX-E series): a 48 V/250 Ah, 16-cell pack. BTemp[1] reported
@@ -512,19 +525,6 @@ LUX_E_48250LG03_PROFILE = BatteryProfile(
     subtype_code=7250,
 )
 
-# Reported in issue #103: a 24 V/460 Ah, 8-cell pack. BTemp[1] reported [256, 258] (a bogus
-# 25.8 °C max) while the vendor app showed 33 °C, matching BtemList. Voltage, current, SOC,
-# limits, cell voltages and the BtemList temperature mapping were cross-checked against the
-# vendor app. Its firmware (M1 522) doesn't send BmsCnt, so cycle_count stays unavailable.
-# Known caveat (same as the FLA48460TG2): BatsocList[0][2] (capacity) reads 500000
-# (500.0 Ah), the BMS-reported capacity, while the vendor app and nameplate say 460 Ah.
-FLA24460_EU_PROFILE = BatteryProfile(
-    name="FLA24460-EU",
-    confidence="verified",
-    type_code=112,
-    subtype_code=6500,
-)
-
 # Fallback for any Felicity battery reporting a Type/SubType we haven't verified yet.
 # Same field shape/scaling as the verified profile (the protocol is believed to be shared
 # across the Felicity WiFi-battery family) but not confirmed against real hardware - treat
@@ -537,14 +537,14 @@ DEFAULT_PROFILE = BatteryProfile(
 )
 
 PROFILES: tuple[BatteryProfile, ...] = (
-    FLB48314TG1H_PROFILE,
     FLA24100_PROFILE,
+    FLA24460_EU_PROFILE,
+    FLA48171_EU_PROFILE,
     FLA48300_PROFILE,
     FLA48460TG2_PROFILE,
+    FLB48314TG1H_PROFILE,
     LUX_E_48100LG03_PROFILE,
-    FLA48171_EU_PROFILE,
     LUX_E_48250LG03_PROFILE,
-    FLA24460_EU_PROFILE,
 )
 
 

@@ -109,12 +109,12 @@ def test_parse_temperature_max_min_skip_missing_probes(sample_response: dict[str
     [
         "sample_response",
         "fla24100_response",
+        "fla24460_eu_response",
+        "fla48171_eu_response",
         "fla48300_response",
         "fla48460tg2_response",
         "lux_e_48100lg03_response",
-        "fla48171_eu_response",
         "lux_e_48250lg03_response",
-        "fla24460_eu_response",
     ],
 )
 def test_temperatures_ignore_btemp_bank_aggregate(
@@ -395,12 +395,12 @@ def test_fla48460tg2_core_fields_scale_like_common_profile(
     [
         "sample_response",
         "fla24100_response",
+        "fla24460_eu_response",
+        "fla48171_eu_response",
         "fla48300_response",
         "fla48460tg2_response",
         "lux_e_48100lg03_response",
-        "fla48171_eu_response",
         "lux_e_48250lg03_response",
-        "fla24460_eu_response",
     ],
 )
 def test_cell_numbers_point_at_matching_cell_sensor(
@@ -566,12 +566,12 @@ def test_is_inverter_payload_detects_type81_inverter(
     [
         "sample_response",
         "fla24100_response",
+        "fla24460_eu_response",
+        "fla48171_eu_response",
         "fla48300_response",
         "fla48460tg2_response",
         "lux_e_48100lg03_response",
-        "fla48171_eu_response",
         "lux_e_48250lg03_response",
-        "fla24460_eu_response",
     ],
 )
 def test_is_inverter_payload_false_for_every_battery(
