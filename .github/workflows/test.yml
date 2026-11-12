@@ -26,8 +26,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      - run: pip install ruff
+      - run: pip install "$(grep '^ruff==' requirements-test.txt)"
       - run: ruff check .
+      - run: ruff format --check .
 
   pytest:
     name: Pytest
