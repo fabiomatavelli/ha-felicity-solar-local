@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.8.0...v1.9.0) (2026-11-12)
+
+
+### Features
+
+* **profiles:** add verified FLA24460-EU (SubType 6500) profile ([#103](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/103)) ([#107](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/107)) ([3efcf5f](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/3efcf5fcf8aa627e3f44ec6b9b333a0b4197601d))
+
 ## [1.8.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.7.0...v1.8.0) (2026-11-08)
 
 
