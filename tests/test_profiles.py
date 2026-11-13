@@ -626,3 +626,153 @@ def test_fla24460_eu_core_fields_scale_like_common_profile(
     assert data["discharge_voltage_limit"] == 24.0
     assert data["charge_current_limit"] == 0.0
     assert data["discharge_current_limit"] == 200.0
+
+
+# --- Felicity LUX-Y-48100HG01 high-voltage stack, Type 119 / SubType 201 ---
+
+
+@pytest.fixture
+def lux_y_48100hg01_response() -> dict[str, Any]:
+    """Real anonymized HA diagnostic raw_data captured under non-zero battery current."""
+    import json
+    from pathlib import Path
+
+    path = Path(__file__).parent / "fixtures" / "lux_y_48100hg01_response.json"
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def test_hv_profile_selection_and_real_fixture(lux_y_48100hg01_response: dict[str, Any]) -> None:
+    from custom_components.felicity_solar_local.profiles import LUX_Y_HV_119_201_PROFILE
+
+    raw = lux_y_48100hg01_response
+    assert (raw["Type"], raw["SubType"]) == (119, 201)
+    assert select_profile(raw) is LUX_Y_HV_119_201_PROFILE
+    data = LUX_Y_HV_119_201_PROFILE.parse(raw)
+    assert [data[f"hv_module_{i}_voltage"] for i in range(1, 6)] == [
+        52.2,
+        52.05,
+        52.08,
+        52.05,
+        52.2,
+    ]
+    assert data["cell_1_voltage"] == 3.271
+    assert data["cell_13_voltage"] == 3.273
+    assert data["max_cell_voltage"] == 3.273
+    assert data["min_cell_voltage"] == 3.263
+    assert data["max_cell_module"] == 1
+    assert data["max_cell_index"] == 13
+    assert data["min_cell_module"] == 2
+    assert data["min_cell_index"] == 2
+    assert data["max_cell_number"] == 13
+    assert data["min_cell_number"] == 18
+    # The source contains a non-zero, signed current; verify scaling and sign.
+    assert raw["BattList"][1][0] == -19
+    assert data["current"] == -1.9
+    assert data["power"] == round(data["voltage"] * data["current"], 2)
+
+
+def test_hv_cell_module_1_naming_and_sensor_keys() -> None:
+    from custom_components.felicity_solar_local.profiles import LUX_Y_HV_119_201_PROFILE
+
+    descriptions = {x.key: x for x in LUX_Y_HV_119_201_PROFILE.sensors}
+    assert descriptions["cell_1_voltage"].translation_key == "module_1_cell_voltage"
+    assert descriptions["cell_16_voltage"].translation_key == "module_1_cell_voltage"
+    assert descriptions["hv_module_5_voltage"].translation_key == "hv_module_voltage"
+    assert all(
+        key in descriptions
+        for key in (
+            "max_cell_module",
+            "max_cell_index",
+            "min_cell_module",
+            "min_cell_index",
+            "temperature_max_module",
+            "temperature_max_probe",
+            "temperature_min_module",
+            "temperature_min_probe",
+        )
+    )
+    assert all(
+        key not in descriptions
+        for key in (
+            "max_cell_location",
+            "min_cell_location",
+            "temperature_max_location",
+            "temperature_min_location",
+            "temperature_1",
+            "temperature_2",
+            "temperature_3",
+            "temperature_4",
+            "charge_current_limit",
+            "discharge_current_limit",
+        )
+    )
+
+
+def test_hv_outliers_remain_visible(lux_y_48100hg01_response: dict[str, Any]) -> None:
+    from copy import deepcopy
+
+    from custom_components.felicity_solar_local.profiles import LUX_Y_HV_119_201_PROFILE
+
+    raw = deepcopy(lux_y_48100hg01_response)
+    raw["BTemp"] = [[650, -210], [1, 769]]
+    raw["BMaxMin"] = [[3750, 2400], [12, 257]]
+    raw["BatcelList"][0][0] = 6500
+    raw["BatcelList"][1][0] = 3750
+    data = LUX_Y_HV_119_201_PROFILE.parse(raw)
+    assert data["temperature_max"] == 65.0
+    assert data["temperature_min"] == -21.0
+    assert data["max_cell_voltage"] == 3.75
+    assert data["min_cell_voltage"] == 2.4
+    assert data["cell_1_voltage"] == 3.75
+    assert data["hv_module_1_voltage"] == 65.0
+    assert data["max_cell_module"] == 1
+    assert data["min_cell_module"] == 2
+
+
+def test_hv_sentinels_and_invalid_positions_are_ignored(
+    lux_y_48100hg01_response: dict[str, Any],
+) -> None:
+    from copy import deepcopy
+
+    from custom_components.felicity_solar_local.profiles import LUX_Y_HV_119_201_PROFILE
+
+    raw = deepcopy(lux_y_48100hg01_response)
+    raw["BTemp"] = [[65535, 110], [1, 1025]]
+    raw["BatcelList"][0][0] = 65535
+    raw["BatcelList"][1][0] = 65535
+    raw["BMaxMin"] = [[65535, 3200], [12, 1280]]
+    data = LUX_Y_HV_119_201_PROFILE.parse(raw)
+    assert data["temperature_max"] is None
+    assert data["temperature_min"] == 11.0
+    assert data["hv_module_1_voltage"] is None
+    assert data["cell_1_voltage"] is None
+    assert data["max_cell_voltage"] is None
+    assert data["min_cell_voltage"] == 3.2
+    assert data["min_cell_module"] is None
+    assert data["min_cell_index"] is None
+    assert data["min_cell_number"] is None
+
+
+def test_hv_rejects_other_model(lux_y_48100hg01_response: dict[str, Any]) -> None:
+    from custom_components.felicity_solar_local.profiles import LUX_Y_HV_119_201_PROFILE
+
+    raw = {**lux_y_48100hg01_response, "Type": 112}
+    with pytest.raises(ValueError, match="119"):
+        LUX_Y_HV_119_201_PROFILE.parse(raw)
+
+
+def test_hv_temperature_position_codes_confirmed_in_shine(
+    lux_y_48100hg01_response: dict[str, Any],
+) -> None:
+    """Real-time BTemp=13/11 C and 1/769 confirmed in Shine on 2026-11-13."""
+    from copy import deepcopy
+
+    from custom_components.felicity_solar_local.profiles import LUX_Y_HV_119_201_PROFILE
+
+    raw = deepcopy(lux_y_48100hg01_response)
+    raw["BTemp"] = [[130, 110], [1, 769]]
+    data = LUX_Y_HV_119_201_PROFILE.parse(raw)
+    assert data["temperature_max"] == 13.0
+    assert data["temperature_min"] == 11.0
+    assert (data["temperature_max_module"], data["temperature_max_probe"]) == (1, 2)
+    assert (data["temperature_min_module"], data["temperature_min_probe"]) == (4, 2)

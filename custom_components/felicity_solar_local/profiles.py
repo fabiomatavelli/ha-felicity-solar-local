@@ -15,7 +15,7 @@ to ``PROFILES`` - no changes needed in coordinator.py or sensor.py.
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -527,6 +527,156 @@ LUX_E_48250LG03_PROFILE = BatteryProfile(
     subtype_code=7250,
 )
 
+
+# Felicity LUX-Y-48100 high-voltage stack (five modules observed).
+# Type=119, SubType=201, cross-checked against Felicity Shine and local
+# observations. This is a BEST-EFFORT / PARTIAL mapping, not a full 80-cell
+# bank monitor or a source for charging/discharging safety decisions.
+#
+# Local payload example (only the relevant, non-identifying portions):
+#   BTemp     = [[120, 100], [1, 769]]
+#   BtemList  = [[1, 98, 1402, 481, ...]]
+#   BatcelList[0][:5] = [5236, 5223, 5229, 5226, 5236]  # module data
+#   BatcelList[1][:3] = [3280, 3280, 3280]              # cell data
+#   BMaxMin[0] = [3283, 3274]  # bank-wide extrema in mV
+# These are not the same layouts as the Type=112 low-voltage profiles.
+# Felicity Shine displayed 12 C / 10 C and 3.283 V / 3.274 V at this time.
+def _hv119_location(
+    raw: dict[str, Any], key: str, col: int, *, max_position: int
+) -> tuple[int, int] | None:
+    """Decode packed Type 119/201 module and cell/probe position.
+
+    The high byte is the zero-based module index, the low byte is the
+    zero-based cell/probe index. Codes 12 and 258 are 1/13 and 2/3.
+    Confirmed against Felicity Shine on 2026-11-13: BTemp[1] codes
+    1 and 769 correspond to Module 1 / Probe 2 and Module 4 / Probe 2.
+    """
+    code = _path(raw, key, 1, col)
+    if type(code) is not int or not 0 <= code <= 65534:
+        return None
+    module_index, within_module_index = divmod(code, 256)
+    if module_index >= 5 or within_module_index >= max_position:
+        return None
+    return module_index + 1, within_module_index + 1
+
+
+def parse_lux_y_hv_119_201(raw: dict[str, Any]) -> dict[str, Any]:
+    """Best-effort HV local bank extrema and one partial 16-cell sample.
+
+    There are five 16-cell modules, but BatcelList[1] in the observed
+    local response exposes only 16 individual values, not all 80.
+    """
+    if raw.get("Type") != 119 or raw.get("SubType") != 201:
+        raise ValueError("LUX-Y HV profile requires Type=119, SubType=201")
+    data = parse_common(raw)
+
+    maximum = _scaled(raw, "BTemp", 0, 0, 10)
+    minimum = _scaled(raw, "BTemp", 0, 1, 10)
+    data["temperature_max"] = maximum
+    data["temperature_min"] = minimum
+    # BtemList contains unrelated fields for the HV model.
+    for i in range(4):
+        data[f"temperature_{i + 1}"] = None
+
+    for label, col in (("max", 0), ("min", 1)):
+        location = (
+            _hv119_location(raw, "BTemp", col, max_position=4)
+            if (maximum if label == "max" else minimum) is not None
+            else None
+        )
+        data[f"temperature_{label}_module"] = location[0] if location else None
+        data[f"temperature_{label}_probe"] = location[1] if location else None
+
+    # Operator confirmed BatcelList[0][0:5] as five physical module voltages.
+    # Do not infer cell-by-cell telemetry for modules 2..5 from this row.
+    for i in range(5):
+        voltage = _scaled(raw, "BatcelList", 0, i, 100)
+        data[f"hv_module_{i + 1}_voltage"] = voltage
+
+    for i in range(CELL_COUNT):
+        value = _scaled(raw, "BatcelList", 1, i, 1000)
+        data[f"cell_{i + 1}_voltage"] = value
+
+    maximum_cell = _scaled(raw, "BMaxMin", 0, 0, 1000)
+    minimum_cell = _scaled(raw, "BMaxMin", 0, 1, 1000)
+    data["max_cell_voltage"] = maximum_cell
+    data["min_cell_voltage"] = minimum_cell
+    for label, col in (("max", 0), ("min", 1)):
+        location = (
+            _hv119_location(raw, "BMaxMin", col, max_position=16)
+            if (maximum_cell if label == "max" else minimum_cell) is not None
+            else None
+        )
+        data[f"{label}_cell_module"] = location[0] if location else None
+        data[f"{label}_cell_index"] = location[1] if location else None
+        # The legacy cell-number sensor expects the same absolute bank-wide
+        # ordinal for every model; flatten the module-major 5x16 positions.
+        data[f"{label}_cell_number"] = (location[0] - 1) * 16 + location[1] if location else None
+
+    # The reported 100 A in BLVolCu is not a verified continuous safe limit.
+    data["charge_current_limit"] = None
+    data["discharge_current_limit"] = None
+    return data
+
+
+_HV_119_201_MODULE_SENSORS: tuple[SensorEntityDescription, ...] = tuple(
+    SensorEntityDescription(
+        key=f"hv_module_{i}_voltage",
+        translation_key="hv_module_voltage",
+        translation_placeholders={"index": str(i)},
+        device_class=SensorDeviceClass.VOLTAGE,
+        native_unit_of_measurement=UnitOfElectricPotential.VOLT,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=2,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    )
+    for i in range(1, 6)
+)
+
+_HV_119_201_POSITION_SENSORS: tuple[SensorEntityDescription, ...] = tuple(
+    SensorEntityDescription(
+        key=f"{prefix}_{suffix}",
+        translation_key=f"{prefix}_{suffix}",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    )
+    for prefix, suffixes in (
+        ("max_cell", ("module", "index")),
+        ("min_cell", ("module", "index")),
+        ("temperature_max", ("module", "probe")),
+        ("temperature_min", ("module", "probe")),
+    )
+    for suffix in suffixes
+)
+
+# Preserve the stable cell_N_voltage entity keys while making clear that they
+# describe module 1's 16 cells, not every cell across the entire HV stack.
+_HV_119_201_CELL_SENSORS: tuple[SensorEntityDescription, ...] = tuple(
+    replace(
+        desc,
+        translation_key="module_1_cell_voltage",
+    )
+    if desc.key.startswith("cell_") and desc.key.endswith("_voltage")
+    else desc
+    for desc in _COMMON_SENSORS
+    if desc.key
+    not in {
+        "charge_current_limit",
+        "discharge_current_limit",
+        *(f"temperature_{i}" for i in range(1, 5)),
+    }
+)
+
+
+LUX_Y_HV_119_201_PROFILE = BatteryProfile(
+    name="Felicity LUX-Y HV (Type 119 / SubType 201; partial)",
+    confidence="best_effort",
+    type_code=119,
+    subtype_code=201,
+    sensors=_HV_119_201_CELL_SENSORS + _HV_119_201_POSITION_SENSORS + _HV_119_201_MODULE_SENSORS,
+    parse=parse_lux_y_hv_119_201,
+)
+
+
 # Fallback for any Felicity battery reporting a Type/SubType we haven't verified yet.
 # Same field shape/scaling as the verified profile (the protocol is believed to be shared
 # across the Felicity WiFi-battery family) but not confirmed against real hardware - treat
@@ -547,6 +697,7 @@ PROFILES: tuple[BatteryProfile, ...] = (
     FLB48314TG1H_PROFILE,
     LUX_E_48100LG03_PROFILE,
     LUX_E_48250LG03_PROFILE,
+    LUX_Y_HV_119_201_PROFILE,
 )
 
 
