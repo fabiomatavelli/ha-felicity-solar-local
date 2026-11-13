@@ -1,0 +1,65 @@
+name: Signed Commits
+
+on:
+  # pull_request_target so the token can comment on PRs from forks. Safe because nothing
+  # from the PR is checked out or run: only its commit metadata is read through the API.
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+# Two quick pushes must not both find no comment and both post one.
+concurrency:
+  group: signed-commits-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: write
+
+jobs:
+  signed-commits:
+    name: Commits are signed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const marker = '<!-- signed-commits-check -->';
+            const { owner, repo } = context.repo;
+            const pr = context.payload.pull_request;
+
+            const commits = await github.paginate(github.rest.pulls.listCommits, {
+              owner, repo, pull_number: pr.number, per_page: 100,
+            });
+            const unsigned = commits.filter((c) => !c.commit.verification.verified);
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner, repo, issue_number: pr.number, per_page: 100,
+            });
+            const existing = comments.find(
+              (c) => c.user.login === 'github-actions[bot]' && c.body.includes(marker),
+            );
+
+            let body;
+            if (unsigned.length === 0) {
+              // Only follow up on an earlier warning; stay quiet on PRs that were always fine.
+              if (!existing) return;
+              body = `${marker}\n✅ All commits in this PR are signed now. Thanks!`;
+            } else {
+              const list = unsigned
+                .map((c) => `- \`${c.sha.slice(0, 7)}\` (${c.commit.verification.reason})`)
+                .join('\n');
+              body = [
+                marker,
+                `Hi @${pr.user.login}, \`main\` only accepts signed commits, and ${unsigned.length} commit(s) in this PR aren't verified:`,
+                '',
+                list,
+                '',
+                `Please [sign your commits](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits) and force-push the branch (e.g. \`git rebase --exec "git commit --amend --no-edit -S" HEAD~${commits.length}\`). Commits made through the GitHub web UI are signed automatically. If that's a hassle, just say so and a maintainer can re-sign them for you.`,
+              ].join('\n');
+            }
+
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number: pr.number, body });
+            }
+            if (unsigned.length > 0) core.setFailed(`${unsigned.length} unsigned commit(s)`);
