@@ -6,6 +6,11 @@ on:
   pull_request_target:
     types: [opened, synchronize, reopened]
 
+# Two quick pushes must not both find no comment and both post one.
+concurrency:
+  group: signed-commits-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 permissions:
   pull-requests: write
 
@@ -48,7 +53,7 @@ jobs:
                 '',
                 list,
                 '',
-                'Please [sign your commits](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits) and force-push the branch (e.g. `git rebase --exec "git commit --amend --no-edit -S" origin/main`). Commits made through the GitHub web UI are signed automatically. If that\'s a hassle, just say so and a maintainer can re-sign them for you.',
+                `Please [sign your commits](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits) and force-push the branch (e.g. \`git rebase --exec "git commit --amend --no-edit -S" HEAD~${commits.length}\`). Commits made through the GitHub web UI are signed automatically. If that's a hassle, just say so and a maintainer can re-sign them for you.`,
               ].join('\n');
             }
 
