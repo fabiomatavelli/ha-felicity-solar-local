@@ -528,19 +528,13 @@ LUX_E_48250LG03_PROFILE = BatteryProfile(
 )
 
 
-# Felicity LUX-Y-48100 high-voltage stack (five modules observed).
+# Felicity Solar LUX-Y-48100HG01 high-voltage stack (five modules observed).
 # Type=119, SubType=201, cross-checked against Felicity Shine and local
 # observations. This is a BEST-EFFORT / PARTIAL mapping, not a full 80-cell
 # bank monitor or a source for charging/discharging safety decisions.
 #
-# Local payload example (only the relevant, non-identifying portions):
-#   BTemp     = [[120, 100], [1, 769]]
-#   BtemList  = [[1, 98, 1402, 481, ...]]
-#   BatcelList[0][:5] = [5236, 5223, 5229, 5226, 5236]  # module data
-#   BatcelList[1][:3] = [3280, 3280, 3280]              # cell data
-#   BMaxMin[0] = [3283, 3274]  # bank-wide extrema in mV
-# These are not the same layouts as the Type=112 low-voltage profiles.
-# Felicity Shine displayed 12 C / 10 C and 3.283 V / 3.274 V at this time.
+# The payload layout differs from the Type=112 low-voltage profiles; see
+# tests/fixtures/lux_y_48100hg01_response.json for a real payload.
 def _hv119_location(
     raw: dict[str, Any], key: str, col: int, *, max_position: int
 ) -> tuple[int, int] | None:
@@ -560,14 +554,14 @@ def _hv119_location(
     return module_index + 1, within_module_index + 1
 
 
-def parse_lux_y_hv_119_201(raw: dict[str, Any]) -> dict[str, Any]:
+def parse_lux_y_48100hg01(raw: dict[str, Any]) -> dict[str, Any]:
     """Best-effort HV local bank extrema and one partial 16-cell sample.
 
     There are five 16-cell modules, but BatcelList[1] in the observed
     local response exposes only 16 individual values, not all 80.
     """
     if raw.get("Type") != 119 or raw.get("SubType") != 201:
-        raise ValueError("LUX-Y HV profile requires Type=119, SubType=201")
+        raise ValueError("LUX-Y-48100HG01 profile requires Type=119, SubType=201")
     data = parse_common(raw)
 
     maximum = _scaled(raw, "BTemp", 0, 0, 10)
@@ -667,13 +661,13 @@ _HV_119_201_CELL_SENSORS: tuple[SensorEntityDescription, ...] = tuple(
 )
 
 
-LUX_Y_HV_119_201_PROFILE = BatteryProfile(
-    name="Felicity LUX-Y HV (Type 119 / SubType 201; partial)",
+LUX_Y_48100HG01_PROFILE = BatteryProfile(
+    name="LUX-Y-48100HG01",
     confidence="best_effort",
     type_code=119,
     subtype_code=201,
     sensors=_HV_119_201_CELL_SENSORS + _HV_119_201_POSITION_SENSORS + _HV_119_201_MODULE_SENSORS,
-    parse=parse_lux_y_hv_119_201,
+    parse=parse_lux_y_48100hg01,
 )
 
 
@@ -697,7 +691,7 @@ PROFILES: tuple[BatteryProfile, ...] = (
     FLB48314TG1H_PROFILE,
     LUX_E_48100LG03_PROFILE,
     LUX_E_48250LG03_PROFILE,
-    LUX_Y_HV_119_201_PROFILE,
+    LUX_Y_48100HG01_PROFILE,
 )
 
 
