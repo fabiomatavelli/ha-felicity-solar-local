@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.9.0...v1.10.0) (2026-11-13)
+
+
+### Features
+
+* add Felicity LUX-Y-48100HG01 high-voltage battery support (Type 119 / SubType 201) ([#108](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/108)) ([7ddd3bc](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/7ddd3bc7dc18485647bc21d8c4914c6ed65b4e9e))
+
 ## [1.9.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.8.0...v1.9.0) (2026-11-12)
 
 
