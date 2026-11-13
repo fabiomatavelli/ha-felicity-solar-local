@@ -528,7 +528,7 @@ LUX_E_48250LG03_PROFILE = BatteryProfile(
 )
 
 
-# Felicity LUX-Y-48100 high-voltage stack (five modules observed).
+# Felicity Solar LUX-Y-48100HG01 high-voltage stack (five modules observed).
 # Type=119, SubType=201, cross-checked against Felicity Shine and local
 # observations. This is a BEST-EFFORT / PARTIAL mapping, not a full 80-cell
 # bank monitor or a source for charging/discharging safety decisions.
@@ -561,7 +561,7 @@ def parse_lux_y_48100hg01(raw: dict[str, Any]) -> dict[str, Any]:
     local response exposes only 16 individual values, not all 80.
     """
     if raw.get("Type") != 119 or raw.get("SubType") != 201:
-        raise ValueError("LUX-Y HV profile requires Type=119, SubType=201")
+        raise ValueError("LUX-Y-48100HG01 profile requires Type=119, SubType=201")
     data = parse_common(raw)
 
     maximum = _scaled(raw, "BTemp", 0, 0, 10)
