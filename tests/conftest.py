@@ -102,6 +102,13 @@ def lux_e_48250lg03_response() -> dict[str, Any]:
 
 
 @pytest.fixture
+def lux_y_48100hg01_response() -> dict[str, Any]:
+    """Raw device JSON reported by a 5-module LUX-Y-48100HG01 HV stack (see PR #108)."""
+    path = Path(__file__).parent / "fixtures" / "lux_y_48100hg01_response.json"
+    return json.loads(path.read_text())
+
+
+@pytest.fixture
 def inverter_type81_response() -> dict[str, Any]:
     """Raw JSON from a Felicity three-phase hybrid *inverter* on port 53970 (see issue #64)."""
     path = Path(__file__).parent / "fixtures" / "inverter_type81_response.json"
