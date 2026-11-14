@@ -234,6 +234,27 @@ async def test_stale_cycle_count_entity_removed_when_firmware_omits_it(
     assert registry.async_get_entity_id("sensor", DOMAIN, f"{serial}_cycle_count") is None
 
 
+async def test_hv_module_sensors_match_stack_size(
+    hass: HomeAssistant, lux_y_48100hg01_response: dict[str, Any]
+) -> None:
+    # A 4-module stack: module 5 is dropped (also an entity left over from the fixed
+    # 5-module profile), and no entities are created for the unused slots 6-16.
+    response = lux_y_48100hg01_response
+    response["BMSpara"] = [[4, 15]]
+    response["BatcelList"][0][4] = 0
+    response["DevSN"] = serial = "1402048100000000001"  # the fixture's serial was stripped
+    registry = er.async_get(hass)
+    registry.async_get_or_create("sensor", DOMAIN, f"{serial}_hv_module_5_voltage")
+
+    await _setup(hass, response)
+
+    def module_entity(i: int) -> str | None:
+        return registry.async_get_entity_id("sensor", DOMAIN, f"{serial}_hv_module_{i}_voltage")
+
+    assert all(module_entity(i) is not None for i in range(1, 5))
+    assert all(module_entity(i) is None for i in range(5, 17))
+
+
 def _battery_device(hass: HomeAssistant, serial: str) -> dr.DeviceEntry | None:
     # Looked up through an entity rather than by identifier: device_registry's
     # async_get_device() is deprecated in newer Home Assistant releases.
