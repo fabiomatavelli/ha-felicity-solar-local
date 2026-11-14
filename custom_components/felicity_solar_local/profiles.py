@@ -70,10 +70,13 @@ def _raw(data: dict[str, Any], key: str) -> Any:
     return None if value in _SENTINELS else value
 
 
-# Sensors backed by a field only some firmware versions send (see parse_common()). sensor.py
-# only creates these when the first reading actually carries a value, rather than leaving an
-# entity stuck at "unknown" forever on firmware that never reports it.
-FIRMWARE_DEPENDENT_SENSORS = frozenset({"cycle_count"})
+# Sensors backed by a field only some firmware versions send (see parse_common()), or by a
+# module slot only some HV stack sizes fill (see parse_lux_y_48100hg01()). sensor.py only
+# creates these when the first reading actually carries a value, rather than leaving an
+# entity stuck at "unknown" forever on a battery that never reports it. Module 1 always exists.
+FIRMWARE_DEPENDENT_SENSORS = frozenset(
+    {"cycle_count", *(f"hv_module_{i}_voltage" for i in range(2, 17))}
+)
 
 
 # Bstate bitmask flags. Bit 14 (heating) is a separate flag and intentionally not
@@ -529,14 +532,33 @@ LUX_E_48250LG03_PROFILE = BatteryProfile(
 
 
 # Felicity Solar LUX-Y-48100HG01 high-voltage stack (five modules observed).
-# Type=119, SubType=201, cross-checked against Felicity Shine and local
-# observations. This is a BEST-EFFORT / PARTIAL mapping, not a full 80-cell
+# Type=119, SubType=201: the payload comes from the stack's FLH48100UCG1 control module,
+# which is also the model and serial the Felicity app shows (DevSN prefix 1402048100).
+# Cross-checked against Felicity Shine and local observations. This is a BEST-EFFORT / PARTIAL mapping, not a full 80-cell
 # bank monitor or a source for charging/discharging safety decisions.
 #
 # The payload layout differs from the Type=112 low-voltage profiles; see
 # tests/fixtures/lux_y_48100hg01_response.json for a real payload.
+# The vendor app shows BatcelList[0] as 16 module-voltage slots, unused ones at 0.
+HV_MAX_MODULES = 16
+# Stack size assumed when BMSpara[0][0] is missing or out of range: the only size tested.
+HV_DEFAULT_MODULES = 5
+
+
+def _hv119_module_count(raw: dict[str, Any]) -> int:
+    """Number of modules in the stack, from BMSpara[0][0].
+
+    The vendor app labels this field "Series And Parallel Quantity"; it read 5 on a
+    5-module LUX-Y stack (#108) and 2 on two parallel FLB48314TG1-H packs.
+    """
+    count = _path(raw, "BMSpara", 0, 0)
+    if type(count) is int and 1 <= count <= HV_MAX_MODULES:
+        return count
+    return HV_DEFAULT_MODULES
+
+
 def _hv119_location(
-    raw: dict[str, Any], key: str, col: int, *, max_position: int
+    raw: dict[str, Any], key: str, col: int, *, max_position: int, module_count: int
 ) -> tuple[int, int] | None:
     """Decode packed Type 119/201 module and cell/probe position.
 
@@ -549,7 +571,7 @@ def _hv119_location(
     if type(code) is not int or not 0 <= code <= 65534:
         return None
     module_index, within_module_index = divmod(code, 256)
-    if module_index >= 5 or within_module_index >= max_position:
+    if module_index >= module_count or within_module_index >= max_position:
         return None
     return module_index + 1, within_module_index + 1
 
@@ -557,12 +579,13 @@ def _hv119_location(
 def parse_lux_y_48100hg01(raw: dict[str, Any]) -> dict[str, Any]:
     """Best-effort HV local bank extrema and one partial 16-cell sample.
 
-    There are five 16-cell modules, but BatcelList[1] in the observed
-    local response exposes only 16 individual values, not all 80.
+    Each module has 16 cells, but BatcelList[1] in the observed local
+    response exposes only 16 individual values, not every cell in the stack.
     """
     if raw.get("Type") != 119 or raw.get("SubType") != 201:
         raise ValueError("LUX-Y-48100HG01 profile requires Type=119, SubType=201")
     data = parse_common(raw)
+    module_count = _hv119_module_count(raw)
 
     maximum = _scaled(raw, "BTemp", 0, 0, 10)
     minimum = _scaled(raw, "BTemp", 0, 1, 10)
@@ -574,17 +597,18 @@ def parse_lux_y_48100hg01(raw: dict[str, Any]) -> dict[str, Any]:
 
     for label, col in (("max", 0), ("min", 1)):
         location = (
-            _hv119_location(raw, "BTemp", col, max_position=4)
+            _hv119_location(raw, "BTemp", col, max_position=4, module_count=module_count)
             if (maximum if label == "max" else minimum) is not None
             else None
         )
         data[f"temperature_{label}_module"] = location[0] if location else None
         data[f"temperature_{label}_probe"] = location[1] if location else None
 
-    # Operator confirmed BatcelList[0][0:5] as five physical module voltages.
-    # Do not infer cell-by-cell telemetry for modules 2..5 from this row.
-    for i in range(5):
-        voltage = _scaled(raw, "BatcelList", 0, i, 100)
+    # BatcelList[0] holds one voltage per module (confirmed on a 5-module stack); slots past
+    # the module count read 0, so they're reported as missing rather than 0 V.
+    # Do not infer cell-by-cell telemetry for modules 2..N from this row.
+    for i in range(HV_MAX_MODULES):
+        voltage = _scaled(raw, "BatcelList", 0, i, 100) if i < module_count else None
         data[f"hv_module_{i + 1}_voltage"] = voltage
 
     for i in range(CELL_COUNT):
@@ -597,14 +621,14 @@ def parse_lux_y_48100hg01(raw: dict[str, Any]) -> dict[str, Any]:
     data["min_cell_voltage"] = minimum_cell
     for label, col in (("max", 0), ("min", 1)):
         location = (
-            _hv119_location(raw, "BMaxMin", col, max_position=16)
+            _hv119_location(raw, "BMaxMin", col, max_position=16, module_count=module_count)
             if (maximum_cell if label == "max" else minimum_cell) is not None
             else None
         )
         data[f"{label}_cell_module"] = location[0] if location else None
         data[f"{label}_cell_index"] = location[1] if location else None
         # The legacy cell-number sensor expects the same absolute bank-wide
-        # ordinal for every model; flatten the module-major 5x16 positions.
+        # ordinal for every model; flatten the module-major Nx16 positions.
         data[f"{label}_cell_number"] = (location[0] - 1) * 16 + location[1] if location else None
 
     # The reported 100 A in BLVolCu is not a verified continuous safe limit.
@@ -624,7 +648,7 @@ _HV_119_201_MODULE_SENSORS: tuple[SensorEntityDescription, ...] = tuple(
         suggested_display_precision=2,
         entity_category=EntityCategory.DIAGNOSTIC,
     )
-    for i in range(1, 6)
+    for i in range(1, HV_MAX_MODULES + 1)
 )
 
 _HV_119_201_POSITION_SENSORS: tuple[SensorEntityDescription, ...] = tuple(

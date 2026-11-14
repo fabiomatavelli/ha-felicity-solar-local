@@ -752,3 +752,64 @@ def test_hv_temperature_position_codes_confirmed_in_shine(
     assert data["temperature_min"] == 11.0
     assert (data["temperature_max_module"], data["temperature_max_probe"]) == (1, 2)
     assert (data["temperature_min_module"], data["temperature_min_probe"]) == (4, 2)
+
+
+def test_hv_module_count_follows_bmspara_on_larger_stack(
+    lux_y_48100hg01_response: dict[str, Any],
+) -> None:
+    """An 8-module stack: BMSpara[0][0]=8 unlocks modules 6-8 and positions past module 5."""
+    raw = lux_y_48100hg01_response
+    raw["BMSpara"] = [[8, 255]]
+    raw["BatcelList"][0][5:8] = [5210, 5215, 5225]
+    raw["BMaxMin"] = [[3280, 3260], [7 * 256 + 3, 5 * 256]]
+    raw["BTemp"] = [[140, 110], [6 * 256 + 1, 1]]
+    data = LUX_Y_48100HG01_PROFILE.parse(raw)
+    assert [data[f"hv_module_{i}_voltage"] for i in range(1, 9)] == [
+        52.2,
+        52.05,
+        52.08,
+        52.05,
+        52.2,
+        52.1,
+        52.15,
+        52.25,
+    ]
+    assert all(data[f"hv_module_{i}_voltage"] is None for i in range(9, 17))
+    assert (data["max_cell_module"], data["max_cell_index"]) == (8, 4)
+    assert data["max_cell_number"] == 7 * 16 + 4
+    assert (data["min_cell_module"], data["min_cell_index"]) == (6, 1)
+    assert (data["temperature_max_module"], data["temperature_max_probe"]) == (7, 2)
+
+
+def test_hv_module_count_follows_bmspara_on_smaller_stack(
+    lux_y_48100hg01_response: dict[str, Any],
+) -> None:
+    """A 4-module stack: slot 5 reads 0 and is reported as missing, not 0 V."""
+    raw = lux_y_48100hg01_response
+    raw["BMSpara"] = [[4, 15]]
+    raw["BatcelList"][0][4] = 0
+    raw["BMaxMin"] = [[3273, 3263], [4 * 256 + 2, 257]]
+    data = LUX_Y_48100HG01_PROFILE.parse(raw)
+    assert data["hv_module_4_voltage"] == 52.05
+    assert data["hv_module_5_voltage"] is None
+    assert data["max_cell_module"] is None
+    assert data["max_cell_number"] is None
+    assert (data["min_cell_module"], data["min_cell_index"]) == (2, 2)
+
+
+@pytest.mark.parametrize("bmspara", [None, [[0, 0]], [[17, 0]], [[65535, 0]]])
+def test_hv_module_count_falls_back_to_five(
+    lux_y_48100hg01_response: dict[str, Any], bmspara: Any
+) -> None:
+    raw = lux_y_48100hg01_response
+    if bmspara is None:
+        del raw["BMSpara"]
+    else:
+        raw["BMSpara"] = bmspara
+    raw["BatcelList"][0][5] = 5210
+    raw["BMaxMin"] = [[3273, 3263], [5 * 256, 4 * 256]]
+    data = LUX_Y_48100HG01_PROFILE.parse(raw)
+    assert data["hv_module_5_voltage"] == 52.2
+    assert data["hv_module_6_voltage"] is None
+    assert data["max_cell_module"] is None
+    assert data["min_cell_module"] == 5
