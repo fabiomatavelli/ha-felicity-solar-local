@@ -532,8 +532,9 @@ LUX_E_48250LG03_PROFILE = BatteryProfile(
 
 
 # Felicity Solar LUX-Y-48100HG01 high-voltage stack (five modules observed).
-# Type=119, SubType=201 (the FLH48100UCG1 control module), cross-checked against
-# Felicity Shine and local observations. This is a BEST-EFFORT / PARTIAL mapping, not a full 80-cell
+# Type=119, SubType=201: the payload comes from the stack's FLH48100UCG1 control module,
+# which is also the model and serial the Felicity app shows (DevSN prefix 1402048100).
+# Cross-checked against Felicity Shine and local observations. This is a BEST-EFFORT / PARTIAL mapping, not a full 80-cell
 # bank monitor or a source for charging/discharging safety decisions.
 #
 # The payload layout differs from the Type=112 low-voltage profiles; see
