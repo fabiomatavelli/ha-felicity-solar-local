@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.11.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.10.0...v1.11.0) (2026-11-15)
+
+
+### Features
+
+* **profiles:** name FLB48100WG1-H alongside LUX-E-48100LG03 (SubType 7100) ([#118](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/118)) ([#119](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/119)) ([95ad968](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/95ad968016be0b6625371507e5c422af103234ae))
+
+
+### Bug Fixes
+
+* **profiles:** read LUX-Y-48100HG01 module count from BMSpara ([#116](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/116)) ([06886bf](https://github.com/fabiomatavelli/ha-felicity-solar-local/commit/06886bf1798eea065a73cbe3a2db89d142f0449d)), closes [#113](https://github.com/fabiomatavelli/ha-felicity-solar-local/issues/113)
+
 ## [1.10.0](https://github.com/fabiomatavelli/ha-felicity-solar-local/compare/v1.9.0...v1.10.0) (2026-11-13)
 
 
