@@ -424,6 +424,7 @@ def test_cell_numbers_point_at_matching_cell_sensor(
 def test_select_profile_matches_lux_e_48100lg03(lux_e_48100lg03_response: dict[str, Any]) -> None:
     assert select_profile(lux_e_48100lg03_response) is LUX_E_48100LG03_PROFILE
     assert LUX_E_48100LG03_PROFILE.confidence == "verified"
+    assert LUX_E_48100LG03_PROFILE.name == "LUX-E-48100LG03 / FLB48100WG1-H"
 
 
 def test_lux_e_48100lg03_temperatures_come_from_btemlist_not_btemp(
