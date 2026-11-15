@@ -89,7 +89,7 @@ def fla48460tg2_response() -> dict[str, Any]:
 
 @pytest.fixture
 def lux_e_48100lg03_response() -> dict[str, Any]:
-    """Raw device JSON reported by a LUX-E-48100LG03 (see issue #59)."""
+    """Raw device JSON reported by a LUX-E-48100LG03 (see issue #59); the FLB48100WG1-H (#118) shares this profile."""
     path = Path(__file__).parent / "fixtures" / "lux_e_48100lg03_response.json"
     return json.loads(path.read_text())
 

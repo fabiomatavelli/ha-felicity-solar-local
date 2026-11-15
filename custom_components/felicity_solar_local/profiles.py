@@ -510,9 +510,11 @@ FLB48314TG1H_PROFILE = BatteryProfile(
 # Reported in issue #59 (Felicity LUX-E series): a 48 V/100 Ah, 16-cell pack. BTemp[1]
 # reported [769, 256] (a bogus 76.9 °C max) while the vendor app showed 20-21 °C, matching
 # BtemList. Voltage, current, SOC and the BtemList temperature mapping were cross-checked
-# against the vendor app.
+# against the vendor app. Issue #118: the FLB48100WG1-H (51.2 V/100 Ah, self-heating) reports
+# the same Type/SubType, and its payload was consistent with this mapping, so the device
+# model names both.
 LUX_E_48100LG03_PROFILE = BatteryProfile(
-    name="LUX-E-48100LG03",
+    name="LUX-E-48100LG03 / FLB48100WG1-H",
     confidence="verified",
     type_code=112,
     subtype_code=7100,
